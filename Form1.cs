@@ -16,6 +16,7 @@ using Heluo.Manager;
 using static 侠之道存档修改器.EnumData;
 using Heluo.Flow;
 using Heluo.Tree;
+using System.Text.RegularExpressions;
 
 namespace 侠之道存档修改器
 {
@@ -107,8 +108,10 @@ namespace 侠之道存档修改器
             {
                 DirectoryInfo folder = new DirectoryInfo(SaveFilesPathTextBox.Text);
                 SaveFileListBox.Items.Clear();
-                foreach (FileInfo file in folder.GetFiles().OrderBy(f => f.Name))
+                FileInfo[] fileList = folder.GetFiles().OrderBy(f => int.Parse(Regex.Match(f.Name, @"\d+").Value)).ToArray();
+                for (int i = 0;i < fileList.Length;i++)
                 {
+                    FileInfo file = fileList[i];
                     if (file.Name.Contains("PathOfWuxia") && file.Name.Contains("save"))
                     {
                         SaveFileListBox.Items.Add(file.Name);
@@ -4090,7 +4093,10 @@ namespace 侠之道存档修改器
 
         private void ShowAllQuestComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            readQuest();
+            if (isSaveFileSelecting)
+            {
+                readQuest();
+            }
         }
 
         private void QuestChangeState1Button_Click(object sender, EventArgs e)
@@ -4368,6 +4374,39 @@ namespace 侠之道存档修改器
                 Game.GameData.Shop.SoldOuts.Add(item);
             }
             readShop();
+        }
+
+        private void SearchFlagButton_Click(object sender, EventArgs e)
+        {
+            SearchResultLabel.Text = "";
+            string searchFlag = SearchFlagTextBox.Text;
+            int index = 0;
+            if(FlagListView.SelectedItems.Count != 0)
+            {
+                index = FlagListView.SelectedItems[0].Index + 1;
+            }
+            if(index == FlagListView.Items.Count)
+            {
+                index = 0;
+            }
+            ListViewItem lvi = FlagListView.FindItemWithText(searchFlag, false,index);
+            if(lvi != null)
+            {
+                FlagListView.Items[lvi.Index].Selected = true;
+                FlagListView.EnsureVisible(lvi.Index);
+            }
+            else
+            {
+                lvi = FlagListView.FindItemWithText(searchFlag, false, 0); if (lvi != null)
+                {
+                    FlagListView.Items[lvi.Index].Selected = true;
+                    FlagListView.EnsureVisible(lvi.Index);
+                }
+                else
+                {
+                    SearchResultLabel.Text = "未找到该旗标";
+                }
+            }
         }
     }
 }

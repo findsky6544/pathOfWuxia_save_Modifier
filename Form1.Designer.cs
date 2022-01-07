@@ -259,6 +259,9 @@ namespace 侠之道存档修改器
             this.CommunityIdColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.CommunityNameColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.flagTabPage = new System.Windows.Forms.TabPage();
+            this.SearchResultLabel = new System.Windows.Forms.Label();
+            this.SearchFlagButton = new System.Windows.Forms.Button();
+            this.SearchFlagTextBox = new System.Windows.Forms.TextBox();
             this.FlagSub10Button = new System.Windows.Forms.Button();
             this.FlagSub1Button = new System.Windows.Forms.Button();
             this.FlagAdd10Button = new System.Windows.Forms.Button();
@@ -2628,6 +2631,9 @@ namespace 侠之道存档修改器
             // 
             // flagTabPage
             // 
+            this.flagTabPage.Controls.Add(this.SearchResultLabel);
+            this.flagTabPage.Controls.Add(this.SearchFlagButton);
+            this.flagTabPage.Controls.Add(this.SearchFlagTextBox);
             this.flagTabPage.Controls.Add(this.FlagSub10Button);
             this.flagTabPage.Controls.Add(this.FlagSub1Button);
             this.flagTabPage.Controls.Add(this.FlagAdd10Button);
@@ -2639,6 +2645,31 @@ namespace 侠之道存档修改器
             this.flagTabPage.TabIndex = 5;
             this.flagTabPage.Text = "旗标";
             this.flagTabPage.UseVisualStyleBackColor = true;
+            // 
+            // SearchResultLabel
+            // 
+            this.SearchResultLabel.AutoSize = true;
+            this.SearchResultLabel.Location = new System.Drawing.Point(250, 8);
+            this.SearchResultLabel.Name = "SearchResultLabel";
+            this.SearchResultLabel.Size = new System.Drawing.Size(0, 12);
+            this.SearchResultLabel.TabIndex = 7;
+            // 
+            // SearchFlagButton
+            // 
+            this.SearchFlagButton.Location = new System.Drawing.Point(169, 3);
+            this.SearchFlagButton.Name = "SearchFlagButton";
+            this.SearchFlagButton.Size = new System.Drawing.Size(75, 23);
+            this.SearchFlagButton.TabIndex = 6;
+            this.SearchFlagButton.Text = "定位";
+            this.SearchFlagButton.UseVisualStyleBackColor = true;
+            this.SearchFlagButton.Click += new System.EventHandler(this.SearchFlagButton_Click);
+            // 
+            // SearchFlagTextBox
+            // 
+            this.SearchFlagTextBox.Location = new System.Drawing.Point(4, 3);
+            this.SearchFlagTextBox.Name = "SearchFlagTextBox";
+            this.SearchFlagTextBox.Size = new System.Drawing.Size(158, 21);
+            this.SearchFlagTextBox.TabIndex = 5;
             // 
             // FlagSub10Button
             // 
@@ -2689,10 +2720,10 @@ namespace 侠之道存档修改器
             this.FlagListView.FullRowSelect = true;
             this.FlagListView.HideSelection = false;
             this.FlagListView.LabelEdit = true;
-            this.FlagListView.Location = new System.Drawing.Point(4, 4);
+            this.FlagListView.Location = new System.Drawing.Point(4, 30);
             this.FlagListView.MultiSelect = false;
             this.FlagListView.Name = "FlagListView";
-            this.FlagListView.Size = new System.Drawing.Size(761, 335);
+            this.FlagListView.Size = new System.Drawing.Size(761, 309);
             this.FlagListView.TabIndex = 0;
             this.FlagListView.UseCompatibleStateImageBehavior = false;
             this.FlagListView.View = System.Windows.Forms.View.Details;
@@ -4009,7 +4040,7 @@ namespace 侠之道存档修改器
             this.Controls.Add(this.messageLabel);
             this.Controls.Add(this.saveButton);
             this.Controls.Add(this.tabControl1);
-            this.Name = "侠之道存档修改器";
+            this.Name = "Form1";
             this.Text = "侠之道存档修改器";
             this.tabControl1.ResumeLayout(false);
             this.saveTabPage.ResumeLayout(false);
@@ -4041,6 +4072,7 @@ namespace 侠之道存档修改器
             this.groupBox10.ResumeLayout(false);
             this.groupBox10.PerformLayout();
             this.flagTabPage.ResumeLayout(false);
+            this.flagTabPage.PerformLayout();
             this.FlagLoveTabPage.ResumeLayout(false);
             this.FlagLoveTabPage.PerformLayout();
             this.QuestTabPage.ResumeLayout(false);
@@ -4457,6 +4489,9 @@ namespace 侠之道存档修改器
         private System.Windows.Forms.ColumnHeader columnHeader35;
         private System.Windows.Forms.ColumnHeader columnHeader36;
         private System.Windows.Forms.ColumnHeader columnHeader37;
+        private System.Windows.Forms.Button SearchFlagButton;
+        private System.Windows.Forms.TextBox SearchFlagTextBox;
+        private System.Windows.Forms.Label SearchResultLabel;
     }
 }
 
