@@ -3347,6 +3347,8 @@ namespace 侠之道存档修改器
                 }
 
                 readCommunity();
+                readExteriorName();
+                readParty();
             }
             catch (Exception ex)
             {
@@ -3376,6 +3378,8 @@ namespace 侠之道存档修改器
                     NameTextBox.Text = ced.Name;
                 }
                 readCommunity();
+                readExteriorName();
+                readParty();
             }
             catch (Exception ex)
             {
