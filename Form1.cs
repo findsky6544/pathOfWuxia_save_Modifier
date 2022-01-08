@@ -108,8 +108,10 @@ namespace 侠之道存档修改器
             {
                 DirectoryInfo folder = new DirectoryInfo(SaveFilesPathTextBox.Text);
                 SaveFileListBox.Items.Clear();
-                FileInfo[] fileList = folder.GetFiles().OrderBy(f => int.Parse(Regex.Match(f.Name, @"\d+").Value)).ToArray();
-                for (int i = 0;i < fileList.Length;i++)
+                List<FileInfo> fileList = folder.GetFiles().ToList();
+                fileList.Remove(fileList.Find(f => f.Name == "BS.save"));
+                fileList = fileList.OrderBy(f => int.Parse(Regex.Match(f.Name, @"\d+").Value)).ToList();
+                for (int i = 0;i < fileList.Count;i++)
                 {
                     FileInfo file = fileList[i];
                     if (file.Name.Contains("PathOfWuxia") && file.Name.Contains("save"))
