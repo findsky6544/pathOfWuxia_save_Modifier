@@ -1821,7 +1821,7 @@ namespace 侠之道存档修改器
                 else
                 {
                     oldWeaponComboBoxKey = "";
-                    cid.Equip[EquipType.Weapon] = "";
+                    cid.Equip[EquipType.Weapon] = null;
                 }
 
                 //createFormula(cid);
@@ -1866,7 +1866,7 @@ namespace 侠之道存档修改器
         }
 
         private string oldClothComboBoxKey = "";
-        private void clothComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        private void clothComboBox_TextChanged(object sender, EventArgs e)
         {
             foreach (ListViewItem lvi in CharacterListView.SelectedItems)
             {
@@ -1888,6 +1888,7 @@ namespace 侠之道存档修改器
                 else
                 {
                     oldClothComboBoxKey = "";
+                    cid.Equip[EquipType.Cloth] = null;
                 }
 
                 //createFormula(cid);
@@ -1897,7 +1898,7 @@ namespace 侠之道存档修改器
         }
 
         private string oldJewelryComboBoxKy = "";
-        private void jewelryComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        private void jewelryComboBox_TextChanged(object sender, EventArgs e)
         {
             foreach (ListViewItem lvi in CharacterListView.SelectedItems)
             {
@@ -1917,6 +1918,7 @@ namespace 侠之道存档修改器
                 else
                 {
                     oldJewelryComboBoxKy = "";
+                    cid.Equip[EquipType.Jewelry] = null;
                 }
 
                 //createFormula(cid);

@@ -1285,7 +1285,7 @@ namespace 侠之道存档修改器
             this.ClothComboBox.Name = "ClothComboBox";
             this.ClothComboBox.Size = new System.Drawing.Size(121, 20);
             this.ClothComboBox.TabIndex = 14;
-            this.ClothComboBox.SelectedIndexChanged += new System.EventHandler(this.clothComboBox_SelectedIndexChanged);
+            this.ClothComboBox.TextChanged += new System.EventHandler(this.clothComboBox_TextChanged);
             // 
             // ZitherTextBox
             // 
@@ -1321,7 +1321,7 @@ namespace 侠之道存档修改器
             this.JewelryComboBox.Name = "JewelryComboBox";
             this.JewelryComboBox.Size = new System.Drawing.Size(121, 20);
             this.JewelryComboBox.TabIndex = 16;
-            this.JewelryComboBox.SelectedIndexChanged += new System.EventHandler(this.jewelryComboBox_SelectedIndexChanged);
+            this.JewelryComboBox.TextChanged += new System.EventHandler(this.jewelryComboBox_TextChanged);
             // 
             // SpiTextBox
             // 
