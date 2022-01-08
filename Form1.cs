@@ -701,15 +701,18 @@ namespace 侠之道存档修改器
             foreach (KeyValuePair<string, InventoryData> kv in gameData.Inventory)
             {
 
-                ListViewItem lvi = new ListViewItem();
 
-                lvi.Text = kv.Key;
+                if (kv.Key != "")
+                {
+                    ListViewItem lvi = new ListViewItem();
+                    lvi.Text = kv.Key;
 
-                lvi.SubItems.Add(Data.Get<Props>(kv.Key).Name);
+                    lvi.SubItems.Add(Data.Get<Props>(kv.Key).Name);
+                    lvi.SubItems.Add(kv.Value.Count.ToString());
+                    HavingInventoryListView.Items.Add(lvi);
+                }
 
-                lvi.SubItems.Add(kv.Value.Count.ToString());
 
-                HavingInventoryListView.Items.Add(lvi);
             }
 
             HavingInventoryListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。 
@@ -1588,6 +1591,7 @@ namespace 侠之道存档修改器
             messageLabel.Text = "";
             string saveFilePath = SaveFilesPathTextBox.Text + "\\" + SaveFileListBox.SelectedItem.ToString();
 
+            fixBug();
 
             if (File.Exists(saveFilePath))
             {
@@ -2850,7 +2854,10 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem skillLvi in SkillListView.SelectedItems)
                 {
-                    cid.LearnSkill(skillLvi.Text);
+                    if (!string.IsNullOrEmpty(skillLvi.Text))
+                    {
+                        cid.LearnSkill(skillLvi.Text);
+                    }
                 }
                 readCharacterSkillData(cid);
                 readCharacterEquipSkillData(cid);
@@ -4461,6 +4468,13 @@ namespace 侠之道存档修改器
                     SearchResultLabel.Text = "未找到该旗标";
                 }
             }
+        }
+
+        private void fixBug()
+        {
+            Game.GameData.Character["Player"].Skill.Remove("");
+
+            gameData.Inventory.Remove("");
         }
     }
 }

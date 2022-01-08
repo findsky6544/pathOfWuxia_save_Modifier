@@ -239,6 +239,7 @@ namespace 侠之道存档修改器
             this.label41 = new System.Windows.Forms.Label();
             this.CharacterExteriorListView = new System.Windows.Forms.ListView();
             this.CharacterExteriorIdColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader38 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.CharacterExteriorRemarkColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.partyTabPage = new System.Windows.Forms.TabPage();
             this.RemovePartyButton = new System.Windows.Forms.Button();
@@ -328,6 +329,7 @@ namespace 侠之道存档修改器
             this.NurturanceOrderListView = new System.Windows.Forms.ListView();
             this.NurturanceOrderIdColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.NurturanceOrderNameColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader39 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.NurturanceOrderFuctionColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.NurturanceOrderUITypeColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.NurturanceOrderEmotionColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -423,8 +425,6 @@ namespace 侠之道存档修改器
             this.columnHeader37 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.saveButton = new System.Windows.Forms.Button();
             this.messageLabel = new System.Windows.Forms.Label();
-            this.columnHeader38 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader39 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.tabControl1.SuspendLayout();
             this.saveTabPage.SuspendLayout();
             this.inventoryTabPage.SuspendLayout();
@@ -2451,6 +2451,10 @@ namespace 侠之道存档修改器
             // 
             this.CharacterExteriorIdColumnHeader.Text = "ID";
             // 
+            // columnHeader38
+            // 
+            this.columnHeader38.Text = "姓名";
+            // 
             // CharacterExteriorRemarkColumnHeader
             // 
             this.CharacterExteriorRemarkColumnHeader.Text = "备注";
@@ -2726,6 +2730,7 @@ namespace 侠之道存档修改器
             this.FlagListView.Location = new System.Drawing.Point(4, 30);
             this.FlagListView.MultiSelect = false;
             this.FlagListView.Name = "FlagListView";
+            this.FlagListView.ShowItemToolTips = true;
             this.FlagListView.Size = new System.Drawing.Size(761, 309);
             this.FlagListView.TabIndex = 0;
             this.FlagListView.UseCompatibleStateImageBehavior = false;
@@ -3286,6 +3291,10 @@ namespace 侠之道存档修改器
             this.NurturanceOrderNameColumnHeader.Text = "名称";
             this.NurturanceOrderNameColumnHeader.Width = 120;
             // 
+            // columnHeader39
+            // 
+            this.columnHeader39.Text = "状态";
+            // 
             // NurturanceOrderFuctionColumnHeader
             // 
             this.NurturanceOrderFuctionColumnHeader.Text = "指令功能";
@@ -3417,6 +3426,7 @@ namespace 侠之道存档修改器
             // BookNameColumnHeader
             // 
             this.BookNameColumnHeader.Text = "名称";
+            this.BookNameColumnHeader.Width = 120;
             // 
             // BookTabColumnHeader
             // 
@@ -3430,7 +3440,7 @@ namespace 侠之道存档修改器
             // BookReadConditionDescriptionColumnHeader
             // 
             this.BookReadConditionDescriptionColumnHeader.Text = "阅读条件";
-            this.BookReadConditionDescriptionColumnHeader.Width = 92;
+            this.BookReadConditionDescriptionColumnHeader.Width = 200;
             // 
             // BookShowConditionColumnHeader
             // 
@@ -3500,7 +3510,7 @@ namespace 侠之道存档修改器
             // AlchemyEffectColumnHeader
             // 
             this.AlchemyEffectColumnHeader.Text = "效果";
-            this.AlchemyEffectColumnHeader.Width = 125;
+            this.AlchemyEffectColumnHeader.Width = 200;
             // 
             // AlchemyIsLearnedColumnHeader
             // 
@@ -3580,7 +3590,7 @@ namespace 侠之道存档修改器
             // columnHeader3
             // 
             this.columnHeader3.Text = "效果";
-            this.columnHeader3.Width = 125;
+            this.columnHeader3.Width = 150;
             // 
             // columnHeader4
             // 
@@ -3681,7 +3691,7 @@ namespace 侠之道存档修改器
             // columnHeader10
             // 
             this.columnHeader10.Text = "效果";
-            this.columnHeader10.Width = 125;
+            this.columnHeader10.Width = 150;
             // 
             // columnHeader11
             // 
@@ -3761,7 +3771,7 @@ namespace 侠之道存档修改器
             // columnHeader16
             // 
             this.columnHeader16.Text = "效果";
-            this.columnHeader16.Width = 125;
+            this.columnHeader16.Width = 150;
             // 
             // columnHeader17
             // 
@@ -3841,7 +3851,7 @@ namespace 侠之道存档修改器
             // columnHeader22
             // 
             this.columnHeader22.Text = "效果";
-            this.columnHeader22.Width = 125;
+            this.columnHeader22.Width = 150;
             // 
             // columnHeader23
             // 
@@ -3921,7 +3931,7 @@ namespace 侠之道存档修改器
             // columnHeader28
             // 
             this.columnHeader28.Text = "效果";
-            this.columnHeader28.Width = 125;
+            this.columnHeader28.Width = 150;
             // 
             // columnHeader29
             // 
@@ -3998,12 +4008,11 @@ namespace 侠之道存档修改器
             // columnHeader33
             // 
             this.columnHeader33.Text = "效果";
-            this.columnHeader33.Width = 125;
+            this.columnHeader33.Width = 150;
             // 
             // columnHeader34
             // 
             this.columnHeader34.Text = "贩售条件";
-            this.columnHeader34.Width = 125;
             // 
             // columnHeader35
             // 
@@ -4013,7 +4022,7 @@ namespace 侠之道存档修改器
             // columnHeader36
             // 
             this.columnHeader36.Text = "商店周期";
-            this.columnHeader36.Width = 131;
+            this.columnHeader36.Width = 150;
             // 
             // columnHeader37
             // 
@@ -4037,14 +4046,6 @@ namespace 侠之道存档修改器
             this.messageLabel.Size = new System.Drawing.Size(143, 12);
             this.messageLabel.TabIndex = 3;
             this.messageLabel.Text = "                       ";
-            // 
-            // columnHeader38
-            // 
-            this.columnHeader38.Text = "姓名";
-            // 
-            // columnHeader39
-            // 
-            this.columnHeader39.Text = "状态";
             // 
             // Form1
             // 
