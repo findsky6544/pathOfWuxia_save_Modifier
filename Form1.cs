@@ -2873,7 +2873,8 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem skillLvi in HavingSkillListView.SelectedItems)
                 {
-                    cid.ReplaceSkill(skillLvi.Text, "");
+                    cid.AbolishSkill(skillLvi.Text);
+                    cid.EquipSkills.ReplaceEquipSkill(skillLvi.Text, "", cid.IsPlayer);
                 }
                 readCharacterSkillData(cid);
                 readCharacterEquipSkillData(cid);
