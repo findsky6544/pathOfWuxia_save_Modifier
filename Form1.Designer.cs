@@ -423,6 +423,8 @@ namespace 侠之道存档修改器
             this.columnHeader37 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.saveButton = new System.Windows.Forms.Button();
             this.messageLabel = new System.Windows.Forms.Label();
+            this.columnHeader38 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader39 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.tabControl1.SuspendLayout();
             this.saveTabPage.SuspendLayout();
             this.inventoryTabPage.SuspendLayout();
@@ -2432,6 +2434,7 @@ namespace 侠之道存档修改器
             this.CharacterExteriorListView.AllowColumnReorder = true;
             this.CharacterExteriorListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.CharacterExteriorIdColumnHeader,
+            this.columnHeader38,
             this.CharacterExteriorRemarkColumnHeader});
             this.CharacterExteriorListView.FullRowSelect = true;
             this.CharacterExteriorListView.HideSelection = false;
@@ -3254,6 +3257,7 @@ namespace 侠之道存档修改器
             this.NurturanceOrderListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.NurturanceOrderIdColumnHeader,
             this.NurturanceOrderNameColumnHeader,
+            this.columnHeader39,
             this.NurturanceOrderFuctionColumnHeader,
             this.NurturanceOrderUITypeColumnHeader,
             this.NurturanceOrderEmotionColumnHeader,
@@ -3280,10 +3284,12 @@ namespace 侠之道存档修改器
             // NurturanceOrderNameColumnHeader
             // 
             this.NurturanceOrderNameColumnHeader.Text = "名称";
+            this.NurturanceOrderNameColumnHeader.Width = 120;
             // 
             // NurturanceOrderFuctionColumnHeader
             // 
             this.NurturanceOrderFuctionColumnHeader.Text = "指令功能";
+            this.NurturanceOrderFuctionColumnHeader.Width = 120;
             // 
             // NurturanceOrderUITypeColumnHeader
             // 
@@ -4032,6 +4038,14 @@ namespace 侠之道存档修改器
             this.messageLabel.TabIndex = 3;
             this.messageLabel.Text = "                       ";
             // 
+            // columnHeader38
+            // 
+            this.columnHeader38.Text = "姓名";
+            // 
+            // columnHeader39
+            // 
+            this.columnHeader39.Text = "状态";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -4492,6 +4506,8 @@ namespace 侠之道存档修改器
         private System.Windows.Forms.Button SearchFlagButton;
         private System.Windows.Forms.TextBox SearchFlagTextBox;
         private System.Windows.Forms.Label SearchResultLabel;
+        private System.Windows.Forms.ColumnHeader columnHeader38;
+        private System.Windows.Forms.ColumnHeader columnHeader39;
     }
 }
 

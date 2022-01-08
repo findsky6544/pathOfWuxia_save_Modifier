@@ -330,6 +330,7 @@ namespace 侠之道存档修改器
                 {
                     lvi.Text = "Player";
                 }
+                lvi.SubItems.Add("");
                 lvi.SubItems.Add(kv.Value.Remark);
 
                 CharacterExteriorListView.Items.Add(lvi);
@@ -387,6 +388,14 @@ namespace 侠之道存档修改器
                 lvi.SubItems.Add(kv.Value.Description.ToString());
 
                 SkillListView.Items.Add(lvi);
+            }
+        }
+
+        private void readExteriorName()
+        {
+            foreach (ListViewItem lvi in CharacterExteriorListView.Items)
+            {
+                lvi.SubItems[1].Text = Game.GameData.Exterior[lvi.Text].FullName();
             }
         }
 
@@ -548,6 +557,7 @@ namespace 侠之道存档修改器
             readCommonData();
             readInventory();
             readAllSkill();
+            readExteriorName();
             readCommunity();
             readParty();
             readFlag();
@@ -900,13 +910,22 @@ namespace 侠之道存档修改器
         {
             NurturanceOrderListView.Items.Clear();
 
+            Game.GameData.NurturanceOrder.CteateDevelopOrderTree();
             foreach (KeyValuePair<string, Nurturance> kv in Data.Get<Nurturance>())
             {
 
                 ListViewItem lvi = new ListViewItem();
 
                 lvi.Text = kv.Value.Id;
-                lvi.SubItems.Add(kv.Value.Name);
+                string name = "";
+                
+                for (int i =0;i < lvi.Text.Split('_').Length-2; i++)
+                {
+                    name += "  ";
+                }
+                name += kv.Value.Name;
+                lvi.SubItems.Add(name);
+                lvi.SubItems.Add(getNurturanceOrderContain(Game.GameData.NurturanceOrder.Root, lvi.Text) ? "开启" : "关闭");
                 lvi.SubItems.Add(EnumData.GetDisplayName(kv.Value.Fuction));
                 lvi.SubItems.Add(EnumData.GetDisplayName(kv.Value.UIType));
                 lvi.SubItems.Add(kv.Value.Emotion.ToString());
@@ -919,7 +938,6 @@ namespace 侠之道存档修改器
                 NurturanceOrderListView.Items.Add(lvi);
             }
 
-            Game.GameData.NurturanceOrder.CteateDevelopOrderTree();
         }
         private void readBook()
         {
@@ -1024,29 +1042,34 @@ namespace 侠之道存档修改器
                 lvi.SubItems.Add(kv.Value.IsRepeat ? "是" : "否");
 
                 string ShopPeriods = "";
-                for(int i = 0;i < kv.Value.ShopPeriods.Count; i++)
+                for (int i = 0; i < kv.Value.ShopPeriods.Count; i++)
                 {
-                    ShopPeriods += kv.Value.ShopPeriods[i].OpenRound + "-" + (kv.Value.ShopPeriods[i].CloseRound-1) + ";";
+                    ShopPeriods += kv.Value.ShopPeriods[i].OpenRound + "-" + (kv.Value.ShopPeriods[i].CloseRound - 1) + ";";
                 }
                 ShopPeriods = ShopPeriods.Substring(0, ShopPeriods.Length - 1);
                 lvi.SubItems.Add(ShopPeriods);
 
-                if (kv.Value.ShopPeriods != null && kv.Value.ShopPeriods.Count != 0)
-                {
-                    for (int j = 0; j < kv.Value.ShopPeriods.Count; j++)
-                    {
-                        ShopPeriod shopPeriod = kv.Value.ShopPeriods[j];
-                        if (shopPeriod.CheckInPeriod(Game.GameData.Round.CurrentRound))
-                        {
-                            bool isSholOut = Game.GameData.Shop.CheckIsSoldOut(kv.Value.Id, shopPeriod);
-                                lvi.SubItems.Add(isSholOut && !kv.Value.IsRepeat ? "是" : "否");
-                                break;
-                        }
-                    }
-                }
+                lvi.SubItems.Add(shopIsSoldOut(kv.Value));
 
                 ShopListView.Items.Add(lvi);
             }
+        }
+
+        public string shopIsSoldOut(Shop shop)
+        {
+
+            if (shop.ShopPeriods != null && shop.ShopPeriods.Count != 0)
+            {
+                for (int j = 0; j < shop.ShopPeriods.Count; j++)
+                {
+                    ShopPeriod shopPeriod = shop.ShopPeriods[j];
+                    if (shopPeriod.CheckInPeriod(Game.GameData.Round.CurrentRound))
+                    {
+                        return Game.GameData.Shop.CheckIsSoldOut(shop.Id, shopPeriod) && !shop.IsRepeat ? "是" : "否";
+                    }
+                }
+            }
+            return "";
         }
 
             private void listView1_GotFocus(object sender, EventArgs e)
@@ -1104,6 +1127,7 @@ namespace 侠之道存档修改器
 
                 gameData.Inventory.Add(lvi.Text);
                 HavingInventoryListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。 
+                HavingInventoryListView.Items[havinglvi.Index].Selected = true;
                 HavingInventoryListView.EnsureVisible(havinglvi.Index);
             }
         }
@@ -1139,6 +1163,7 @@ namespace 侠之道存档修改器
 
                 gameData.Inventory.Add(lvi.Text, 10);
                 HavingInventoryListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。 
+                HavingInventoryListView.Items[havinglvi.Index].Selected = true;
                 HavingInventoryListView.EnsureVisible(havinglvi.Index);
             }
         }
@@ -1158,7 +1183,6 @@ namespace 侠之道存档修改器
                 si.Text = num.ToString();
                 gameData.Inventory.Remove(lvi.Text);
                 HavingInventoryListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。
-                HavingInventoryListView.EnsureVisible(lvi.Index);
             }
         }
 
@@ -1177,7 +1201,6 @@ namespace 侠之道存档修改器
                 si.Text = num.ToString();
                 gameData.Inventory.Remove(lvi.Text, 10);
                 HavingInventoryListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。 
-                HavingInventoryListView.EnsureVisible(lvi.Index);
             }
         }
 
@@ -1736,6 +1759,11 @@ namespace 侠之道存档修改器
         private void refreshSaveListButton_Click(object sender, EventArgs e)
         {
             messageLabel.Text = "";
+
+            StreamWriter sw = new StreamWriter(saveFilesPath);
+            sw.WriteLine(SaveFilesPathTextBox.Text);
+            sw.Close();
+
             getSaveFiles();
         }
 
@@ -4095,7 +4123,7 @@ namespace 侠之道存档修改器
 
         private void ShowAllQuestComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (isSaveFileSelecting)
+            if (!isSaveFileSelecting)
             {
                 readQuest();
             }
@@ -4148,6 +4176,7 @@ namespace 侠之道存档修改器
 
             foreach (ListViewItem lvi in ElectiveListView.SelectedItems)
             {
+                int index = lvi.Index;
                 Game.GameData.Elective.Id = lvi.Text;
                 if (!Data.Get<Elective>(lvi.Text).IsRepeat)
                 {
@@ -4156,9 +4185,10 @@ namespace 侠之道存档修改器
                         Game.GameData.Elective.Triggered.Add(lvi.Text);
                     }
                 }
+                readElective();
+                ElectiveListView.Items[index].Selected = true;
             }
 
-            readElective();
         }
 
         private void NurturanceOrderListView_SelectedIndexChanged(object sender, EventArgs e)
@@ -4171,11 +4201,12 @@ namespace 侠之道存档修改器
 
         private void NurturanceOrderOpenButton_Click(object sender, EventArgs e)
         {
-
             foreach (ListViewItem lvi in NurturanceOrderListView.SelectedItems)
             {
                 Game.GameData.NurturanceOrder.OpenOrder(lvi.Text);
                 NurturanceOrderStateTextBox.Text = getNurturanceOrderContain(Game.GameData.NurturanceOrder.Root, lvi.Text) ? "开启" : "关闭";
+
+                lvi.SubItems[2].Text = getNurturanceOrderContain(Game.GameData.NurturanceOrder.Root, lvi.Text) ? "开启" : "关闭";
             }
 
         }
@@ -4185,26 +4216,30 @@ namespace 侠之道存档修改器
             {
                 Game.GameData.NurturanceOrder.CloseOrder(lvi.Text);
                 NurturanceOrderStateTextBox.Text = getNurturanceOrderContain(Game.GameData.NurturanceOrder.Root, lvi.Text) ? "开启" : "关闭";
+                lvi.SubItems[2].Text = getNurturanceOrderContain(Game.GameData.NurturanceOrder.Root, lvi.Text) ? "开启" : "关闭";
             }
         }
 
         public bool getNurturanceOrderContain(Tree<Nurturance> root, string nurturanceId)
         {
-            bool isContrain = false;
+            if (root.Value != null && root.Value.Id == nurturanceId)
+            {
+                return true;
+            }
+
             for (int i = 0; i < root.Children.Count; i++)
             {
-                if (root.Children[i].Value.Id == nurturanceId)
+                bool contains = getNurturanceOrderContain(root.Children[i], nurturanceId);
+                if (contains)
                 {
-                    isContrain = true;
-                    break;
+                    return contains;
                 }
-                isContrain = getNurturanceOrderContain(root.Children[i], nurturanceId);
-                if (isContrain)
+                else
                 {
-                    break;
+                    continue;
                 }
             }
-            return isContrain;
+            return false;
         }
 
         private void BookListView_GotFocus(object sender, EventArgs e)
@@ -4224,17 +4259,26 @@ namespace 侠之道存档修改器
             foreach (ListViewItem lvi in BookListView.SelectedItems)
             {
                 Game.GameData.ReadBookManager.GetBook(lvi.Text);
+                readBook();
+                int index = HavingBookListView.FindItemWithText(lvi.Text).Index;
+                HavingBookListView.EnsureVisible(index);
+                HavingBookListView.Items[index].Selected = true;
             }
-            readBook();
         }
 
         private void RemoveBookButton_Click(object sender, EventArgs e)
         {
             foreach (ListViewItem lvi in HavingBookListView.SelectedItems)
             {
+                int index = lvi.Index;
                 Game.GameData.ReadBookManager.Remove(lvi.Text);
+                HavingBookListView.Items.Remove(lvi);
+                if (index == HavingBookListView.Items.Count)
+                {
+                    index = HavingBookListView.Items.Count - 1;
+                }
+                HavingBookListView.Items[index].Selected = true;
             }
-            readBook();
         }
 
         private void LearnAlchemyButton_Click(object sender, EventArgs e)
@@ -4242,8 +4286,8 @@ namespace 侠之道存档修改器
             foreach (ListViewItem lvi in AlchemyListView.SelectedItems)
             {
                 Game.GameData.Alchemy.Learn(lvi.Text);
+                lvi.SubItems[3].Text=Game.GameData.Alchemy.Learned.Contains(lvi.Text) ? "是" : "否";
             }
-            readAlchemy();
         }
 
         private void AbolishAlchemyButton_Click(object sender, EventArgs e)
@@ -4252,8 +4296,8 @@ namespace 侠之道存档修改器
             foreach (ListViewItem lvi in AlchemyListView.SelectedItems)
             {
                 Game.GameData.Alchemy.Learned.Remove(lvi.Text);
+                lvi.SubItems[3].Text = Game.GameData.Alchemy.Learned.Contains(lvi.Text) ? "是" : "否";
             }
-            readAlchemy();
         }
 
         private void OpenForgeFightButton_Click(object sender, EventArgs e)
@@ -4261,8 +4305,8 @@ namespace 侠之道存档修改器
             foreach (ListViewItem lvi in ForgeFightListView.SelectedItems)
             {
                 Game.GameData.Forge.Open(lvi.Text);
+                lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
             }
-            readForge();
         }
 
         private void CloseForgeFightButton_Click(object sender, EventArgs e)
@@ -4270,8 +4314,8 @@ namespace 侠之道存档修改器
             foreach (ListViewItem lvi in ForgeFightListView.SelectedItems)
             {
                 Game.GameData.Forge.Opened.Remove(lvi.Text);
+                lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
             }
-            readForge();
         }
 
         private void OpenForgeBladeAndSwordButton_Click(object sender, EventArgs e)
@@ -4280,8 +4324,8 @@ namespace 侠之道存档修改器
             foreach (ListViewItem lvi in ForgeBladeAndSwordListView.SelectedItems)
             {
                 Game.GameData.Forge.Open(lvi.Text);
+                lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
             }
-            readForge();
         }
 
         private void CloseForgeBladeAndSwordButton_Click(object sender, EventArgs e)
@@ -4290,8 +4334,8 @@ namespace 侠之道存档修改器
             foreach (ListViewItem lvi in ForgeBladeAndSwordListView.SelectedItems)
             {
                 Game.GameData.Forge.Opened.Remove(lvi.Text);
+                lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
             }
-            readForge();
         }
 
         private void OpenForgeLongAndShortButton_Click(object sender, EventArgs e)
@@ -4300,8 +4344,8 @@ namespace 侠之道存档修改器
             foreach (ListViewItem lvi in ForgeLongAndShortListView.SelectedItems)
             {
                 Game.GameData.Forge.Open(lvi.Text);
+                lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
             }
-            readForge();
         }
 
         private void CloseForgeLongAndShortButton_Click(object sender, EventArgs e)
@@ -4309,8 +4353,8 @@ namespace 侠之道存档修改器
             foreach (ListViewItem lvi in ForgeLongAndShortListView.SelectedItems)
             {
                 Game.GameData.Forge.Opened.Remove(lvi.Text);
+                lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
             }
-            readForge();
 
         }
 
@@ -4320,8 +4364,8 @@ namespace 侠之道存档修改器
             foreach (ListViewItem lvi in ForgeQimenListView.SelectedItems)
             {
                 Game.GameData.Forge.Open(lvi.Text);
+                lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
             }
-            readForge();
         }
 
         private void CloseForgeQimenButton_Click(object sender, EventArgs e)
@@ -4330,8 +4374,8 @@ namespace 侠之道存档修改器
             foreach (ListViewItem lvi in ForgeQimenListView.SelectedItems)
             {
                 Game.GameData.Forge.Opened.Remove(lvi.Text);
+                lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
             }
-            readForge();
         }
 
         private void OpenForgeArmorButton_Click(object sender, EventArgs e)
@@ -4340,8 +4384,8 @@ namespace 侠之道存档修改器
             foreach (ListViewItem lvi in ForgeArmorListView.SelectedItems)
             {
                 Game.GameData.Forge.Open(lvi.Text);
+                lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
             }
-            readForge();
         }
 
         private void CloseForgeArmorButton_Click(object sender, EventArgs e)
@@ -4350,8 +4394,8 @@ namespace 侠之道存档修改器
             foreach (ListViewItem lvi in ForgeArmorListView.SelectedItems)
             {
                 Game.GameData.Forge.Opened.Remove(lvi.Text);
+                lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
             }
-            readForge();
         }
 
         private void AddShopButton_Click(object sender, EventArgs e)
@@ -4360,8 +4404,10 @@ namespace 侠之道存档修改器
             {
                 ShopSoldOutInfo shopSoldOutInfo = Game.GameData.Shop.SoldOuts.Find((ShopSoldOutInfo x) => x.SoldOutId == lvi.Text);
                 Game.GameData.Shop.SoldOuts.Remove(shopSoldOutInfo);
+
+                Shop shop = Data.Get<Shop>(lvi.Text);
+                lvi.SubItems[6].Text = shopIsSoldOut(shop);
             }
-            readShop();
         }
 
         private void RemoveShopButton_Click(object sender, EventArgs e)
@@ -4374,8 +4420,10 @@ namespace 侠之道存档修改器
                     SoldOutRound = Game.GameData.Round.CurrentRound
                 };
                 Game.GameData.Shop.SoldOuts.Add(item);
+
+                Shop shop = Data.Get<Shop>(lvi.Text);
+                lvi.SubItems[6].Text = shopIsSoldOut(shop);
             }
-            readShop();
         }
 
         private void SearchFlagButton_Click(object sender, EventArgs e)
