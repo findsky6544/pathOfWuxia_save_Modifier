@@ -29,8 +29,10 @@ namespace 侠之道存档修改器
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.saveTabPage = new System.Windows.Forms.TabPage();
+            this.label71 = new System.Windows.Forms.Label();
             this.CurrentRoundTextBox = new System.Windows.Forms.TextBox();
             this.label70 = new System.Windows.Forms.Label();
             this.RefreshSaveListButton = new System.Windows.Forms.Button();
@@ -62,11 +64,17 @@ namespace 侠之道存档修改器
             this.SaveFilesPathTextBox = new System.Windows.Forms.TextBox();
             this.inventoryTabPage = new System.Windows.Forms.TabPage();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.HavingInventoryListView = new System.Windows.Forms.ListView();
+            this.SearchInventoryResultLabel = new System.Windows.Forms.Label();
+            this.SearchInventoryButton = new System.Windows.Forms.Button();
+            this.SearchInventoryTextBox = new System.Windows.Forms.TextBox();
+            this.InventoryListView = new System.Windows.Forms.ListView();
             this.HavingPropsId = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.HavingPropsName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.HavingPropsNum = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.SearchPropsResultLabel = new System.Windows.Forms.Label();
+            this.SearchPropsButton = new System.Windows.Forms.Button();
+            this.SearchPropsTextBox = new System.Windows.Forms.TextBox();
             this.PropsListView = new System.Windows.Forms.ListView();
             this.PropsId = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.PropsName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -260,7 +268,7 @@ namespace 侠之道存档修改器
             this.CommunityIdColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.CommunityNameColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.flagTabPage = new System.Windows.Forms.TabPage();
-            this.SearchResultLabel = new System.Windows.Forms.Label();
+            this.SearchFlagResultLabel = new System.Windows.Forms.Label();
             this.SearchFlagButton = new System.Windows.Forms.Button();
             this.SearchFlagTextBox = new System.Windows.Forms.TextBox();
             this.FlagSub10Button = new System.Windows.Forms.Button();
@@ -423,8 +431,12 @@ namespace 侠之道存档修改器
             this.columnHeader35 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader36 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader37 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.tabPage6 = new System.Windows.Forms.TabPage();
+            this.pictureBox3 = new System.Windows.Forms.PictureBox();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.saveButton = new System.Windows.Forms.Button();
             this.messageLabel = new System.Windows.Forms.Label();
+            this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.tabControl1.SuspendLayout();
             this.saveTabPage.SuspendLayout();
             this.inventoryTabPage.SuspendLayout();
@@ -462,6 +474,10 @@ namespace 侠之道存档修改器
             this.tabPage4.SuspendLayout();
             this.tabPage5.SuspendLayout();
             this.shopTabPage.SuspendLayout();
+            this.tabPage6.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -480,6 +496,7 @@ namespace 侠之道存档修改器
             this.tabControl1.Controls.Add(this.alchemyTabPage);
             this.tabControl1.Controls.Add(this.forgeTabPage);
             this.tabControl1.Controls.Add(this.shopTabPage);
+            this.tabControl1.Controls.Add(this.tabPage6);
             this.tabControl1.Location = new System.Drawing.Point(12, 41);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
@@ -488,6 +505,7 @@ namespace 侠之道存档修改器
             // 
             // saveTabPage
             // 
+            this.saveTabPage.Controls.Add(this.label71);
             this.saveTabPage.Controls.Add(this.CurrentRoundTextBox);
             this.saveTabPage.Controls.Add(this.label70);
             this.saveTabPage.Controls.Add(this.RefreshSaveListButton);
@@ -524,6 +542,15 @@ namespace 侠之道存档修改器
             this.saveTabPage.TabIndex = 0;
             this.saveTabPage.Text = "存档";
             this.saveTabPage.UseVisualStyleBackColor = true;
+            // 
+            // label71
+            // 
+            this.label71.AutoSize = true;
+            this.label71.Location = new System.Drawing.Point(692, 350);
+            this.label71.Name = "label71";
+            this.label71.Size = new System.Drawing.Size(65, 12);
+            this.label71.TabIndex = 29;
+            this.label71.Text = "制作：寻宇";
             // 
             // CurrentRoundTextBox
             // 
@@ -803,31 +830,59 @@ namespace 侠之道存档修改器
             // 
             // groupBox2
             // 
-            this.groupBox2.Controls.Add(this.HavingInventoryListView);
-            this.groupBox2.Location = new System.Drawing.Point(523, 15);
+            this.groupBox2.Controls.Add(this.SearchInventoryResultLabel);
+            this.groupBox2.Controls.Add(this.SearchInventoryButton);
+            this.groupBox2.Controls.Add(this.SearchInventoryTextBox);
+            this.groupBox2.Controls.Add(this.InventoryListView);
+            this.groupBox2.Location = new System.Drawing.Point(490, 4);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(242, 347);
+            this.groupBox2.Size = new System.Drawing.Size(275, 358);
             this.groupBox2.TabIndex = 8;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "行囊";
             // 
-            // HavingInventoryListView
+            // SearchInventoryResultLabel
             // 
-            this.HavingInventoryListView.AllowColumnReorder = true;
-            this.HavingInventoryListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.SearchInventoryResultLabel.AutoSize = true;
+            this.SearchInventoryResultLabel.Location = new System.Drawing.Point(182, 25);
+            this.SearchInventoryResultLabel.Name = "SearchInventoryResultLabel";
+            this.SearchInventoryResultLabel.Size = new System.Drawing.Size(0, 12);
+            this.SearchInventoryResultLabel.TabIndex = 13;
+            // 
+            // SearchInventoryButton
+            // 
+            this.SearchInventoryButton.Location = new System.Drawing.Point(101, 20);
+            this.SearchInventoryButton.Name = "SearchInventoryButton";
+            this.SearchInventoryButton.Size = new System.Drawing.Size(75, 23);
+            this.SearchInventoryButton.TabIndex = 12;
+            this.SearchInventoryButton.Text = "查找下一个";
+            this.SearchInventoryButton.UseVisualStyleBackColor = true;
+            this.SearchInventoryButton.Click += new System.EventHandler(this.InventorySearchButton_Click);
+            // 
+            // SearchInventoryTextBox
+            // 
+            this.SearchInventoryTextBox.Location = new System.Drawing.Point(6, 20);
+            this.SearchInventoryTextBox.Name = "SearchInventoryTextBox";
+            this.SearchInventoryTextBox.Size = new System.Drawing.Size(89, 21);
+            this.SearchInventoryTextBox.TabIndex = 11;
+            // 
+            // InventoryListView
+            // 
+            this.InventoryListView.AllowColumnReorder = true;
+            this.InventoryListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.HavingPropsId,
             this.HavingPropsName,
             this.HavingPropsNum});
-            this.HavingInventoryListView.FullRowSelect = true;
-            this.HavingInventoryListView.HideSelection = false;
-            this.HavingInventoryListView.Location = new System.Drawing.Point(6, 20);
-            this.HavingInventoryListView.MultiSelect = false;
-            this.HavingInventoryListView.Name = "HavingInventoryListView";
-            this.HavingInventoryListView.Size = new System.Drawing.Size(230, 321);
-            this.HavingInventoryListView.TabIndex = 2;
-            this.HavingInventoryListView.UseCompatibleStateImageBehavior = false;
-            this.HavingInventoryListView.View = System.Windows.Forms.View.Details;
-            this.HavingInventoryListView.GotFocus += new System.EventHandler(this.listView2_GotFocus);
+            this.InventoryListView.FullRowSelect = true;
+            this.InventoryListView.HideSelection = false;
+            this.InventoryListView.Location = new System.Drawing.Point(6, 52);
+            this.InventoryListView.MultiSelect = false;
+            this.InventoryListView.Name = "InventoryListView";
+            this.InventoryListView.Size = new System.Drawing.Size(263, 300);
+            this.InventoryListView.TabIndex = 2;
+            this.InventoryListView.UseCompatibleStateImageBehavior = false;
+            this.InventoryListView.View = System.Windows.Forms.View.Details;
+            this.InventoryListView.GotFocus += new System.EventHandler(this.listView2_GotFocus);
             // 
             // HavingPropsId
             // 
@@ -836,7 +891,7 @@ namespace 侠之道存档修改器
             // HavingPropsName
             // 
             this.HavingPropsName.Text = "名称";
-            this.HavingPropsName.Width = 68;
+            this.HavingPropsName.Width = 80;
             // 
             // HavingPropsNum
             // 
@@ -844,13 +899,41 @@ namespace 侠之道存档修改器
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.SearchPropsResultLabel);
+            this.groupBox1.Controls.Add(this.SearchPropsButton);
+            this.groupBox1.Controls.Add(this.SearchPropsTextBox);
             this.groupBox1.Controls.Add(this.PropsListView);
             this.groupBox1.Location = new System.Drawing.Point(4, 4);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(432, 364);
+            this.groupBox1.Size = new System.Drawing.Size(399, 364);
             this.groupBox1.TabIndex = 7;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "所有物品";
+            // 
+            // SearchPropsResultLabel
+            // 
+            this.SearchPropsResultLabel.AutoSize = true;
+            this.SearchPropsResultLabel.Location = new System.Drawing.Point(252, 25);
+            this.SearchPropsResultLabel.Name = "SearchPropsResultLabel";
+            this.SearchPropsResultLabel.Size = new System.Drawing.Size(0, 12);
+            this.SearchPropsResultLabel.TabIndex = 10;
+            // 
+            // SearchPropsButton
+            // 
+            this.SearchPropsButton.Location = new System.Drawing.Point(171, 20);
+            this.SearchPropsButton.Name = "SearchPropsButton";
+            this.SearchPropsButton.Size = new System.Drawing.Size(75, 23);
+            this.SearchPropsButton.TabIndex = 9;
+            this.SearchPropsButton.Text = "查找下一个";
+            this.SearchPropsButton.UseVisualStyleBackColor = true;
+            this.SearchPropsButton.Click += new System.EventHandler(this.PropsSearchButton_Click);
+            // 
+            // SearchPropsTextBox
+            // 
+            this.SearchPropsTextBox.Location = new System.Drawing.Point(6, 20);
+            this.SearchPropsTextBox.Name = "SearchPropsTextBox";
+            this.SearchPropsTextBox.Size = new System.Drawing.Size(158, 21);
+            this.SearchPropsTextBox.TabIndex = 8;
             // 
             // PropsListView
             // 
@@ -868,11 +951,11 @@ namespace 侠之道存档修改器
             this.PropsCanUseID});
             this.PropsListView.FullRowSelect = true;
             this.PropsListView.HideSelection = false;
-            this.PropsListView.Location = new System.Drawing.Point(6, 20);
+            this.PropsListView.Location = new System.Drawing.Point(6, 47);
             this.PropsListView.MultiSelect = false;
             this.PropsListView.Name = "PropsListView";
             this.PropsListView.ShowItemToolTips = true;
-            this.PropsListView.Size = new System.Drawing.Size(420, 338);
+            this.PropsListView.Size = new System.Drawing.Size(387, 311);
             this.PropsListView.TabIndex = 1;
             this.PropsListView.UseCompatibleStateImageBehavior = false;
             this.PropsListView.View = System.Windows.Forms.View.Details;
@@ -881,10 +964,12 @@ namespace 侠之道存档修改器
             // PropsId
             // 
             this.PropsId.Text = "ID";
+            this.PropsId.Width = 80;
             // 
             // PropsName
             // 
             this.PropsName.Text = "名称";
+            this.PropsName.Width = 80;
             // 
             // PropsType
             // 
@@ -925,8 +1010,7 @@ namespace 侠之道存档修改器
             // 
             // InventorySub10button
             // 
-            this.InventorySub10button.Enabled = false;
-            this.InventorySub10button.Location = new System.Drawing.Point(442, 246);
+            this.InventorySub10button.Location = new System.Drawing.Point(409, 245);
             this.InventorySub10button.Name = "InventorySub10button";
             this.InventorySub10button.Size = new System.Drawing.Size(75, 23);
             this.InventorySub10button.TabIndex = 6;
@@ -936,8 +1020,7 @@ namespace 侠之道存档修改器
             // 
             // InventorySub1button
             // 
-            this.InventorySub1button.Enabled = false;
-            this.InventorySub1button.Location = new System.Drawing.Point(442, 216);
+            this.InventorySub1button.Location = new System.Drawing.Point(409, 215);
             this.InventorySub1button.Name = "InventorySub1button";
             this.InventorySub1button.Size = new System.Drawing.Size(75, 23);
             this.InventorySub1button.TabIndex = 5;
@@ -947,8 +1030,7 @@ namespace 侠之道存档修改器
             // 
             // InventoryAdd10button
             // 
-            this.InventoryAdd10button.Enabled = false;
-            this.InventoryAdd10button.Location = new System.Drawing.Point(442, 138);
+            this.InventoryAdd10button.Location = new System.Drawing.Point(409, 137);
             this.InventoryAdd10button.Name = "InventoryAdd10button";
             this.InventoryAdd10button.Size = new System.Drawing.Size(75, 23);
             this.InventoryAdd10button.TabIndex = 4;
@@ -958,8 +1040,7 @@ namespace 侠之道存档修改器
             // 
             // InventoryAdd1button
             // 
-            this.InventoryAdd1button.Enabled = false;
-            this.InventoryAdd1button.Location = new System.Drawing.Point(442, 109);
+            this.InventoryAdd1button.Location = new System.Drawing.Point(409, 108);
             this.InventoryAdd1button.Name = "InventoryAdd1button";
             this.InventoryAdd1button.Size = new System.Drawing.Size(75, 23);
             this.InventoryAdd1button.TabIndex = 3;
@@ -2255,7 +2336,6 @@ namespace 侠之道存档修改器
             this.CharacterListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.CharacterIdColumnHeader,
             this.CharacterRemarkColumnHeader});
-            this.CharacterListView.Enabled = false;
             this.CharacterListView.FullRowSelect = true;
             this.CharacterListView.HideSelection = false;
             this.CharacterListView.Location = new System.Drawing.Point(4, 4);
@@ -2638,7 +2718,7 @@ namespace 侠之道存档修改器
             // 
             // flagTabPage
             // 
-            this.flagTabPage.Controls.Add(this.SearchResultLabel);
+            this.flagTabPage.Controls.Add(this.SearchFlagResultLabel);
             this.flagTabPage.Controls.Add(this.SearchFlagButton);
             this.flagTabPage.Controls.Add(this.SearchFlagTextBox);
             this.flagTabPage.Controls.Add(this.FlagSub10Button);
@@ -2653,13 +2733,13 @@ namespace 侠之道存档修改器
             this.flagTabPage.Text = "旗标";
             this.flagTabPage.UseVisualStyleBackColor = true;
             // 
-            // SearchResultLabel
+            // SearchFlagResultLabel
             // 
-            this.SearchResultLabel.AutoSize = true;
-            this.SearchResultLabel.Location = new System.Drawing.Point(250, 8);
-            this.SearchResultLabel.Name = "SearchResultLabel";
-            this.SearchResultLabel.Size = new System.Drawing.Size(0, 12);
-            this.SearchResultLabel.TabIndex = 7;
+            this.SearchFlagResultLabel.AutoSize = true;
+            this.SearchFlagResultLabel.Location = new System.Drawing.Point(250, 8);
+            this.SearchFlagResultLabel.Name = "SearchFlagResultLabel";
+            this.SearchFlagResultLabel.Size = new System.Drawing.Size(0, 12);
+            this.SearchFlagResultLabel.TabIndex = 7;
             // 
             // SearchFlagButton
             // 
@@ -2667,7 +2747,7 @@ namespace 侠之道存档修改器
             this.SearchFlagButton.Name = "SearchFlagButton";
             this.SearchFlagButton.Size = new System.Drawing.Size(75, 23);
             this.SearchFlagButton.TabIndex = 6;
-            this.SearchFlagButton.Text = "定位";
+            this.SearchFlagButton.Text = "查找下一个";
             this.SearchFlagButton.UseVisualStyleBackColor = true;
             this.SearchFlagButton.Click += new System.EventHandler(this.SearchFlagButton_Click);
             // 
@@ -4028,6 +4108,38 @@ namespace 侠之道存档修改器
             // 
             this.columnHeader37.Text = "已售出";
             // 
+            // tabPage6
+            // 
+            this.tabPage6.Controls.Add(this.pictureBox3);
+            this.tabPage6.Controls.Add(this.pictureBox2);
+            this.tabPage6.Controls.Add(this.pictureBox1);
+            this.tabPage6.Location = new System.Drawing.Point(4, 22);
+            this.tabPage6.Name = "tabPage6";
+            this.tabPage6.Size = new System.Drawing.Size(768, 371);
+            this.tabPage6.TabIndex = 17;
+            this.tabPage6.Text = "捐助作者";
+            this.tabPage6.UseVisualStyleBackColor = true;
+            // 
+            // pictureBox3
+            // 
+            this.pictureBox3.Image = global::侠之道存档修改器.Properties.Resources.微信赞赏码;
+            this.pictureBox3.Location = new System.Drawing.Point(523, 54);
+            this.pictureBox3.Name = "pictureBox3";
+            this.pictureBox3.Size = new System.Drawing.Size(198, 282);
+            this.pictureBox3.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox3.TabIndex = 2;
+            this.pictureBox3.TabStop = false;
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
+            this.pictureBox1.Location = new System.Drawing.Point(46, 54);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(198, 282);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox1.TabIndex = 0;
+            this.pictureBox1.TabStop = false;
+            // 
             // saveButton
             // 
             this.saveButton.Location = new System.Drawing.Point(713, 12);
@@ -4047,6 +4159,16 @@ namespace 侠之道存档修改器
             this.messageLabel.TabIndex = 3;
             this.messageLabel.Text = "                       ";
             // 
+            // pictureBox2
+            // 
+            this.pictureBox2.Image = global::侠之道存档修改器.Properties.Resources.红包;
+            this.pictureBox2.Location = new System.Drawing.Point(282, 54);
+            this.pictureBox2.Name = "pictureBox2";
+            this.pictureBox2.Size = new System.Drawing.Size(198, 282);
+            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox2.TabIndex = 1;
+            this.pictureBox2.TabStop = false;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -4062,7 +4184,9 @@ namespace 侠之道存档修改器
             this.saveTabPage.PerformLayout();
             this.inventoryTabPage.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.characterInfoTabPage.ResumeLayout(false);
             this.tabControl2.ResumeLayout(false);
             this.characterInfoPropertyTabPage.ResumeLayout(false);
@@ -4106,6 +4230,10 @@ namespace 侠之道存档修改器
             this.tabPage4.ResumeLayout(false);
             this.tabPage5.ResumeLayout(false);
             this.shopTabPage.ResumeLayout(false);
+            this.tabPage6.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -4136,7 +4264,7 @@ namespace 侠之道存档修改器
         private System.Windows.Forms.ColumnHeader PropsCanUseID;
         private System.Windows.Forms.Button InventoryAdd10button;
         private System.Windows.Forms.Button InventoryAdd1button;
-        private System.Windows.Forms.ListView HavingInventoryListView;
+        private System.Windows.Forms.ListView InventoryListView;
         private System.Windows.Forms.ColumnHeader HavingPropsName;
         private System.Windows.Forms.ColumnHeader HavingPropsNum;
         private System.Windows.Forms.Label label9;
@@ -4506,9 +4634,20 @@ namespace 侠之道存档修改器
         private System.Windows.Forms.ColumnHeader columnHeader37;
         private System.Windows.Forms.Button SearchFlagButton;
         private System.Windows.Forms.TextBox SearchFlagTextBox;
-        private System.Windows.Forms.Label SearchResultLabel;
+        private System.Windows.Forms.Label SearchFlagResultLabel;
         private System.Windows.Forms.ColumnHeader columnHeader38;
         private System.Windows.Forms.ColumnHeader columnHeader39;
+        private System.Windows.Forms.Label SearchInventoryResultLabel;
+        private System.Windows.Forms.Button SearchInventoryButton;
+        private System.Windows.Forms.TextBox SearchInventoryTextBox;
+        private System.Windows.Forms.Label SearchPropsResultLabel;
+        private System.Windows.Forms.Button SearchPropsButton;
+        private System.Windows.Forms.TextBox SearchPropsTextBox;
+        private System.Windows.Forms.Label label71;
+        private System.Windows.Forms.TabPage tabPage6;
+        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.PictureBox pictureBox3;
+        private System.Windows.Forms.PictureBox pictureBox2;
     }
 }
 

@@ -56,7 +56,7 @@ namespace 侠之道存档修改器
                     sr.Close();
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 if (File.Exists(logPath))
                 {
@@ -66,7 +66,7 @@ namespace 侠之道存档修改器
                     sr.Close();
                 }
             }
-            
+
 
 
         }
@@ -89,16 +89,23 @@ namespace 侠之道存档修改器
 
         private void selectsaveFilesPathButton_Click(object sender, EventArgs e)
         {
-            FolderBrowserDialog dialog = new FolderBrowserDialog();
-            dialog.Description = "请选择存档文件夹，路径为Steam\\userdata\\xxxxxxxx\\1189630\\remote";
-            if (dialog.ShowDialog() == DialogResult.OK)
+            try
             {
-                SaveFilesPathTextBox.Text = dialog.SelectedPath;
-                StreamWriter sw = new StreamWriter(saveFilesPath);
-                sw.WriteLine(dialog.SelectedPath);
-                sw.Close();
+                FolderBrowserDialog dialog = new FolderBrowserDialog();
+                dialog.Description = "请选择存档文件夹，路径为Steam\\userdata\\xxxxxxxx\\1189630\\remote";
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    SaveFilesPathTextBox.Text = dialog.SelectedPath;
+                    StreamWriter sw = new StreamWriter(saveFilesPath);
+                    sw.WriteLine(dialog.SelectedPath);
+                    sw.Close();
 
-                getSaveFiles();
+                    getSaveFiles();
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
@@ -106,12 +113,13 @@ namespace 侠之道存档修改器
         {
             try
             {
+                messageLabel.Text = "";
                 DirectoryInfo folder = new DirectoryInfo(SaveFilesPathTextBox.Text);
                 SaveFileListBox.Items.Clear();
                 List<FileInfo> fileList = folder.GetFiles().ToList();
                 fileList.Remove(fileList.Find(f => f.Name == "BS.save"));
                 fileList = fileList.OrderBy(f => int.Parse(Regex.Match(f.Name, @"\d+").Value)).ToList();
-                for (int i = 0;i < fileList.Count;i++)
+                for (int i = 0; i < fileList.Count; i++)
                 {
                     FileInfo file = fileList[i];
                     if (file.Name.Contains("PathOfWuxia") && file.Name.Contains("save"))
@@ -119,7 +127,6 @@ namespace 侠之道存档修改器
                         SaveFileListBox.Items.Add(file.Name);
                     }
                 }
-                messageLabel.Text = "";
             }
             catch (Exception ex)
             {
@@ -130,1216 +137,1548 @@ namespace 侠之道存档修改器
 
         private void saveFileListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            isSaveFileSelecting = true;
-            string saveFilePath = SaveFilesPathTextBox.Text + "\\" + SaveFileListBox.SelectedItem.ToString();
-
-            FileStream readstream = File.OpenRead(saveFilePath);
-            StreamReader sr = new StreamReader(readstream);
-
-            byte[] array = new byte[17];
-            sr.BaseStream.Read(array, 0, array.Length);
-            if (array[0] == 239 && array[1] == 187 && array[2] == 191)
+            try
             {
-                sr.BaseStream.Position = 3L;
+                isSaveFileSelecting = true;
+                string saveFilePath = SaveFilesPathTextBox.Text + "\\" + SaveFileListBox.SelectedItem.ToString();
+
+                FileStream readstream = File.OpenRead(saveFilePath);
+                StreamReader sr = new StreamReader(readstream);
+
+                byte[] array = new byte[17];
                 sr.BaseStream.Read(array, 0, array.Length);
-            }
+                if (array[0] == 239 && array[1] == 187 && array[2] == 191)
+                {
+                    sr.BaseStream.Position = 3L;
+                    sr.BaseStream.Read(array, 0, array.Length);
+                }
 
-            string @string = Encoding.ASCII.GetString(array);
-            if (@string == "WUXIASCHOOL_B_1_0")
-            {
-                pathOfWuxiaSaveHeader = LZ4MessagePackSerializer.Deserialize<PathOfWuxiaSaveHeader>(sr.BaseStream, HeluoResolver.Instance, true);
-            }
-            readstream.Close();
+                string @string = Encoding.ASCII.GetString(array);
+                if (@string == "WUXIASCHOOL_B_1_0")
+                {
+                    pathOfWuxiaSaveHeader = LZ4MessagePackSerializer.Deserialize<PathOfWuxiaSaveHeader>(sr.BaseStream, HeluoResolver.Instance, true);
+                }
+                readstream.Close();
 
 
-            readstream = File.OpenRead(saveFilePath);
-            sr = new StreamReader(readstream);
+                readstream = File.OpenRead(saveFilePath);
+                sr = new StreamReader(readstream);
 
-            array = new byte[17];
-            sr.BaseStream.Read(array, 0, array.Length);
-            if (array[0] == 239 && array[1] == 187 && array[2] == 191)
-            {
-                sr.BaseStream.Position = 3L;
+                array = new byte[17];
                 sr.BaseStream.Read(array, 0, array.Length);
-            }
+                if (array[0] == 239 && array[1] == 187 && array[2] == 191)
+                {
+                    sr.BaseStream.Position = 3L;
+                    sr.BaseStream.Read(array, 0, array.Length);
+                }
 
-            @string = Encoding.ASCII.GetString(array);
-            if (@string == "WUXIASCHOOL_B_1_0")
+                @string = Encoding.ASCII.GetString(array);
+                if (@string == "WUXIASCHOOL_B_1_0")
+                {
+
+                    LZ4MessagePackSerializer.Deserialize<PathOfWuxiaSaveHeader>(sr.BaseStream, HeluoResolver.Instance, true);
+                    gameData = LZ4MessagePackSerializer.Deserialize<GameData>(sr.BaseStream, HeluoResolver.Instance, true);
+
+                    Game.GameData = gameData;
+
+
+                    saveFileIsSelected = true;
+                    readDatas();
+
+                }
+                readstream.Close();
+
+                isSaveFileSelecting = false;
+
+                CharacterListView.Enabled = true;
+            }
+            catch (Exception ex)
             {
-
-                LZ4MessagePackSerializer.Deserialize<PathOfWuxiaSaveHeader>(sr.BaseStream, HeluoResolver.Instance, true);
-                gameData = LZ4MessagePackSerializer.Deserialize<GameData>(sr.BaseStream, HeluoResolver.Instance, true);
-
-                Game.GameData = gameData;
-
-
-                readDatas();
-
-                saveFileIsSelected = true;
+                messageLabel.Text = ex.Message;
             }
-            readstream.Close();
-
-            isSaveFileSelecting = false;
-
-            CharacterListView.Enabled = true;
-        }
-
-        private bool checkSaveFileIsSelected()
-        {
-            if (!saveFileIsSelected)
-            {
-                MessageBox.Show("请先选择一个存档");
-            }
-            return saveFileIsSelected;
         }
 
         private void getConfigDatas()
         {
-
-            readAllMap();
-            readAllRound();
-            readAllGameLevel();
-            readAllCharacter();
-            readAllExterior();
-            readAllElement();
-            readAllSpecialSkill();
-            readAllEquip();
-            readAllSkill();
-            readAllInventory();
-            readAllTrait();
-            readAllMantra();
-            readAllGender();
-            readAllQuestState();
-            readShowAllQuest();
-            readAllBook();
+            try
+            {
+                readAllMap();
+                readAllRound();
+                readAllGameLevel();
+                readAllCharacter();
+                readAllExterior();
+                readAllElement();
+                readAllSpecialSkill();
+                readAllEquip();
+                readAllSkill();
+                readAllInventory();
+                readAllTrait();
+                readAllMantra();
+                readAllGender();
+                readAllQuestState();
+                readShowAllQuest();
+                readAllBook();
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
 
         private void readAllInventory()
         {
-            foreach (KeyValuePair<string, Props> kv in Data.Get<Props>())
+            try
             {
-
-                ListViewItem lvi = new ListViewItem();
-
-                lvi.Text = kv.Key;
-                lvi.SubItems.Add(kv.Value.Name);
-                lvi.SubItems.Add(((EnumData.PropsType)kv.Value.PropsType).ToString());
-                lvi.SubItems.Add(EnumData.GetDisplayName(kv.Value.PropsCategory));
-                lvi.SubItems.Add(kv.Value.Price.ToString());
-                lvi.SubItems.Add(EnumData.GetDisplayName(kv.Value.CanDeals));
-                lvi.SubItems.Add(EnumData.GetDisplayName(kv.Value.IsShow));
-                lvi.SubItems.Add(EnumData.GetDisplayName(kv.Value.UseTime));
-                lvi.SubItems.Add(kv.Value.PropsEffectDescription.ToString());
-
-                string canUseIds = "";
-                if (kv.Value.CanUseID != null)
+                foreach (KeyValuePair<string, Props> kv in Data.Get<Props>())
                 {
-                    for (int i = 0; i < kv.Value.CanUseID.Count; i++)
+
+                    ListViewItem lvi = new ListViewItem();
+
+                    lvi.Text = kv.Key;
+                    lvi.SubItems.Add(kv.Value.Name);
+                    lvi.SubItems.Add(((EnumData.PropsType)kv.Value.PropsType).ToString());
+                    lvi.SubItems.Add(EnumData.GetDisplayName(kv.Value.PropsCategory));
+                    lvi.SubItems.Add(kv.Value.Price.ToString());
+                    lvi.SubItems.Add(EnumData.GetDisplayName(kv.Value.CanDeals));
+                    lvi.SubItems.Add(EnumData.GetDisplayName(kv.Value.IsShow));
+                    lvi.SubItems.Add(EnumData.GetDisplayName(kv.Value.UseTime));
+                    lvi.SubItems.Add(kv.Value.PropsEffectDescription.ToString());
+
+                    string canUseIds = "";
+                    if (kv.Value.CanUseID != null)
                     {
-                        string canUseId = kv.Value.CanUseID[i];
-                        if (canUseId == "Player")
+                        for (int i = 0; i < kv.Value.CanUseID.Count; i++)
                         {
-                            canUseIds += "玩家,";
-                        }
-                        else
-                        {
-                            canUseIds += Data.Get<Npc>(canUseId).Name + ",";
+                            string canUseId = kv.Value.CanUseID[i];
+                            if (canUseId == "Player")
+                            {
+                                canUseIds += "玩家,";
+                            }
+                            else
+                            {
+                                canUseIds += Data.Get<Npc>(canUseId).Name + ",";
+                            }
                         }
                     }
-                }
-                else
-                {
-                    canUseIds = ",";
-                }
-                canUseIds = canUseIds.Substring(0, canUseIds.Length - 1);
-                lvi.SubItems.Add(canUseIds);
+                    else
+                    {
+                        canUseIds = ",";
+                    }
+                    canUseIds = canUseIds.Substring(0, canUseIds.Length - 1);
+                    lvi.SubItems.Add(canUseIds);
 
-                PropsListView.Items.Add(lvi);
+                    PropsListView.Items.Add(lvi);
+                }
+
+                PropsListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。 
             }
-
-            PropsListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。 
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
 
         private void readAllMap()
         {
-            CurrentMapComboBox.DisplayMember = "value";
-            CurrentMapComboBox.ValueMember = "key";
-            foreach (KeyValuePair<string, Map> kv in Data.Get<Map>())
+            try
             {
-                ComboBoxItem cbi = new ComboBoxItem(kv.Value.Id, kv.Value.Name);
-                CurrentMapComboBox.Items.Add(cbi);
-                dcbi.Add(cbi.key, cbi);
+                CurrentMapComboBox.DisplayMember = "value";
+                CurrentMapComboBox.ValueMember = "key";
+                foreach (KeyValuePair<string, Map> kv in Data.Get<Map>())
+                {
+                    ComboBoxItem cbi = new ComboBoxItem(kv.Value.Id, kv.Value.Name);
+                    CurrentMapComboBox.Items.Add(cbi);
+                    dcbi.Add(cbi.key, cbi);
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void readAllRound()
         {
-            for (int i = 1; i <= 3; i++)
+            try
             {
-                CurrentYearComboBox.Items.Add((EnumData.Year)i);
+                for (int i = 1; i <= 3; i++)
+                {
+                    CurrentYearComboBox.Items.Add((EnumData.Year)i);
+                }
+                for (int i = 1; i <= 12; i++)
+                {
+                    CurrentMonthComboBox.Items.Add((EnumData.Month)i);
+                }
+                for (int i = 1; i <= 5; i++)
+                {
+                    CurrentRoundOfMonthComboBox.Items.Add((EnumData.RoundOfMonth)i);
+                }
+                for (int i = 1; i <= 2; i++)
+                {
+                    CurrentTimeComboBox.Items.Add((EnumData.Time)i);
+                }
             }
-            for (int i = 1; i <= 12; i++)
+            catch (Exception ex)
             {
-                CurrentMonthComboBox.Items.Add((EnumData.Month)i);
-            }
-            for (int i = 1; i <= 5; i++)
-            {
-                CurrentRoundOfMonthComboBox.Items.Add((EnumData.RoundOfMonth)i);
-            }
-            for (int i = 1; i <= 2; i++)
-            {
-                CurrentTimeComboBox.Items.Add((EnumData.Time)i);
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void readAllGameLevel()
         {
-            for (int i = 1; i <= 4; i++)
+            try
             {
-                GameLevelComboBox.Items.Add((EnumData.GameLevel)i);
+                for (int i = 1; i <= 4; i++)
+                {
+                    GameLevelComboBox.Items.Add((EnumData.GameLevel)i);
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void readAllCharacter()
         {
-            foreach (KeyValuePair<string, CharacterInfo> kv in Data.Get<CharacterInfo>())
+            try
             {
-
-                ListViewItem lvi = new ListViewItem();
-
-                lvi.Text = kv.Key;
-                if (lvi.Text == "in0101")
+                foreach (KeyValuePair<string, CharacterInfo> kv in Data.Get<CharacterInfo>())
                 {
-                    lvi.Text = "Player";
-                }
-                lvi.SubItems.Add(kv.Value.Remark);
 
-                CharacterListView.Items.Add(lvi);
+                    ListViewItem lvi = new ListViewItem();
+
+                    lvi.Text = kv.Key;
+                    if (lvi.Text == "in0101")
+                    {
+                        lvi.Text = "Player";
+                    }
+                    lvi.SubItems.Add(kv.Value.Remark);
+
+                    CharacterListView.Items.Add(lvi);
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void readAllExterior()
         {
-            foreach (KeyValuePair<string, CharacterExterior> kv in Data.Get<CharacterExterior>())
+            try
             {
-
-                ListViewItem lvi = new ListViewItem();
-
-                lvi.Text = kv.Key;
-                if (lvi.Text == "in0101")
+                foreach (KeyValuePair<string, CharacterExterior> kv in Data.Get<CharacterExterior>())
                 {
-                    lvi.Text = "Player";
-                }
-                lvi.SubItems.Add("");
-                lvi.SubItems.Add(kv.Value.Remark);
 
-                CharacterExteriorListView.Items.Add(lvi);
+                    ListViewItem lvi = new ListViewItem();
+
+                    lvi.Text = kv.Key;
+                    if (lvi.Text == "in0101")
+                    {
+                        lvi.Text = "Player";
+                    }
+                    lvi.SubItems.Add("");
+                    lvi.SubItems.Add(kv.Value.Remark);
+
+                    CharacterExteriorListView.Items.Add(lvi);
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void readAllSkill()
         {
-            SkillListView.Items.Clear();
-            foreach (KeyValuePair<string, Skill> kv in Data.Get<Skill>())
+            try
             {
-                if (WeaponComboBox.SelectedIndex != -1)
+                SkillListView.Items.Clear();
+                foreach (KeyValuePair<string, Skill> kv in Data.Get<Skill>())
                 {
-                    string weaponId = ((ComboBoxItem)WeaponComboBox.SelectedItem).key;
-                    Props prop = Data.Get<Props>(weaponId);
-
-                    if (kv.Value.Type != prop.PropsCategory)
+                    if (WeaponComboBox.SelectedIndex != -1)
                     {
-                        continue;
-                    }
-                }
+                        string weaponId = ((ComboBoxItem)WeaponComboBox.SelectedItem).key;
+                        Props prop = Data.Get<Props>(weaponId);
 
-                ListViewItem lvi = new ListViewItem();
-
-                lvi.Text = kv.Key;
-                lvi.SubItems.Add(kv.Value.Name);
-                lvi.SubItems.Add("");
-                lvi.SubItems.Add(EnumData.GetDisplayName(kv.Value.RequireAttribute));
-                lvi.SubItems.Add(kv.Value.RequireValue.ToString());
-                lvi.SubItems.Add(EnumData.GetDisplayName(kv.Value.Type));
-                lvi.SubItems.Add(EnumData.GetDisplayName(kv.Value.DamageType));
-                lvi.SubItems.Add(EnumData.GetDisplayName(kv.Value.TargetType));
-                lvi.SubItems.Add(EnumData.GetDisplayName(kv.Value.TargetArea));
-                lvi.SubItems.Add(kv.Value.MinRange + "-" + kv.Value.MaxRange);
-                lvi.SubItems.Add(kv.Value.AOE.ToString());
-                lvi.SubItems.Add(kv.Value.RequestMP.ToString());
-                lvi.SubItems.Add(kv.Value.MaxCD.ToString());
-                lvi.SubItems.Add(kv.Value.PushDistance == -1 ? "抓取" : kv.Value.PushDistance.ToString());
-                if (kv.Value.Summonid != "0" && kv.Value.Summonid != string.Empty)
-                {
-                    string[] summonids = kv.Value.Summonid.Split(',');
-                    string summonName = "";
-                    for (int i = 0; i < summonids.Length; i++)
-                    {
-                        summonName += Data.Get<Npc>(summonids[i]).Name + ",";
+                        if (kv.Value.Type != prop.PropsCategory)
+                        {
+                            continue;
+                        }
                     }
-                    summonName = summonName.Substring(0, summonName.Length - 1);
-                    lvi.SubItems.Add(summonName);
-                }
-                else
-                {
+
+                    ListViewItem lvi = new ListViewItem();
+
+                    lvi.Text = kv.Key;
+                    lvi.SubItems.Add(kv.Value.Name);
                     lvi.SubItems.Add("");
+                    lvi.SubItems.Add(EnumData.GetDisplayName(kv.Value.RequireAttribute));
+                    lvi.SubItems.Add(kv.Value.RequireValue.ToString());
+                    lvi.SubItems.Add(EnumData.GetDisplayName(kv.Value.Type));
+                    lvi.SubItems.Add(EnumData.GetDisplayName(kv.Value.DamageType));
+                    lvi.SubItems.Add(EnumData.GetDisplayName(kv.Value.TargetType));
+                    lvi.SubItems.Add(EnumData.GetDisplayName(kv.Value.TargetArea));
+                    lvi.SubItems.Add(kv.Value.MinRange + "-" + kv.Value.MaxRange);
+                    lvi.SubItems.Add(kv.Value.AOE.ToString());
+                    lvi.SubItems.Add(kv.Value.RequestMP.ToString());
+                    lvi.SubItems.Add(kv.Value.MaxCD.ToString());
+                    lvi.SubItems.Add(kv.Value.PushDistance == -1 ? "抓取" : kv.Value.PushDistance.ToString());
+                    if (kv.Value.Summonid != "0" && kv.Value.Summonid != string.Empty)
+                    {
+                        string[] summonids = kv.Value.Summonid.Split(',');
+                        string summonName = "";
+                        for (int i = 0; i < summonids.Length; i++)
+                        {
+                            summonName += Data.Get<Npc>(summonids[i]).Name + ",";
+                        }
+                        summonName = summonName.Substring(0, summonName.Length - 1);
+                        lvi.SubItems.Add(summonName);
+                    }
+                    else
+                    {
+                        lvi.SubItems.Add("");
+                    }
+
+                    lvi.SubItems.Add(kv.Value.Description.ToString());
+
+                    SkillListView.Items.Add(lvi);
                 }
-
-                lvi.SubItems.Add(kv.Value.Description.ToString());
-
-                SkillListView.Items.Add(lvi);
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void readExteriorName()
         {
-            foreach (ListViewItem lvi in CharacterExteriorListView.Items)
+            try
             {
-                lvi.SubItems[1].Text = Game.GameData.Exterior[lvi.Text].FullName();
+                if (!saveFileIsSelected)
+                {
+                    messageLabel.Text = "请先选择一个存档";
+                    return;
+                }
+                foreach (ListViewItem lvi in CharacterExteriorListView.Items)
+                {
+                    lvi.SubItems[1].Text = Game.GameData.Exterior[lvi.Text].FullName();
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void readAllElement()
         {
-            for (int i = 0; i <= 5; i++)
+            try
             {
-                ElementComboBox.Items.Add(EnumData.GetDisplayName((Element)i));
+                for (int i = 0; i <= 5; i++)
+                {
+                    ElementComboBox.Items.Add(EnumData.GetDisplayName((Element)i));
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void readAllSpecialSkill()
         {
-            SpecialSkillComboBox.DisplayMember = "value";
-            SpecialSkillComboBox.ValueMember = "key";
-            foreach (KeyValuePair<string, Skill> skill in Data.Get<Skill>())
+            try
             {
-                if (skill.Value.Id.Contains("specialskill"))
+                SpecialSkillComboBox.DisplayMember = "value";
+                SpecialSkillComboBox.ValueMember = "key";
+                foreach (KeyValuePair<string, Skill> skill in Data.Get<Skill>())
                 {
-                    ComboBoxItem cbi = new ComboBoxItem(skill.Value.Id, skill.Value.Name);
-                    SpecialSkillComboBox.Items.Add(cbi);
-                    dcbi.Add(cbi.key, cbi);
+                    if (skill.Value.Id.Contains("specialskill"))
+                    {
+                        ComboBoxItem cbi = new ComboBoxItem(skill.Value.Id, skill.Value.Name);
+                        SpecialSkillComboBox.Items.Add(cbi);
+                        dcbi.Add(cbi.key, cbi);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void readAllEquip()
         {
-            WeaponComboBox.DisplayMember = "value";
-            WeaponComboBox.ValueMember = "key";
-            WeaponComboBox2.DisplayMember = "value";
-            WeaponComboBox2.ValueMember = "key";
-
-            ClothComboBox.DisplayMember = "value";
-            ClothComboBox.ValueMember = "key";
-
-            JewelryComboBox.DisplayMember = "value";
-            JewelryComboBox.ValueMember = "key";
-            foreach (KeyValuePair<string, Props> props in Data.Get<Props>())
+            try
             {
-                ComboBoxItem cbi = new ComboBoxItem(props.Value.Id, props.Value.Name + "-" + props.Value.PropsEffectDescription);
-                if (props.Value.PropsType == Heluo.Data.PropsType.Weapon)
+                WeaponComboBox.DisplayMember = "value";
+                WeaponComboBox.ValueMember = "key";
+                WeaponComboBox2.DisplayMember = "value";
+                WeaponComboBox2.ValueMember = "key";
+
+                ClothComboBox.DisplayMember = "value";
+                ClothComboBox.ValueMember = "key";
+
+                JewelryComboBox.DisplayMember = "value";
+                JewelryComboBox.ValueMember = "key";
+                foreach (KeyValuePair<string, Props> props in Data.Get<Props>())
                 {
-                    WeaponComboBox.Items.Add(cbi);
-                    WeaponComboBox2.Items.Add(cbi);
-                    dcbi.Add(cbi.key, cbi);
+                    ComboBoxItem cbi = new ComboBoxItem(props.Value.Id, props.Value.Name + "-" + props.Value.PropsEffectDescription);
+                    if (props.Value.PropsType == Heluo.Data.PropsType.Weapon)
+                    {
+                        WeaponComboBox.Items.Add(cbi);
+                        WeaponComboBox2.Items.Add(cbi);
+                        dcbi.Add(cbi.key, cbi);
+                    }
+                    else if (props.Value.PropsType == Heluo.Data.PropsType.Armor)
+                    {
+                        ClothComboBox.Items.Add(cbi);
+                        dcbi.Add(cbi.key, cbi);
+                    }
+                    else if (props.Value.PropsType == Heluo.Data.PropsType.Accessories)
+                    {
+                        JewelryComboBox.Items.Add(cbi);
+                        dcbi.Add(cbi.key, cbi);
+                    }
                 }
-                else if (props.Value.PropsType == Heluo.Data.PropsType.Armor)
-                {
-                    ClothComboBox.Items.Add(cbi);
-                    dcbi.Add(cbi.key, cbi);
-                }
-                else if (props.Value.PropsType == Heluo.Data.PropsType.Accessories)
-                {
-                    JewelryComboBox.Items.Add(cbi);
-                    dcbi.Add(cbi.key, cbi);
-                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void readAllTrait()
         {
-            foreach (KeyValuePair<string, Trait> kv in Data.Get<Trait>())
+            try
             {
+                foreach (KeyValuePair<string, Trait> kv in Data.Get<Trait>())
+                {
 
-                ListViewItem lvi = new ListViewItem();
+                    ListViewItem lvi = new ListViewItem();
 
-                lvi.Text = kv.Key;
-                lvi.SubItems.Add(kv.Value.Name);
-                lvi.SubItems.Add(kv.Value.Description);
+                    lvi.Text = kv.Key;
+                    lvi.SubItems.Add(kv.Value.Name);
+                    lvi.SubItems.Add(kv.Value.Description);
 
-                TraitListView.Items.Add(lvi);
+                    TraitListView.Items.Add(lvi);
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void readAllMantra()
         {
-            foreach (KeyValuePair<string, Mantra> kv in Data.Get<Mantra>())
+            try
             {
-
-                ListViewItem lvi = new ListViewItem();
-
-                lvi.Text = kv.Key;
-                lvi.SubItems.Add(kv.Value.Name);
-                lvi.SubItems.Add(EnumData.GetDisplayName(kv.Value.RequireAttribute));
-                lvi.SubItems.Add(kv.Value.RequireValue.ToString());
-
-                String MantraRunEffectDescription = "";
-                for (int i = 0; i < kv.Value.MantraRunEffectDescription.Count; i++)
+                foreach (KeyValuePair<string, Mantra> kv in Data.Get<Mantra>())
                 {
-                    MantraRunEffectDescription += kv.Value.MantraRunEffectDescription[i].EffectDescription + ";";
-                }
-                lvi.SubItems.Add(MantraRunEffectDescription);
 
-                MantraListView.Items.Add(lvi);
+                    ListViewItem lvi = new ListViewItem();
+
+                    lvi.Text = kv.Key;
+                    lvi.SubItems.Add(kv.Value.Name);
+                    lvi.SubItems.Add(EnumData.GetDisplayName(kv.Value.RequireAttribute));
+                    lvi.SubItems.Add(kv.Value.RequireValue.ToString());
+
+                    String MantraRunEffectDescription = "";
+                    for (int i = 0; i < kv.Value.MantraRunEffectDescription.Count; i++)
+                    {
+                        MantraRunEffectDescription += kv.Value.MantraRunEffectDescription[i].EffectDescription + ";";
+                    }
+                    lvi.SubItems.Add(MantraRunEffectDescription);
+
+                    MantraListView.Items.Add(lvi);
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void readAllGender()
         {
-            GenderComboBox.DisplayMember = "value";
-            GenderComboBox.ValueMember = "key";
-            foreach (Gender gender in Enum.GetValues(typeof(Gender)))
+            try
             {
+                GenderComboBox.DisplayMember = "value";
+                GenderComboBox.ValueMember = "key";
+                foreach (Gender gender in Enum.GetValues(typeof(Gender)))
+                {
 
-                ComboBoxItem cbi = new ComboBoxItem(((int)gender).ToString(), EnumData.GetDisplayName(gender));
-                GenderComboBox.Items.Add(cbi);
+                    ComboBoxItem cbi = new ComboBoxItem(((int)gender).ToString(), EnumData.GetDisplayName(gender));
+                    GenderComboBox.Items.Add(cbi);
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void readAllQuestState()
         {
-            QuestStateComboBox.DisplayMember = "value";
-            QuestStateComboBox.ValueMember = "key";
-            foreach (QuestState questState in Enum.GetValues(typeof(QuestState)))
+            try
             {
+                QuestStateComboBox.DisplayMember = "value";
+                QuestStateComboBox.ValueMember = "key";
+                foreach (QuestState questState in Enum.GetValues(typeof(QuestState)))
+                {
 
-                ComboBoxItem cbi = new ComboBoxItem(((int)questState).ToString(), questState.ToString());
-                QuestStateComboBox.Items.Add(cbi);
+                    ComboBoxItem cbi = new ComboBoxItem(((int)questState).ToString(), questState.ToString());
+                    QuestStateComboBox.Items.Add(cbi);
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void readShowAllQuest()
         {
-            ShowAllQuestComboBox.DisplayMember = "value";
-            ShowAllQuestComboBox.ValueMember = "key";
-            foreach (showAllQuest showAllQuest in Enum.GetValues(typeof(showAllQuest)))
+            try
             {
+                ShowAllQuestComboBox.DisplayMember = "value";
+                ShowAllQuestComboBox.ValueMember = "key";
+                foreach (showAllQuest showAllQuest in Enum.GetValues(typeof(showAllQuest)))
+                {
 
-                ComboBoxItem cbi = new ComboBoxItem(((int)showAllQuest).ToString(), showAllQuest.ToString());
-                ShowAllQuestComboBox.Items.Add(cbi);
+                    ComboBoxItem cbi = new ComboBoxItem(((int)showAllQuest).ToString(), showAllQuest.ToString());
+                    ShowAllQuestComboBox.Items.Add(cbi);
+                }
+                ShowAllQuestComboBox.SelectedIndex = 0;
             }
-            ShowAllQuestComboBox.SelectedIndex = 0;
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
 
         private void readAllBook()
         {
-            foreach (KeyValuePair<string, Book> kv in Data.Get<Book>())
+            try
             {
+                foreach (KeyValuePair<string, Book> kv in Data.Get<Book>())
+                {
 
-                ListViewItem lvi = new ListViewItem();
+                    ListViewItem lvi = new ListViewItem();
 
-                lvi.Text = kv.Key;
-                lvi.SubItems.Add(kv.Value.Name);
-                lvi.SubItems.Add(EnumData.GetDisplayName(kv.Value.BookTab));
-                lvi.SubItems.Add(kv.Value.MaxReadTime.ToString());
-                lvi.SubItems.Add(kv.Value.ReadConditionDescription);
-                lvi.SubItems.Add(getBaseFlowGraphStr(kv.Value.ShowCondition));
+                    lvi.Text = kv.Key;
+                    lvi.SubItems.Add(kv.Value.Name);
+                    lvi.SubItems.Add(EnumData.GetDisplayName(kv.Value.BookTab));
+                    lvi.SubItems.Add(kv.Value.MaxReadTime.ToString());
+                    lvi.SubItems.Add(kv.Value.ReadConditionDescription);
+                    lvi.SubItems.Add(getBaseFlowGraphStr(kv.Value.ShowCondition));
 
 
-                BookListView.Items.Add(lvi);
+                    BookListView.Items.Add(lvi);
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void readDatas()
         {
-            initDatas();
+            try
+            {
+                initDatas();
 
-            readCommonData();
-            readInventory();
-            readAllSkill();
-            readExteriorName();
-            readCommunity();
-            readParty();
-            readFlag();
-            readFlagLove();
-            readQuest();
-            readElective();
-            readNurturanceOrder();
-            readBook();
-            readAlchemy();
-            readForge();
-            readShop();
+                readCommonData();
+                readInventory();
+                readAllSkill();
+                readExteriorName();
+                readCommunity();
+                readParty();
+                readFlag();
+                readFlagLove();
+                readQuest();
+                readElective();
+                readNurturanceOrder();
+                readBook();
+                readAlchemy();
+                readForge();
+                readShop();
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
 
         private void initDatas()
         {
-            HavingInventoryListView.SelectedItems.Clear();
-            CharacterListView.SelectedItems.Clear();
-            ElementComboBox.SelectedIndex = -1;
-            SpecialSkillComboBox.SelectedIndex = -1;
-            GrowthFactorTextBox.Text = "";
-            HpTextBox.Text = "";
-            MaxHpTextBox.Text = "";
-            MpTextBox.Text = "";
-            MaxMpTextBox.Text = "";
-            AttackTextBox.Text = "";
-            DefenseTextBox.Text = "";
-            HitTextBox.Text = "";
-            MoveTextBox.Text = "";
-            DodgeTextBox.Text = "";
-            ParryTextBox.Text = "";
-            CriticalTextBox.Text = "";
-            CounterTextBox.Text = "";
-            AffiliationStrTextBox.Text = "";
-            AffiliationTextBox.Text = "";
-            WeaponComboBox.SelectedIndex = -1;
-            WeaponComboBox2.SelectedIndex = -1;
-            ClothComboBox.SelectedIndex = -1;
-            JewelryComboBox.SelectedIndex = -1;
-            StrTextBox.Text = "";
-            VitTextBox.Text = "";
-            DexTextBox.Text = "";
-            SpiTextBox.Text = "";
-            VibrantTextBox.Text = "";
-            CultivatedTextBox.Text = "";
-            ResoluteTextBox.Text = "";
-            BraveTextBox.Text = "";
-            ZitherTextBox.Text = "";
-            ChessTextBox.Text = "";
-            CalligraphyTextBox.Text = "";
-            PaintingTextBox.Text = "";
+            try
+            {
+                InventoryListView.SelectedItems.Clear();
+                CharacterListView.SelectedItems.Clear();
+                ElementComboBox.SelectedIndex = -1;
+                SpecialSkillComboBox.SelectedIndex = -1;
+                GrowthFactorTextBox.Text = "";
+                HpTextBox.Text = "";
+                MaxHpTextBox.Text = "";
+                MpTextBox.Text = "";
+                MaxMpTextBox.Text = "";
+                AttackTextBox.Text = "";
+                DefenseTextBox.Text = "";
+                HitTextBox.Text = "";
+                MoveTextBox.Text = "";
+                DodgeTextBox.Text = "";
+                ParryTextBox.Text = "";
+                CriticalTextBox.Text = "";
+                CounterTextBox.Text = "";
+                AffiliationStrTextBox.Text = "";
+                AffiliationTextBox.Text = "";
+                WeaponComboBox.SelectedIndex = -1;
+                WeaponComboBox2.SelectedIndex = -1;
+                ClothComboBox.SelectedIndex = -1;
+                JewelryComboBox.SelectedIndex = -1;
+                StrTextBox.Text = "";
+                VitTextBox.Text = "";
+                DexTextBox.Text = "";
+                SpiTextBox.Text = "";
+                VibrantTextBox.Text = "";
+                CultivatedTextBox.Text = "";
+                ResoluteTextBox.Text = "";
+                BraveTextBox.Text = "";
+                ZitherTextBox.Text = "";
+                ChessTextBox.Text = "";
+                CalligraphyTextBox.Text = "";
+                PaintingTextBox.Text = "";
 
-            HavingSkillListView.Items.Clear();
-            EquipSkill1Label.Text = "无";
-            EquipSkill2Label.Text = "无";
-            EquipSkill3Label.Text = "无";
-            EquipSkill4Label.Text = "无";
+                HavingSkillListView.Items.Clear();
+                EquipSkill1Label.Text = "无";
+                EquipSkill2Label.Text = "无";
+                EquipSkill3Label.Text = "无";
+                EquipSkill4Label.Text = "无";
 
-            TraitListView.SelectedItems.Clear();
-            HavingTraitListView.Items.Clear();
+                TraitListView.SelectedItems.Clear();
+                HavingTraitListView.Items.Clear();
 
-            MantraListView.SelectedItems.Clear();
-            HavingMantraListView.Items.Clear();
-            WorkMantraLabel.Text = "无";
-            MantraCurrentLevelTextBox.Text = "";
-            MantraMaxLevelTextBox.Text = "";
+                MantraListView.SelectedItems.Clear();
+                HavingMantraListView.Items.Clear();
+                WorkMantraLabel.Text = "无";
+                MantraCurrentLevelTextBox.Text = "";
+                MantraMaxLevelTextBox.Text = "";
 
-            CharacterExteriorListView.SelectedItems.Clear();
-            SurNameTextBox.Text = "";
-            NameTextBox.Text = "";
-            NicknameTextBox.Text = "";
-            ProtraitTextBox.Text = "";
-            ModelTextBox.Text = "";
-            DescriptionTextBox.Text = "";
+                CharacterExteriorListView.SelectedItems.Clear();
+                SurNameTextBox.Text = "";
+                NameTextBox.Text = "";
+                NicknameTextBox.Text = "";
+                ProtraitTextBox.Text = "";
+                ModelTextBox.Text = "";
+                DescriptionTextBox.Text = "";
 
-            CommunityListView.SelectedItems.Clear();
-            CommunityMaxLevelTextBox.Text = "";
-            CommunityLevelTextBox.Text = "";
-            CommunityExpTextBox.Text = "";
-            CommunityIsOpenCheckBox.Checked = false;
+                CommunityListView.SelectedItems.Clear();
+                CommunityMaxLevelTextBox.Text = "";
+                CommunityLevelTextBox.Text = "";
+                CommunityExpTextBox.Text = "";
+                CommunityIsOpenCheckBox.Checked = false;
 
-            PartyListView.SelectedItems.Clear();
+                PartyListView.SelectedItems.Clear();
 
-            FlagListView.SelectedItems.Clear();
+                FlagListView.SelectedItems.Clear();
 
-            ctb_MasterLoveTextBox.Text = "";
-            dxl_MasterLoveTextBox.Text = "";
-            dh_MasterLoveTextBox.Text = "";
-            ht_MasterLoveTextBox.Text = "";
-            fxlh_MasterLoveTextBox.Text = "";
-            lxp_MasterLoveTextBox.Text = "";
-            ncc_MasterLoveTextBox.Text = "";
-            tsz_MasterLoveTextBox.Text = "";
-            mrx_MasterLoveTextBox.Text = "";
-            j_MasterLoveTextBox.Text = "";
-            xx_NpcLoveTextBox.Text = "";
+                ctb_MasterLoveTextBox.Text = "";
+                dxl_MasterLoveTextBox.Text = "";
+                dh_MasterLoveTextBox.Text = "";
+                ht_MasterLoveTextBox.Text = "";
+                fxlh_MasterLoveTextBox.Text = "";
+                lxp_MasterLoveTextBox.Text = "";
+                ncc_MasterLoveTextBox.Text = "";
+                tsz_MasterLoveTextBox.Text = "";
+                mrx_MasterLoveTextBox.Text = "";
+                j_MasterLoveTextBox.Text = "";
+                xx_NpcLoveTextBox.Text = "";
 
-            QuestListView.SelectedItems.Clear();
-            QuestStateComboBox.SelectedIndex = -1;
+                QuestListView.SelectedItems.Clear();
+                QuestStateComboBox.SelectedIndex = -1;
 
-            ElectiveListView.SelectedItems.Clear();
-            CurrentElectiveLabel.Text = "";
+                ElectiveListView.SelectedItems.Clear();
+                CurrentElectiveLabel.Text = "";
 
-            NurturanceOrderListView.SelectedItems.Clear();
+                NurturanceOrderListView.SelectedItems.Clear();
 
-            BookListView.SelectedItems.Clear();
-            HavingBookListView.SelectedItems.Clear();
+                BookListView.SelectedItems.Clear();
+                HavingBookListView.SelectedItems.Clear();
 
-            AlchemyListView.SelectedItems.Clear();
+                AlchemyListView.SelectedItems.Clear();
 
-            ForgeFightListView.SelectedItems.Clear();
-            ForgeBladeAndSwordListView.SelectedItems.Clear();
-            ForgeLongAndShortListView.SelectedItems.Clear();
-            ForgeQimenListView.SelectedItems.Clear();
-            ForgeArmorListView.SelectedItems.Clear();
+                ForgeFightListView.SelectedItems.Clear();
+                ForgeBladeAndSwordListView.SelectedItems.Clear();
+                ForgeLongAndShortListView.SelectedItems.Clear();
+                ForgeQimenListView.SelectedItems.Clear();
+                ForgeArmorListView.SelectedItems.Clear();
 
-            ShopListView.SelectedItems.Clear();
+                ShopListView.SelectedItems.Clear();
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
 
         }
 
         private void readCommonData()
         {
-            GameVersionTextBox.Text = gameData.GameVersion;
-            SaveTimeDateTimePicker.Text = pathOfWuxiaSaveHeader.SaveTime.ToString();
-            CurrentMapComboBox.SelectedIndex = CurrentMapComboBox.Items.IndexOf(dcbi[gameData.MapId]);
-            PlayerPostioionTextBox.Text = gameData.PlayerPostioion.ToString();
-            PlayerForwardTextBox.Text = gameData.PlayerForward.ToString();
-            CurrentYearComboBox.SelectedIndex = gameData.Round.CurrentYear - 1;
-            CurrentMonthComboBox.SelectedIndex = gameData.Round.CurrentMonth - 1;
-            CurrentRoundOfMonthComboBox.SelectedIndex = gameData.Round.CurrentRoundOfMonth - 1;
-            CurrentTimeComboBox.SelectedIndex = gameData.Round.CurrentTime - 1;
-            CurrentRoundTextBox.Text = gameData.Round.CurrentRound.ToString();
-            EmotionTextBox.Text = gameData.emotion.ToString();
-            MoneyTextBox.Text = gameData.Money.ToString();
-            GameLevelComboBox.SelectedIndex = (int)gameData.GameLevel - 1;
+            try
+            {
+                GameVersionTextBox.Text = gameData.GameVersion;
+                SaveTimeDateTimePicker.Text = pathOfWuxiaSaveHeader.SaveTime.ToString();
+                CurrentMapComboBox.SelectedIndex = CurrentMapComboBox.Items.IndexOf(dcbi[gameData.MapId]);
+                PlayerPostioionTextBox.Text = gameData.PlayerPostioion.ToString();
+                PlayerForwardTextBox.Text = gameData.PlayerForward.ToString();
+                CurrentYearComboBox.SelectedIndex = gameData.Round.CurrentYear - 1;
+                CurrentMonthComboBox.SelectedIndex = gameData.Round.CurrentMonth - 1;
+                CurrentRoundOfMonthComboBox.SelectedIndex = gameData.Round.CurrentRoundOfMonth - 1;
+                CurrentTimeComboBox.SelectedIndex = gameData.Round.CurrentTime - 1;
+                CurrentRoundTextBox.Text = gameData.Round.CurrentRound.ToString();
+                EmotionTextBox.Text = gameData.emotion.ToString();
+                MoneyTextBox.Text = gameData.Money.ToString();
+                GameLevelComboBox.SelectedIndex = (int)gameData.GameLevel - 1;
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
 
         private void readInventory()
         {
-            HavingInventoryListView.Items.Clear();
-
-            foreach (KeyValuePair<string, InventoryData> kv in gameData.Inventory)
+            try
             {
+                InventoryListView.Items.Clear();
 
-
-                if (kv.Key != "")
+                foreach (KeyValuePair<string, InventoryData> kv in gameData.Inventory)
                 {
-                    ListViewItem lvi = new ListViewItem();
-                    lvi.Text = kv.Key;
 
-                    lvi.SubItems.Add(Data.Get<Props>(kv.Key).Name);
-                    lvi.SubItems.Add(kv.Value.Count.ToString());
-                    HavingInventoryListView.Items.Add(lvi);
+
+                    if (kv.Key != "")
+                    {
+                        ListViewItem lvi = new ListViewItem();
+                        lvi.Text = kv.Key;
+
+                        lvi.SubItems.Add(Data.Get<Props>(kv.Key).Name);
+                        lvi.SubItems.Add(kv.Value.Count.ToString());
+                        InventoryListView.Items.Add(lvi);
+                    }
+
+
                 }
 
-
+                InventoryListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。 
             }
-
-            HavingInventoryListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。 
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
 
         private void readCommunity()
         {
-            CommunityListView.Items.Clear();
-
-            foreach (KeyValuePair<string, CommunityData> kv in gameData.Community)
+            try
             {
-                if (kv.Key == "Player")
+                CommunityListView.Items.Clear();
+
+                foreach (KeyValuePair<string, CommunityData> kv in gameData.Community)
                 {
-                    continue;
+                    if (kv.Key == "Player")
+                    {
+                        continue;
+                    }
+
+                    ListViewItem lvi = new ListViewItem();
+
+                    lvi.Text = kv.Key;
+
+                    lvi.SubItems.Add(gameData.Exterior[kv.Key].FullName());
+
+                    CommunityListView.Items.Add(lvi);
                 }
 
-                ListViewItem lvi = new ListViewItem();
-
-                lvi.Text = kv.Key;
-
-                lvi.SubItems.Add(gameData.Exterior[kv.Key].FullName());
-
-                CommunityListView.Items.Add(lvi);
+                CommunityListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。 
             }
-
-            CommunityListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。 
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
 
         private void readParty()
         {
-            PartyListView.Items.Clear();
-
-            foreach (string id in gameData.Party)
+            try
             {
+                PartyListView.Items.Clear();
 
-                ListViewItem lvi = new ListViewItem();
+                foreach (string id in gameData.Party)
+                {
 
-                lvi.Text = id;
+                    ListViewItem lvi = new ListViewItem();
 
-                lvi.SubItems.Add(gameData.Exterior[id].FullName());
+                    lvi.Text = id;
 
-                PartyListView.Items.Add(lvi);
+                    lvi.SubItems.Add(gameData.Exterior[id].FullName());
+
+                    PartyListView.Items.Add(lvi);
+                }
+
+                PartyListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。 
             }
-
-            PartyListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。 
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
 
         private void readFlag()
         {
-            FlagListView.Items.Clear();
-
-            foreach (KeyValuePair<string, int> kv in gameData.Flag)
+            try
             {
-                ListViewItem lvi = new ListViewItem();
+                FlagListView.Items.Clear();
 
-                lvi.Text = kv.Key;
+                foreach (KeyValuePair<string, int> kv in gameData.Flag)
+                {
+                    ListViewItem lvi = new ListViewItem();
 
-                lvi.SubItems.Add(kv.Value.ToString());
+                    lvi.Text = kv.Key;
 
-                FlagListView.Items.Add(lvi);
+                    lvi.SubItems.Add(kv.Value.ToString());
+                    lvi.SubItems.Add("");
+
+                    FlagListView.Items.Add(lvi);
+                }
+
+                FlagListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。 
+
+                readFlagRemark();
             }
-
-            FlagListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。 
-
-            readFlagRemark();
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
 
         private void readFlagRemark()
         {
-            if (File.Exists(FlagRemarkFilePath))
+            try
             {
-                StreamReader sr = new StreamReader(FlagRemarkFilePath);
-                string line;
-
-                // 从文件读取并显示行，直到文件的末尾 
-                while ((line = sr.ReadLine()) != null)
+                if (File.Exists(FlagRemarkFilePath))
                 {
-                    string[] flag = line.Split(':');
-                    ListViewItem lvi = FlagListView.FindItemWithText(flag[0]);
-                    if (lvi != null)
+                    StreamReader sr = new StreamReader(FlagRemarkFilePath);
+                    string line;
+
+                    // 从文件读取并显示行，直到文件的末尾 
+                    while ((line = sr.ReadLine()) != null)
                     {
-                        if (lvi.SubItems.Count < 3)
+                        string[] flag = line.Split(':');
+                        ListViewItem lvi = FlagListView.FindItemWithText(flag[0]);
+                        if (lvi != null)
                         {
-                            lvi.SubItems.Add(flag[1]);
-                        }
-                        else
-                        {
-                            lvi.SubItems[2].Text = flag[1];
+                            if (lvi.SubItems.Count < 3)
+                            {
+                                lvi.SubItems.Add(flag[1]);
+                            }
+                            else
+                            {
+                                lvi.SubItems[2].Text = flag[1];
+                            }
                         }
                     }
-                }
 
-                sr.Close();
+                    sr.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void readFlagLove()
         {
-            ctb_MasterLoveTextBox.Text = Game.GameData.Flag["fg0201_MasterLove"].ToString();
-            dxl_MasterLoveTextBox.Text = Game.GameData.Flag["fg0202_MasterLove"].ToString();
-            dh_MasterLoveTextBox.Text = Game.GameData.Flag["fg0203_MasterLove"].ToString();
-            lxp_MasterLoveTextBox.Text = Game.GameData.Flag["fg0204_MasterLove"].ToString();
-            ht_MasterLoveTextBox.Text = Game.GameData.Flag["fg0205_MasterLove"].ToString();
-            tsz_MasterLoveTextBox.Text = Game.GameData.Flag["fg0206_MasterLove"].ToString();
-            fxlh_MasterLoveTextBox.Text = Game.GameData.Flag["fg0207_MasterLove"].ToString();
-            ncc_MasterLoveTextBox.Text = Game.GameData.Flag["fg0208_MasterLove"].ToString();
-            mrx_MasterLoveTextBox.Text = Game.GameData.Flag["fg0209_MasterLove"].ToString();
-            j_MasterLoveTextBox.Text = Game.GameData.Flag["fg0210_MasterLove"].ToString();
-            xx_NpcLoveTextBox.Text = Game.GameData.Flag["fg0301_NpcLove"].ToString();
+            try
+            {
+                ctb_MasterLoveTextBox.Text = Game.GameData.Flag["fg0201_MasterLove"].ToString();
+                dxl_MasterLoveTextBox.Text = Game.GameData.Flag["fg0202_MasterLove"].ToString();
+                dh_MasterLoveTextBox.Text = Game.GameData.Flag["fg0203_MasterLove"].ToString();
+                lxp_MasterLoveTextBox.Text = Game.GameData.Flag["fg0204_MasterLove"].ToString();
+                ht_MasterLoveTextBox.Text = Game.GameData.Flag["fg0205_MasterLove"].ToString();
+                tsz_MasterLoveTextBox.Text = Game.GameData.Flag["fg0206_MasterLove"].ToString();
+                fxlh_MasterLoveTextBox.Text = Game.GameData.Flag["fg0207_MasterLove"].ToString();
+                ncc_MasterLoveTextBox.Text = Game.GameData.Flag["fg0208_MasterLove"].ToString();
+                mrx_MasterLoveTextBox.Text = Game.GameData.Flag["fg0209_MasterLove"].ToString();
+                j_MasterLoveTextBox.Text = Game.GameData.Flag["fg0210_MasterLove"].ToString();
+                xx_NpcLoveTextBox.Text = Game.GameData.Flag["fg0301_NpcLove"].ToString();
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
 
         private void readQuest()
         {
-            QuestListView.Items.Clear();
-
-            List<Quest> list = this.Data.Get<Quest>().Values.ToList();
-            if (ShowAllQuestComboBox.SelectedIndex == 0)
+            try
             {
-                list = list.FindAll((Quest x) => x.Type == QuestType.Teacher || x.Type == QuestType.EveryDay || x.Type == QuestType.Emergency || x.Type == QuestType.Working || x.Type == QuestType.Invitation);
-            }
+                QuestListView.Items.Clear();
 
-
-            foreach (Quest quest in list)
-            {
-
-                ListViewItem lvi = new ListViewItem();
-
-                lvi.Text = quest.Id;
-                lvi.SubItems.Add(quest.Name);
-                lvi.SubItems.Add(quest.Brief);
-                lvi.SubItems.Add(getBaseFlowGraphStr(quest.ShowCondition));
-                lvi.SubItems.Add(getBaseFlowGraphStr(quest.PickUpCondition));
-                lvi.SubItems.Add(quest.DeadLine);
-                lvi.SubItems.Add(((QuestSchedule)quest.Schedule).ToString());
-
-                String EvaluationReward = "";
-                if (quest.EvaluationReward != null)
+                List<Quest> list = this.Data.Get<Quest>().Values.ToList();
+                if (ShowAllQuestComboBox.SelectedIndex == 0)
                 {
-                    foreach (KeyValuePair<EvaluationLevel, EvaluationReward> kv in quest.EvaluationReward)
+                    list = list.FindAll((Quest x) => x.Type == QuestType.Teacher || x.Type == QuestType.EveryDay || x.Type == QuestType.Emergency || x.Type == QuestType.Working || x.Type == QuestType.Invitation);
+                }
+
+
+                foreach (Quest quest in list)
+                {
+
+                    ListViewItem lvi = new ListViewItem();
+
+                    lvi.Text = quest.Id;
+                    lvi.SubItems.Add(quest.Name);
+                    lvi.SubItems.Add(quest.Brief);
+                    lvi.SubItems.Add(getBaseFlowGraphStr(quest.ShowCondition));
+                    lvi.SubItems.Add(getBaseFlowGraphStr(quest.PickUpCondition));
+                    lvi.SubItems.Add(quest.DeadLine);
+                    lvi.SubItems.Add(((QuestSchedule)quest.Schedule).ToString());
+
+                    String EvaluationReward = "";
+                    if (quest.EvaluationReward != null)
                     {
-                        if (kv.Value != null)
+                        foreach (KeyValuePair<EvaluationLevel, EvaluationReward> kv in quest.EvaluationReward)
                         {
-                            if (kv.Value.Id == "Money")
+                            if (kv.Value != null)
                             {
-                                EvaluationReward += kv.Value.Count + "钱,";
-                            }
-                            else if (kv.Value.Id != "")
-                            {
-                                EvaluationReward += Data.Get<Props>(kv.Value.Id).Name + "*" + kv.Value.Count + ",";
+                                if (kv.Value.Id == "Money")
+                                {
+                                    EvaluationReward += kv.Value.Count + "钱,";
+                                }
+                                else if (kv.Value.Id != "")
+                                {
+                                    EvaluationReward += Data.Get<Props>(kv.Value.Id).Name + "*" + kv.Value.Count + ",";
+                                }
                             }
                         }
+                        EvaluationReward = EvaluationReward.Substring(0, Math.Max(0, EvaluationReward.Length - 1));
                     }
-                    EvaluationReward = EvaluationReward.Substring(0, Math.Max(0, EvaluationReward.Length - 1));
-                }
-                lvi.SubItems.Add(EvaluationReward);
+                    lvi.SubItems.Add(EvaluationReward);
 
-                QuestListView.Items.Add(lvi);
+                    QuestListView.Items.Add(lvi);
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void readElective()
         {
-            ElectiveListView.Items.Clear();
-
-            foreach (KeyValuePair<string, Elective> kv in Data.Get<Elective>())
+            try
             {
+                ElectiveListView.Items.Clear();
 
-                ListViewItem lvi = new ListViewItem();
-
-                lvi.Text = kv.Value.Id;
-                lvi.SubItems.Add(kv.Value.Name);
-                lvi.SubItems.Add(EnumData.GetDisplayName(kv.Value.Grade));
-                lvi.SubItems.Add(kv.Value.ConditionDescription);
-                lvi.SubItems.Add((Game.GameData.Elective.Triggered.Contains(kv.Value.Id) ? ElectiveState.已进修 : ElectiveState.未进修).ToString());
-
-
-                ElectiveListView.Items.Add(lvi);
-            }
-
-            if (!string.IsNullOrEmpty(Game.GameData.Elective.Id))
-            {
-                string[] electives = Game.GameData.Elective.Id.Split('_');
-                string electiveStr = "";
-                for(int i = 0;i < electives.Length; i++)
+                foreach (KeyValuePair<string, Elective> kv in Data.Get<Elective>())
                 {
-                    electiveStr += Data.Get<Elective>(electives[i]).Name+",";
+
+                    ListViewItem lvi = new ListViewItem();
+
+                    lvi.Text = kv.Value.Id;
+                    lvi.SubItems.Add(kv.Value.Name);
+                    lvi.SubItems.Add(EnumData.GetDisplayName(kv.Value.Grade));
+                    lvi.SubItems.Add(kv.Value.ConditionDescription);
+                    lvi.SubItems.Add((Game.GameData.Elective.Triggered.Contains(kv.Value.Id) ? ElectiveState.已进修 : ElectiveState.未进修).ToString());
+
+
+                    ElectiveListView.Items.Add(lvi);
                 }
-                electiveStr = electiveStr.Substring(0, electiveStr.Length - 1);
-                CurrentElectiveLabel.Text = electiveStr;
+
+                if (!string.IsNullOrEmpty(Game.GameData.Elective.Id))
+                {
+                    string[] electives = Game.GameData.Elective.Id.Split('_');
+                    string electiveStr = "";
+                    for (int i = 0; i < electives.Length; i++)
+                    {
+                        electiveStr += Data.Get<Elective>(electives[i]).Name + ",";
+                    }
+                    electiveStr = electiveStr.Substring(0, electiveStr.Length - 1);
+                    CurrentElectiveLabel.Text = electiveStr;
+                }
+                else
+                {
+                    CurrentElectiveLabel.Text = "无";
+                }
             }
-            else
+            catch (Exception ex)
             {
-                CurrentElectiveLabel.Text = "无";
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void readNurturanceOrder()
         {
-            NurturanceOrderListView.Items.Clear();
-
-            Game.GameData.NurturanceOrder.CteateDevelopOrderTree();
-            foreach (KeyValuePair<string, Nurturance> kv in Data.Get<Nurturance>())
+            try
             {
+                NurturanceOrderListView.Items.Clear();
 
-                ListViewItem lvi = new ListViewItem();
-
-                lvi.Text = kv.Value.Id;
-                string name = "";
-                
-                for (int i =0;i < lvi.Text.Split('_').Length-2; i++)
+                Game.GameData.NurturanceOrder.CteateDevelopOrderTree();
+                foreach (KeyValuePair<string, Nurturance> kv in Data.Get<Nurturance>())
                 {
-                    name += "  ";
+
+                    ListViewItem lvi = new ListViewItem();
+
+                    lvi.Text = kv.Value.Id;
+                    string name = "";
+
+                    for (int i = 0; i < lvi.Text.Split('_').Length - 2; i++)
+                    {
+                        name += "  ";
+                    }
+                    name += kv.Value.Name;
+                    lvi.SubItems.Add(name);
+                    lvi.SubItems.Add(getNurturanceOrderContain(Game.GameData.NurturanceOrder.Root, lvi.Text) ? "开启" : "关闭");
+                    lvi.SubItems.Add(EnumData.GetDisplayName(kv.Value.Fuction));
+                    lvi.SubItems.Add(EnumData.GetDisplayName(kv.Value.UIType));
+                    lvi.SubItems.Add(kv.Value.Emotion.ToString());
+                    lvi.SubItems.Add(getBaseFlowGraphStr(kv.Value.ShowCondition));
+                    lvi.SubItems.Add(getBaseFlowGraphStr(kv.Value.OpenCondition));
+                    lvi.SubItems.Add(getBaseFlowGraphStr(kv.Value.AdditionCondition));
+                    lvi.SubItems.Add(kv.Value.AdditionValue.ToString() + "%");
+
+
+                    NurturanceOrderListView.Items.Add(lvi);
                 }
-                name += kv.Value.Name;
-                lvi.SubItems.Add(name);
-                lvi.SubItems.Add(getNurturanceOrderContain(Game.GameData.NurturanceOrder.Root, lvi.Text) ? "开启" : "关闭");
-                lvi.SubItems.Add(EnumData.GetDisplayName(kv.Value.Fuction));
-                lvi.SubItems.Add(EnumData.GetDisplayName(kv.Value.UIType));
-                lvi.SubItems.Add(kv.Value.Emotion.ToString());
-                lvi.SubItems.Add(getBaseFlowGraphStr(kv.Value.ShowCondition));
-                lvi.SubItems.Add(getBaseFlowGraphStr(kv.Value.OpenCondition));
-                lvi.SubItems.Add(getBaseFlowGraphStr(kv.Value.AdditionCondition));
-                lvi.SubItems.Add(kv.Value.AdditionValue.ToString() + "%");
-
-
-                NurturanceOrderListView.Items.Add(lvi);
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
 
         }
         private void readBook()
         {
-            HavingBookListView.Items.Clear();
-
-            foreach (KeyValuePair<string, BookData> kv in Game.GameData.ReadBookManager)
+            try
             {
+                HavingBookListView.Items.Clear();
 
-                ListViewItem lvi = new ListViewItem();
+                foreach (KeyValuePair<string, BookData> kv in Game.GameData.ReadBookManager)
+                {
 
-                lvi.Text = kv.Value.Id;
-                lvi.SubItems.Add(kv.Value.Item.Name);
-                lvi.SubItems.Add(kv.Value.IsReadFinish ? "是" : "否");
-                lvi.SubItems.Add(Mathf.Max(0, kv.Value.Item.MaxReadTime - kv.Value.CurrentReadTime).ToString());
+                    ListViewItem lvi = new ListViewItem();
+
+                    lvi.Text = kv.Value.Id;
+                    lvi.SubItems.Add(kv.Value.Item.Name);
+                    lvi.SubItems.Add(kv.Value.IsReadFinish ? "是" : "否");
+                    lvi.SubItems.Add(Mathf.Max(0, kv.Value.Item.MaxReadTime - kv.Value.CurrentReadTime).ToString());
 
 
-                HavingBookListView.Items.Add(lvi);
+                    HavingBookListView.Items.Add(lvi);
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void readAlchemy()
         {
-            AlchemyListView.Items.Clear();
-
-            foreach (KeyValuePair<string, Alchemy> kv in Data.Get<Alchemy>())
+            try
             {
-                Props prop = Data.Get<Props>(kv.Value.PropsId);
+                AlchemyListView.Items.Clear();
 
-                ListViewItem lvi = new ListViewItem();
+                foreach (KeyValuePair<string, Alchemy> kv in Data.Get<Alchemy>())
+                {
+                    Props prop = Data.Get<Props>(kv.Value.PropsId);
 
-                lvi.Text = kv.Key;
-                lvi.SubItems.Add(prop.Name);
-                lvi.SubItems.Add(prop.PropsEffectDescription);
-                lvi.SubItems.Add(Game.GameData.Alchemy.Learned.Contains(kv.Key) ? "是" : "否");
+                    ListViewItem lvi = new ListViewItem();
+
+                    lvi.Text = kv.Key;
+                    lvi.SubItems.Add(prop.Name);
+                    lvi.SubItems.Add(prop.PropsEffectDescription);
+                    lvi.SubItems.Add(Game.GameData.Alchemy.Learned.Contains(kv.Key) ? "是" : "否");
 
 
-                AlchemyListView.Items.Add(lvi);
+                    AlchemyListView.Items.Add(lvi);
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void readForge()
         {
-            ForgeFightListView.Items.Clear();
-            ForgeBladeAndSwordListView.Items.Clear();
-            ForgeLongAndShortListView.Items.Clear();
-            ForgeQimenListView.Items.Clear();
-            ForgeArmorListView.Items.Clear();
-
-            foreach (KeyValuePair<string, Forge> kv in Data.Get<Forge>())
+            try
             {
-                Props prop = Data.Get<Props>(kv.Value.PropsId);
+                ForgeFightListView.Items.Clear();
+                ForgeBladeAndSwordListView.Items.Clear();
+                ForgeLongAndShortListView.Items.Clear();
+                ForgeQimenListView.Items.Clear();
+                ForgeArmorListView.Items.Clear();
 
-                ListViewItem lvi = new ListViewItem();
-
-                lvi.Text = kv.Key;
-                lvi.SubItems.Add(prop.Name);
-                lvi.SubItems.Add(EnumData.GetDisplayName(prop.PropsCategory));
-                lvi.SubItems.Add(prop.PropsEffectDescription);
-                lvi.SubItems.Add(Game.GameData.Forge.Opened.Contains(kv.Key) ? "是" : "否");
-                lvi.SubItems.Add(kv.Value.OpenRound.ToString());
-
-
-                switch (prop.PropsCategory)
+                foreach (KeyValuePair<string, Forge> kv in Data.Get<Forge>())
                 {
-                    case Heluo.Data.PropsCategory.Fist:
-                    case Heluo.Data.PropsCategory.Leg:
-                        ForgeFightListView.Items.Add(lvi);
-                        break;
-                    case Heluo.Data.PropsCategory.Sword:
-                    case Heluo.Data.PropsCategory.Blade:
-                        ForgeBladeAndSwordListView.Items.Add(lvi);
-                        break;
-                    case Heluo.Data.PropsCategory.Long:
-                    case Heluo.Data.PropsCategory.Short:
-                        ForgeLongAndShortListView.Items.Add(lvi);
-                        break;
-                    case Heluo.Data.PropsCategory.DualWielding:
-                    case Heluo.Data.PropsCategory.Special:
-                        ForgeQimenListView.Items.Add(lvi);
-                        break;
-                    default:
-                        ForgeArmorListView.Items.Add(lvi);
-                        break;
+                    Props prop = Data.Get<Props>(kv.Value.PropsId);
+
+                    ListViewItem lvi = new ListViewItem();
+
+                    lvi.Text = kv.Key;
+                    lvi.SubItems.Add(prop.Name);
+                    lvi.SubItems.Add(EnumData.GetDisplayName(prop.PropsCategory));
+                    lvi.SubItems.Add(prop.PropsEffectDescription);
+                    lvi.SubItems.Add(Game.GameData.Forge.Opened.Contains(kv.Key) ? "是" : "否");
+                    lvi.SubItems.Add(kv.Value.OpenRound.ToString());
+
+
+                    switch (prop.PropsCategory)
+                    {
+                        case Heluo.Data.PropsCategory.Fist:
+                        case Heluo.Data.PropsCategory.Leg:
+                            ForgeFightListView.Items.Add(lvi);
+                            break;
+                        case Heluo.Data.PropsCategory.Sword:
+                        case Heluo.Data.PropsCategory.Blade:
+                            ForgeBladeAndSwordListView.Items.Add(lvi);
+                            break;
+                        case Heluo.Data.PropsCategory.Long:
+                        case Heluo.Data.PropsCategory.Short:
+                            ForgeLongAndShortListView.Items.Add(lvi);
+                            break;
+                        case Heluo.Data.PropsCategory.DualWielding:
+                        case Heluo.Data.PropsCategory.Special:
+                            ForgeQimenListView.Items.Add(lvi);
+                            break;
+                        default:
+                            ForgeArmorListView.Items.Add(lvi);
+                            break;
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void readShop()
         {
-            ShopListView.Items.Clear();
-
-            foreach (KeyValuePair<string, Shop> kv in Data.Get<Shop>())
+            try
             {
-                Props prop = Data.Get<Props>(kv.Value.PropsId);
+                ShopListView.Items.Clear();
 
-                ListViewItem lvi = new ListViewItem();
-
-                lvi.Text = kv.Key;
-                lvi.SubItems.Add(prop.Name);
-                lvi.SubItems.Add(prop.PropsEffectDescription);
-                lvi.SubItems.Add(getBaseFlowGraphStr(kv.Value.Condition));
-                lvi.SubItems.Add(kv.Value.IsRepeat ? "是" : "否");
-
-                string ShopPeriods = "";
-                for (int i = 0; i < kv.Value.ShopPeriods.Count; i++)
+                foreach (KeyValuePair<string, Shop> kv in Data.Get<Shop>())
                 {
-                    ShopPeriods += kv.Value.ShopPeriods[i].OpenRound + "-" + (kv.Value.ShopPeriods[i].CloseRound - 1) + ";";
+                    Props prop = Data.Get<Props>(kv.Value.PropsId);
+
+                    ListViewItem lvi = new ListViewItem();
+
+                    lvi.Text = kv.Key;
+                    lvi.SubItems.Add(prop.Name);
+                    lvi.SubItems.Add(prop.PropsEffectDescription);
+                    lvi.SubItems.Add(getBaseFlowGraphStr(kv.Value.Condition));
+                    lvi.SubItems.Add(kv.Value.IsRepeat ? "是" : "否");
+
+                    string ShopPeriods = "";
+                    for (int i = 0; i < kv.Value.ShopPeriods.Count; i++)
+                    {
+                        ShopPeriods += kv.Value.ShopPeriods[i].OpenRound + "-" + (kv.Value.ShopPeriods[i].CloseRound - 1) + ";";
+                    }
+                    ShopPeriods = ShopPeriods.Substring(0, ShopPeriods.Length - 1);
+                    lvi.SubItems.Add(ShopPeriods);
+
+                    lvi.SubItems.Add(shopIsSoldOut(kv.Value));
+
+                    ShopListView.Items.Add(lvi);
                 }
-                ShopPeriods = ShopPeriods.Substring(0, ShopPeriods.Length - 1);
-                lvi.SubItems.Add(ShopPeriods);
-
-                lvi.SubItems.Add(shopIsSoldOut(kv.Value));
-
-                ShopListView.Items.Add(lvi);
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         public string shopIsSoldOut(Shop shop)
         {
-
-            if (shop.ShopPeriods != null && shop.ShopPeriods.Count != 0)
+            try
             {
-                for (int j = 0; j < shop.ShopPeriods.Count; j++)
+
+                if (shop.ShopPeriods != null && shop.ShopPeriods.Count != 0)
                 {
-                    ShopPeriod shopPeriod = shop.ShopPeriods[j];
-                    if (shopPeriod.CheckInPeriod(Game.GameData.Round.CurrentRound))
+                    for (int j = 0; j < shop.ShopPeriods.Count; j++)
                     {
-                        return Game.GameData.Shop.CheckIsSoldOut(shop.Id, shopPeriod) && !shop.IsRepeat ? "是" : "否";
+                        ShopPeriod shopPeriod = shop.ShopPeriods[j];
+                        if (shopPeriod.CheckInPeriod(Game.GameData.Round.CurrentRound))
+                        {
+                            return Game.GameData.Shop.CheckIsSoldOut(shop.Id, shopPeriod) && !shop.IsRepeat ? "是" : "否";
+                        }
                     }
                 }
+                return "";
             }
-            return "";
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+                return "";
+            }
         }
 
-            private void listView1_GotFocus(object sender, EventArgs e)
+        private void listView1_GotFocus(object sender, EventArgs e)
         {
-            messageLabel.Text = "";
-            if (saveFileIsSelected)
+            try
             {
-                InventoryAdd1button.Enabled = true;
-                InventoryAdd10button.Enabled = true;
-                InventorySub1button.Enabled = false;
-                InventorySub10button.Enabled = false;
+                messageLabel.Text = "";
+                if (saveFileIsSelected)
+                {
+                    InventoryAdd1button.Enabled = true;
+                    InventoryAdd10button.Enabled = true;
+                    InventorySub1button.Enabled = false;
+                    InventorySub10button.Enabled = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void listView2_GotFocus(object sender, EventArgs e)
         {
-            messageLabel.Text = "";
-            if (saveFileIsSelected)
+            try
             {
-                InventoryAdd1button.Enabled = false;
-                InventoryAdd10button.Enabled = false;
-                InventorySub1button.Enabled = true;
-                InventorySub10button.Enabled = true;
+                messageLabel.Text = "";
+                if (saveFileIsSelected)
+                {
+                    InventoryAdd1button.Enabled = false;
+                    InventoryAdd10button.Enabled = false;
+                    InventorySub1button.Enabled = true;
+                    InventorySub10button.Enabled = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void InventoryAdd1button_Click(object sender, EventArgs e)
         {
-            messageLabel.Text = "";
-            foreach (ListViewItem lvi in PropsListView.SelectedItems)  //选中项遍历  
+            try
             {
-                ListViewItem havinglvi = HavingInventoryListView.FindItemWithText(lvi.Text);
-
-                if (havinglvi == null)
+                messageLabel.Text = "";
+                foreach (ListViewItem lvi in PropsListView.SelectedItems)  //选中项遍历  
                 {
-                    havinglvi = new ListViewItem();
-
-                    havinglvi.Text = lvi.Text;
-
-                    havinglvi.SubItems.Add(Data.Get<Props>(lvi.Text).Name);
-                    havinglvi.SubItems.Add(1.ToString());
-
-                    this.HavingInventoryListView.Items.Add(havinglvi);
-                }
-                else
-                {
-                    ListViewSubItem si = havinglvi.SubItems[2];
-                    int num = int.Parse(si.Text) + 1;
-                    if (num > 99)
+                    if (!saveFileIsSelected)
                     {
-                        num = 99;
+                        messageLabel.Text = "请先选择一个存档";
+                        PropsListView.SelectedItems.Clear();
+                        return;
                     }
-                    si.Text = num.ToString();
-                }
+                    ListViewItem havinglvi = InventoryListView.FindItemWithText(lvi.Text);
 
-                gameData.Inventory.Add(lvi.Text);
-                HavingInventoryListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。 
-                HavingInventoryListView.Items[havinglvi.Index].Selected = true;
-                HavingInventoryListView.EnsureVisible(havinglvi.Index);
+                    if (havinglvi == null)
+                    {
+                        havinglvi = new ListViewItem();
+
+                        havinglvi.Text = lvi.Text;
+
+                        havinglvi.SubItems.Add(Data.Get<Props>(lvi.Text).Name);
+                        havinglvi.SubItems.Add(1.ToString());
+
+                        this.InventoryListView.Items.Add(havinglvi);
+                    }
+                    else
+                    {
+                        ListViewSubItem si = havinglvi.SubItems[2];
+                        int num = int.Parse(si.Text) + 1;
+                        if (num > 99)
+                        {
+                            num = 99;
+                        }
+                        si.Text = num.ToString();
+                    }
+
+                    gameData.Inventory.Add(lvi.Text);
+                    InventoryListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。 
+                    InventoryListView.Items[havinglvi.Index].Selected = true;
+                    InventoryListView.EnsureVisible(havinglvi.Index);
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void InventoryAdd10button_Click(object sender, EventArgs e)
         {
-            messageLabel.Text = "";
-            foreach (ListViewItem lvi in PropsListView.SelectedItems)  //选中项遍历  
+            try
             {
-                ListViewItem havinglvi = HavingInventoryListView.FindItemWithText(lvi.Text);
-
-                if (havinglvi == null)
+                messageLabel.Text = "";
+                foreach (ListViewItem lvi in PropsListView.SelectedItems)  //选中项遍历  
                 {
-                    havinglvi = new ListViewItem();
-
-                    havinglvi.Text = lvi.Text;
-
-                    havinglvi.SubItems.Add(Data.Get<Props>(lvi.Text).Name);
-                    havinglvi.SubItems.Add(10.ToString());
-
-                    HavingInventoryListView.Items.Add(havinglvi);
-                }
-                else
-                {
-                    ListViewSubItem si = havinglvi.SubItems[2];
-                    int num = int.Parse(si.Text) + 10;
-                    if (num > 99)
+                    if (!saveFileIsSelected)
                     {
-                        num = 99;
+                        messageLabel.Text = "请先选择一个存档";
+                        PropsListView.SelectedItems.Clear();
+                        return;
                     }
-                    si.Text = num.ToString();
-                }
+                    ListViewItem havinglvi = InventoryListView.FindItemWithText(lvi.Text);
 
-                gameData.Inventory.Add(lvi.Text, 10);
-                HavingInventoryListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。 
-                HavingInventoryListView.Items[havinglvi.Index].Selected = true;
-                HavingInventoryListView.EnsureVisible(havinglvi.Index);
+                    if (havinglvi == null)
+                    {
+                        havinglvi = new ListViewItem();
+
+                        havinglvi.Text = lvi.Text;
+
+                        havinglvi.SubItems.Add(Data.Get<Props>(lvi.Text).Name);
+                        havinglvi.SubItems.Add(10.ToString());
+
+                        InventoryListView.Items.Add(havinglvi);
+                    }
+                    else
+                    {
+                        ListViewSubItem si = havinglvi.SubItems[2];
+                        int num = int.Parse(si.Text) + 10;
+                        if (num > 99)
+                        {
+                            num = 99;
+                        }
+                        si.Text = num.ToString();
+                    }
+
+                    gameData.Inventory.Add(lvi.Text, 10);
+                    InventoryListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。 
+                    InventoryListView.Items[havinglvi.Index].Selected = true;
+                    InventoryListView.EnsureVisible(havinglvi.Index);
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void InventorySub1button_Click(object sender, EventArgs e)
         {
-            messageLabel.Text = "";
-            foreach (ListViewItem lvi in HavingInventoryListView.SelectedItems)  //选中项遍历  
+            try
             {
-                ListViewSubItem si = lvi.SubItems[2];
-                int num = int.Parse(si.Text) - 1;
-                if (num < 0)
+                messageLabel.Text = "";
+                foreach (ListViewItem lvi in InventoryListView.SelectedItems)  //选中项遍历  
                 {
-                    num = 0;
-                }
+                    if (!saveFileIsSelected)
+                    {
+                        messageLabel.Text = "请先选择一个存档";
+                        PropsListView.SelectedItems.Clear();
+                        return;
+                    }
+                    ListViewSubItem si = lvi.SubItems[2];
+                    int num = int.Parse(si.Text) - 1;
+                    if (num < 0)
+                    {
+                        num = 0;
+                    }
 
-                si.Text = num.ToString();
-                gameData.Inventory.Remove(lvi.Text);
-                HavingInventoryListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。
+                    si.Text = num.ToString();
+                    gameData.Inventory.Remove(lvi.Text);
+                    InventoryListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void InventorySub10button_Click(object sender, EventArgs e)
         {
-            messageLabel.Text = "";
-            foreach (ListViewItem lvi in HavingInventoryListView.SelectedItems)  //选中项遍历  
+            try
             {
-                ListViewSubItem si = lvi.SubItems[2];
-                int num = int.Parse(si.Text) - 10;
-                if (num < 0)
+                messageLabel.Text = "";
+                foreach (ListViewItem lvi in InventoryListView.SelectedItems)  //选中项遍历  
                 {
-                    num = 0;
-                }
+                    if (!saveFileIsSelected)
+                    {
+                        messageLabel.Text = "请先选择一个存档";
+                        PropsListView.SelectedItems.Clear();
+                        return;
+                    }
+                    ListViewSubItem si = lvi.SubItems[2];
+                    int num = int.Parse(si.Text) - 10;
+                    if (num < 0)
+                    {
+                        num = 0;
+                    }
 
-                si.Text = num.ToString();
-                gameData.Inventory.Remove(lvi.Text, 10);
-                HavingInventoryListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。 
+                    si.Text = num.ToString();
+                    gameData.Inventory.Remove(lvi.Text, 10);
+                    InventoryListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。 
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void createFormula(CharacterInfoData cid)
         {
-            cid.CreateFormula();
-            if (gameData.Community != null && gameData.Community.ContainsKey(cid.Id))
+            try
             {
-                if (cid.status_coefficient_of_community == null)
+                cid.CreateFormula();
+                if (gameData.Community != null && gameData.Community.ContainsKey(cid.Id))
                 {
-                    cid.status_coefficient_of_community = Game.Data.Get<GameFormula>("status_coefficient_of_community_" + cid.Id);
-
-                    if (cid.status_coefficient_of_community != null)
+                    if (cid.status_coefficient_of_community == null)
                     {
-                        if (cid.status_coefficient_of_community.Formula._script == null)
+                        cid.status_coefficient_of_community = Game.Data.Get<GameFormula>("status_coefficient_of_community_" + cid.Id);
+
+                        if (cid.status_coefficient_of_community != null)
                         {
-                            cid.status_coefficient_of_community.Formula._script = new Script(CoreModules.Math);
-                        }
-                        cid.status_coefficient_of_community.Formula._script.DoString(string.Concat(new string[]
-                                   {
+                            if (cid.status_coefficient_of_community.Formula._script == null)
+                            {
+                                cid.status_coefficient_of_community.Formula._script = new Script(CoreModules.Math);
+                            }
+                            cid.status_coefficient_of_community.Formula._script.DoString(string.Concat(new string[]
+                                       {
                                             "function ",
                                             cid.status_coefficient_of_community.Id,
                                             "() return ",
                                             cid.status_coefficient_of_community.Formula.Expression,
                                             " end"
-                                   }), null, null);
+                                       }), null, null);
+                        }
                     }
-                }
-            }
-            Dictionary<string, int> baseFormulaProperty = cid.GetBaseFormulaProperty();
+                    Dictionary<string, int> baseFormulaProperty = cid.GetBaseFormulaProperty();
 
-            foreach (object obj in Enum.GetValues(typeof(CharacterProperty)))
-            {
-                CharacterProperty index = (CharacterProperty)obj;
-                string key = string.Format("basic_{0}", index.ToString().ToLower());
-                if (CharacterInfoData.PropertyFormula.ContainsKey(key))
-                {
-                    GameFormula gameFormula = CharacterInfoData.PropertyFormula[key];
-
-
-                    if (gameFormula.Formula._script == null)
+                    foreach (object obj in Enum.GetValues(typeof(CharacterProperty)))
                     {
-                        gameFormula.Formula._script = new Script(CoreModules.Math);
-                    }
-                    foreach (KeyValuePair<string, int> keyValuePair in baseFormulaProperty)
-                    {
-                        gameFormula.Formula._script.Globals.Set(keyValuePair.Key, DynValue.NewNumber(keyValuePair.Value));
-                    }
-                    gameFormula.Formula._script.DoString(string.Concat(new string[]
-                       {
+                        CharacterProperty index = (CharacterProperty)obj;
+                        string key = string.Format("basic_{0}", index.ToString().ToLower());
+                        if (CharacterInfoData.PropertyFormula.ContainsKey(key))
+                        {
+                            GameFormula gameFormula = CharacterInfoData.PropertyFormula[key];
+
+
+                            if (gameFormula.Formula._script == null)
+                            {
+                                gameFormula.Formula._script = new Script(CoreModules.Math);
+                            }
+                            foreach (KeyValuePair<string, int> keyValuePair in baseFormulaProperty)
+                            {
+                                gameFormula.Formula._script.Globals.Set(keyValuePair.Key, DynValue.NewNumber(keyValuePair.Value));
+                            }
+                            gameFormula.Formula._script.DoString(string.Concat(new string[]
+                               {
                                             "function ",
                                             gameFormula.Id,
                                             "() return ",
                                             gameFormula.Formula.Expression,
                                             " end"
-                       }), null, null);
-                }
-            }
-            int level = Game.GameData.Community[cid.Id].Favorability.Level;
-            if (cid.CommunityFormulaProperty == null)
-            {
-                cid.CommunityFormulaProperty = new Dictionary<string, int>
+                               }), null, null);
+                        }
+                    }
+                    int level = Game.GameData.Community[cid.Id].Favorability.Level;
+                    if (cid.CommunityFormulaProperty == null)
+                    {
+                        cid.CommunityFormulaProperty = new Dictionary<string, int>
                     {
                         {
                             "community_lv",
                             level
                         }
                     };
+                    }
+                    else if (cid.CommunityFormulaProperty.ContainsKey("community_lv"))
+                    {
+                        cid.CommunityFormulaProperty["community_lv"] = level;
+                    }
+                    else
+                    {
+                        cid.CommunityFormulaProperty.Add("community_lv", level);
+                    }
+                }
             }
-            else if (cid.CommunityFormulaProperty.ContainsKey("community_lv"))
+            catch (Exception ex)
             {
-                cid.CommunityFormulaProperty["community_lv"] = level;
-            }
-            else
-            {
-                cid.CommunityFormulaProperty.Add("community_lv", level);
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void characterListView_SelectedIndexChanged(object sender, EventArgs e)
         {
             messageLabel.Text = "";
-            if (checkSaveFileIsSelected())
+            try
             {
-                try
-                {
-                    foreach (ListViewItem lvi in CharacterListView.SelectedItems)
-                    {  //选中项遍历 
-                        string id = lvi.Text;
-                        if (id == "in0101")
-                        {
-                            id = "Player";
-                        }
-                        CharacterInfoData cid = new CharacterInfoData();
-                        if (!gameData.Character.ContainsKey(id))
-                        {
-                            CharacterInfo characterInfo = Data.Get<CharacterInfo>(id);
-                            if (characterInfo != null)
-                            {
-                                cid = new CharacterInfoData(characterInfo);
-
-                                createFormula(cid);
-
-                                cid.OnRoundChange(gameData.Round.CurrentRound, false);
-                                gameData.Character.Add(id, cid);
-                            }
-                        }
-                        else
-                        {
-                            cid = gameData.Character[id];
-                        }
-                        createFormula(cid);
-                        readSelectCharacterData(cid);
+                foreach (ListViewItem lvi in CharacterListView.SelectedItems)
+                {  //选中项遍历 
+                    if (!saveFileIsSelected)
+                    {
+                        messageLabel.Text = "请先选择一个存档";
+                        CharacterListView.SelectedItems.Clear();
+                        return;
                     }
+                    string id = lvi.Text;
+                    if (id == "in0101")
+                    {
+                        id = "Player";
+                    }
+                    CharacterInfoData cid = new CharacterInfoData();
+                    if (!gameData.Character.ContainsKey(id))
+                    {
+                        CharacterInfo characterInfo = Data.Get<CharacterInfo>(id);
+                        if (characterInfo != null)
+                        {
+                            cid = new CharacterInfoData(characterInfo);
+
+                            createFormula(cid);
+
+                            cid.OnRoundChange(gameData.Round.CurrentRound, false);
+                            gameData.Character.Add(id, cid);
+                        }
+                    }
+                    else
+                    {
+                        cid = gameData.Character[id];
+                    }
+                    createFormula(cid);
+                    readSelectCharacterData(cid);
                 }
-                catch (Exception ex)
-                {
-                    messageLabel.Text = ex.Message;
-                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         public void readSelectCharacterData(CharacterInfoData cid)
         {
-            readCharacterInfoData(cid);
-            readCharacterSkillData(cid);
-            updateSkillPredictionDamage(cid);
-            readCharacterEquipSkillData(cid);
-            readCharacterTraitData(cid);
-            readCharacterMantraData(cid);
-            readCharacterWorkMantraData(cid);
+            try
+            {
+                readCharacterInfoData(cid);
+                readCharacterSkillData(cid);
+                updateSkillPredictionDamage(cid);
+                readCharacterEquipSkillData(cid);
+                readCharacterTraitData(cid);
+                readCharacterMantraData(cid);
+                readCharacterWorkMantraData(cid);
 
-            SkillCurrentLevelTextBox.Text = "";
-            SkillMaxLevelTextBox.Text = "";
-            MantraCurrentLevelTextBox.Text = "";
-            MantraMaxLevelTextBox.Text = "";
+                SkillCurrentLevelTextBox.Text = "";
+                SkillMaxLevelTextBox.Text = "";
+                MantraCurrentLevelTextBox.Text = "";
+                MantraMaxLevelTextBox.Text = "";
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
 
         public void readCharacterInfoData(CharacterInfoData cid)
@@ -1407,113 +1746,134 @@ namespace 侠之道存档修改器
 
         private void readCharacterProperty(CharacterInfoData cid)
         {
-            HpTextBox.Text = cid.HP.ToString();
-            MaxHpTextBox.Text = cid.Property[CharacterProperty.Max_HP].Value.ToString();
-            MpTextBox.Text = cid.MP.ToString();
-            MaxMpTextBox.Text = cid.Property[CharacterProperty.Max_MP].Value.ToString();
+            try
+            {
+                HpTextBox.Text = cid.HP.ToString();
+                MaxHpTextBox.Text = cid.Property[CharacterProperty.Max_HP].Value.ToString();
+                MpTextBox.Text = cid.MP.ToString();
+                MaxMpTextBox.Text = cid.Property[CharacterProperty.Max_MP].Value.ToString();
 
 
-            AttackTextBox.Text = cid.Property[CharacterProperty.Attack].Value.ToString();
-            DefenseTextBox.Text = cid.Property[CharacterProperty.Defense].Value.ToString();
-            HitTextBox.Text = cid.Property[CharacterProperty.Hit].Value.ToString();
-            MoveTextBox.Text = cid.Property[CharacterProperty.Move].Value.ToString();
-            DodgeTextBox.Text = cid.Property[CharacterProperty.Dodge].Value.ToString();
-            ParryTextBox.Text = cid.Property[CharacterProperty.Parry].Value.ToString();
-            CriticalTextBox.Text = cid.Property[CharacterProperty.Critical].Value.ToString();
-            CounterTextBox.Text = cid.Property[CharacterProperty.Counter].Value.ToString();
-            AffiliationTextBox.Text = cid.Property[CharacterProperty.Affiliation].Value.ToString();
-            if (cid.Property[CharacterProperty.Affiliation].Value > 0)
-            {
-                AffiliationStrTextBox.Text = "楚天碧";
+                AttackTextBox.Text = cid.Property[CharacterProperty.Attack].Value.ToString();
+                DefenseTextBox.Text = cid.Property[CharacterProperty.Defense].Value.ToString();
+                HitTextBox.Text = cid.Property[CharacterProperty.Hit].Value.ToString();
+                MoveTextBox.Text = cid.Property[CharacterProperty.Move].Value.ToString();
+                DodgeTextBox.Text = cid.Property[CharacterProperty.Dodge].Value.ToString();
+                ParryTextBox.Text = cid.Property[CharacterProperty.Parry].Value.ToString();
+                CriticalTextBox.Text = cid.Property[CharacterProperty.Critical].Value.ToString();
+                CounterTextBox.Text = cid.Property[CharacterProperty.Counter].Value.ToString();
+                AffiliationTextBox.Text = cid.Property[CharacterProperty.Affiliation].Value.ToString();
+                if (cid.Property[CharacterProperty.Affiliation].Value > 0)
+                {
+                    AffiliationStrTextBox.Text = "楚天碧";
+                }
+                else if (cid.Property[CharacterProperty.Affiliation].Value < 0)
+                {
+                    AffiliationStrTextBox.Text = "段霄烈";
+                }
+                else
+                {
+                    AffiliationStrTextBox.Text = "无";
+                }
             }
-            else if (cid.Property[CharacterProperty.Affiliation].Value < 0)
+            catch (Exception ex)
             {
-                AffiliationStrTextBox.Text = "段霄烈";
-            }
-            else
-            {
-                AffiliationStrTextBox.Text = "无";
+                messageLabel.Text = ex.Message;
             }
         }
 
         public void readCharacterSkillData(CharacterInfoData cid)
         {
-            HavingSkillListView.Items.Clear();
-            foreach (KeyValuePair<string, SkillData> kv in cid.Skill)
+            try
             {
-                if (kv.Key != "")
+                HavingSkillListView.Items.Clear();
+                foreach (KeyValuePair<string, SkillData> kv in cid.Skill)
                 {
-                    if (cid.Equip[EquipType.Weapon] == null || cid.Equip[EquipType.Weapon] == "" || Data.Get<Props>(cid.Equip[EquipType.Weapon]).PropsCategory == kv.Value.Item.Type)
+                    if (kv.Key != "")
                     {
-                        ListViewItem lvi = new ListViewItem();
+                        if (cid.Equip[EquipType.Weapon] == null || cid.Equip[EquipType.Weapon] == "" || Data.Get<Props>(cid.Equip[EquipType.Weapon]).PropsCategory == kv.Value.Item.Type)
+                        {
+                            ListViewItem lvi = new ListViewItem();
 
-                        lvi.Text = kv.Key;
+                            lvi.Text = kv.Key;
 
-                        lvi.SubItems.Add(kv.Value.Item.Name);
+                            lvi.SubItems.Add(kv.Value.Item.Name);
 
-                        HavingSkillListView.Items.Add(lvi);
+                            HavingSkillListView.Items.Add(lvi);
+                        }
                     }
                 }
-            }
 
-            HavingSkillListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。 
+                HavingSkillListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。 
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
 
         public void updateSkillPredictionDamage(CharacterInfoData cid)
         {
-            foreach (ListViewItem lvi in SkillListView.Items)
+            try
             {
-                Skill skill = Data.Get<Skill>(lvi.Text);
-
-                ListViewSubItem ivsi = lvi.SubItems[2];
-                //createFormula(cid);
-                Dictionary<string, int> formulaProperty = cid.GetFormulaProperty();
-
-                float coefficient = GetCoefficient(formulaProperty, skill, 10);
-
-                int result = 0;
-                switch (skill.DamageType)
+                foreach (ListViewItem lvi in SkillListView.Items)
                 {
-                    case DamageType.Damage:
-                        result = Calculate(skill.Algorithm, (float)cid.Property[CharacterProperty.Attack].Value, coefficient);
-                        break;
-                    case DamageType.Heal:
-                    case DamageType.MpRecover:
-                        result = Calculate(skill.Algorithm, 0f, coefficient);
-                        break;
-                    case DamageType.Summon:
-                        result = 0;
-                        break;
-                    case DamageType.Buff:
-                        result = 0;
-                        break;
-                    case DamageType.Debuff:
-                        result = 0;
-                        break;
-                    case DamageType.Throwing:
-                        result = Calculate(skill.Algorithm, (float)cid.Property[CharacterProperty.Attack].Value, coefficient);
-                        break;
+                    Skill skill = Data.Get<Skill>(lvi.Text);
+
+                    ListViewSubItem ivsi = lvi.SubItems[2];
+                    //createFormula(cid);
+                    Dictionary<string, int> formulaProperty = cid.GetFormulaProperty();
+
+                    float coefficient = GetCoefficient(formulaProperty, skill, 10);
+
+                    int result = 0;
+                    switch (skill.DamageType)
+                    {
+                        case DamageType.Damage:
+                            result = Calculate(skill.Algorithm, (float)cid.Property[CharacterProperty.Attack].Value, coefficient);
+                            break;
+                        case DamageType.Heal:
+                        case DamageType.MpRecover:
+                            result = Calculate(skill.Algorithm, 0f, coefficient);
+                            break;
+                        case DamageType.Summon:
+                            result = 0;
+                            break;
+                        case DamageType.Buff:
+                            result = 0;
+                            break;
+                        case DamageType.Debuff:
+                            result = 0;
+                            break;
+                        case DamageType.Throwing:
+                            result = Calculate(skill.Algorithm, (float)cid.Property[CharacterProperty.Attack].Value, coefficient);
+                            break;
+                    }
+
+                    ivsi.Text = result.ToString();
                 }
 
-                ivsi.Text = result.ToString();
+                SkillListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。 
             }
-
-            SkillListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。 
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
 
         public float GetCoefficient(Dictionary<string, int> dict, Skill skill, int skill_level = 0)
         {
-            float result = 0f;
-            GameFormula gameFormula = null;
-            gameFormula = Game.Data.Get<GameFormula>(skill.Damage);
-            if (gameFormula == null)
-            {
-                return 0f;
-            }
-            int value;
-            value = skill_level;
+            float result;
             try
             {
+                GameFormula gameFormula = null;
+                gameFormula = Game.Data.Get<GameFormula>(skill.Damage);
+                if (gameFormula == null)
+                {
+                    return 0f;
+                }
+                int value;
+                value = skill_level;
                 if (dict.ContainsKey("slv"))
                 {
                     dict["slv"] = value;
@@ -1540,8 +1900,9 @@ namespace 侠之道存档修改器
                    }), null, null);
                 result = gameFormula.Evaluate(dict);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                messageLabel.Text = ex.Message;
                 return 0f;
             }
             return result;
@@ -1549,18 +1910,26 @@ namespace 侠之道存档修改器
 
         public int Calculate(Algorithm algorithm, float value, float coefficient)
         {
-            switch (algorithm)
+            try
             {
-                case Algorithm.Addition:
-                    return (int)(value + coefficient);
-                case Algorithm.Subtraction:
-                    return (int)(value - coefficient);
-                case Algorithm.Multiplication:
-                    return (int)(value * coefficient);
-                case Algorithm.Division:
-                    return (int)(value / coefficient);
-                default:
-                    return 0;
+                switch (algorithm)
+                {
+                    case Algorithm.Addition:
+                        return (int)(value + coefficient);
+                    case Algorithm.Subtraction:
+                        return (int)(value - coefficient);
+                    case Algorithm.Multiplication:
+                        return (int)(value * coefficient);
+                    case Algorithm.Division:
+                        return (int)(value / coefficient);
+                    default:
+                        return 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+                return 0;
             }
         }
 
@@ -1589,6 +1958,11 @@ namespace 侠之道存档修改器
         private void saveButton_Click(object sender, EventArgs e)
         {
             messageLabel.Text = "";
+            if (!saveFileIsSelected)
+            {
+                messageLabel.Text = "请先选择一个存档";
+                return;
+            }
             string saveFilePath = SaveFilesPathTextBox.Text + "\\" + SaveFileListBox.SelectedItem.ToString();
 
             fixBug();
@@ -1633,28 +2007,49 @@ namespace 侠之道存档修改器
 
         private void saveTimeDateTimePicker_ValueChanged(object sender, EventArgs e)
         {
-            messageLabel.Text = "";
-            pathOfWuxiaSaveHeader.SaveTime = DateTime.Parse(SaveTimeDateTimePicker.Text);
+            try
+            {
+                messageLabel.Text = "";
+                pathOfWuxiaSaveHeader.SaveTime = DateTime.Parse(SaveTimeDateTimePicker.Text);
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
 
         private void currentMapComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            messageLabel.Text = "";
-            if (!isSaveFileSelecting)
+            try
             {
-                Map map = Data.Get<Map>(((ComboBoxItem)CurrentMapComboBox.SelectedItem).key);
+                messageLabel.Text = "";
+                if (!isSaveFileSelecting)
+                {
+                    Map map = Data.Get<Map>(((ComboBoxItem)CurrentMapComboBox.SelectedItem).key);
 
-                gameData.SetMap(map.Id);
-                gameData.PlayerPostioion = map.DefaultPosition;
-                PlayerPostioionTextBox.Text = map.DefaultPosition.ToString();
+                    gameData.SetMap(map.Id);
+                    gameData.PlayerPostioion = map.DefaultPosition;
+                    PlayerPostioionTextBox.Text = map.DefaultPosition.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void playerPostioionTextBox_GotFocus(object sender, EventArgs e)
         {
-            messageLabel.Text = "";
+            try
+            {
+                messageLabel.Text = "";
 
-            PlayerPostioionTextBox.Tag = PlayerPostioionTextBox.Text;
+                PlayerPostioionTextBox.Tag = PlayerPostioionTextBox.Text;
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
 
         private void playerPostioionTextBox_LostFocus(object sender, EventArgs e)
@@ -1674,8 +2069,15 @@ namespace 侠之道存档修改器
 
         private void playerForwardTextBox_GotFocus(object sender, EventArgs e)
         {
-            messageLabel.Text = "";
-            PlayerForwardTextBox.Tag = PlayerForwardTextBox.Text;
+            try
+            {
+                messageLabel.Text = "";
+                PlayerForwardTextBox.Tag = PlayerForwardTextBox.Text;
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
 
         private void playerForwardTextBox_LostFocus(object sender, EventArgs e)
@@ -1703,8 +2105,15 @@ namespace 侠之道存档修改器
 
         private void emotionTextBox_GotFocus(object sender, EventArgs e)
         {
-            messageLabel.Text = "";
-            EmotionTextBox.Tag = EmotionTextBox.Text;
+            try
+            {
+                messageLabel.Text = "";
+                EmotionTextBox.Tag = EmotionTextBox.Text;
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
 
         private void emotionTextBox_LostFocus(object sender, EventArgs e)
@@ -1726,8 +2135,15 @@ namespace 侠之道存档修改器
 
         private void moneyTextBox_GotFocus(object sender, EventArgs e)
         {
-            messageLabel.Text = "";
-            MoneyTextBox.Tag = MoneyTextBox.Text;
+            try
+            {
+                messageLabel.Text = "";
+                MoneyTextBox.Tag = MoneyTextBox.Text;
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
 
         private void moneyTextBox_LostFocus(object sender, EventArgs e)
@@ -1762,174 +2178,244 @@ namespace 侠之道存档修改器
 
         private void refreshSaveListButton_Click(object sender, EventArgs e)
         {
-            messageLabel.Text = "";
+            try
+            {
+                messageLabel.Text = "";
 
-            StreamWriter sw = new StreamWriter(saveFilesPath);
-            sw.WriteLine(SaveFilesPathTextBox.Text);
-            sw.Close();
+                StreamWriter sw = new StreamWriter(saveFilesPath);
+                sw.WriteLine(SaveFilesPathTextBox.Text);
+                sw.Close();
 
-            getSaveFiles();
+                getSaveFiles();
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
 
         private void elementComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            foreach (ListViewItem lvi in CharacterListView.SelectedItems)
+            try
             {
-                CharacterInfoData cid = gameData.Character[lvi.Text];
-                cid.Element = (Element)ElementComboBox.SelectedIndex;
+                foreach (ListViewItem lvi in CharacterListView.SelectedItems)
+                {
+                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    cid.Element = (Element)ElementComboBox.SelectedIndex;
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void specialSkillComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (SpecialSkillComboBox.SelectedIndex != -1)
+            try
             {
-                foreach (ListViewItem lvi in CharacterListView.SelectedItems)
+                if (SpecialSkillComboBox.SelectedIndex != -1)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    foreach (ListViewItem lvi in CharacterListView.SelectedItems)
+                    {
+                        CharacterInfoData cid = gameData.Character[lvi.Text];
 
-                    cid.SpecialSkill = ((ComboBoxItem)SpecialSkillComboBox.SelectedItem).key;
+                        cid.SpecialSkill = ((ComboBoxItem)SpecialSkillComboBox.SelectedItem).key;
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private string oldWeaponComboBoxKey = "";
         private void weaponComboBox_TextChanged(object sender, EventArgs e)
         {
-            WeaponComboBox2.SelectedIndex = WeaponComboBox.SelectedIndex;
-
-            Props oldWeapon = Data.Get<Props>(oldWeaponComboBoxKey);
-            Props newWeapon = new Props();
-
-            foreach (ListViewItem lvi in CharacterListView.SelectedItems)
+            try
             {
-                CharacterInfoData cid = gameData.Character[lvi.Text];
+                WeaponComboBox2.SelectedIndex = WeaponComboBox.SelectedIndex;
 
-                if (oldWeaponComboBoxKey != "")
-                {
-                    DettachPropsEffect(Data.Get<Props>(oldWeaponComboBoxKey), cid);
-                }
+                Props oldWeapon = Data.Get<Props>(oldWeaponComboBoxKey);
+                Props newWeapon = new Props();
 
-                if (WeaponComboBox.SelectedIndex != -1)
+                foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    oldWeaponComboBoxKey = ((ComboBoxItem)WeaponComboBox.SelectedItem).key;
-                    cid.Equip[EquipType.Weapon] = oldWeaponComboBoxKey;
-                    AttachPropsEffect(Data.Get<Props>(oldWeaponComboBoxKey), cid);
+                    CharacterInfoData cid = gameData.Character[lvi.Text];
 
-                    newWeapon = Data.Get<Props>(oldWeaponComboBoxKey);
-                }
-                else
-                {
-                    oldWeaponComboBoxKey = "";
-                    cid.Equip[EquipType.Weapon] = null;
-                }
+                    if (oldWeaponComboBoxKey != "")
+                    {
+                        DettachPropsEffect(Data.Get<Props>(oldWeaponComboBoxKey), cid);
+                    }
 
-                //createFormula(cid);
-                cid.UpgradeProperty(false);
-                readCharacterProperty(cid);
-                if (oldWeapon == null || oldWeapon.Id == "" || newWeapon == null || newWeapon.Id == "" || (oldWeapon.Id != "" && newWeapon.Id != "" && oldWeapon.PropsCategory != newWeapon.PropsCategory))
-                {
-                    readAllSkill();
-                    updateSkillPredictionDamage(cid);
-                    readCharacterSkillData(cid);
+                    if (WeaponComboBox.SelectedIndex != -1)
+                    {
+                        oldWeaponComboBoxKey = ((ComboBoxItem)WeaponComboBox.SelectedItem).key;
+                        cid.Equip[EquipType.Weapon] = oldWeaponComboBoxKey;
+                        AttachPropsEffect(Data.Get<Props>(oldWeaponComboBoxKey), cid);
+
+                        newWeapon = Data.Get<Props>(oldWeaponComboBoxKey);
+                    }
+                    else
+                    {
+                        oldWeaponComboBoxKey = "";
+                        cid.Equip[EquipType.Weapon] = null;
+                    }
+
+                    //createFormula(cid);
+                    cid.UpgradeProperty(false);
+                    readCharacterProperty(cid);
+                    if (oldWeapon == null || oldWeapon.Id == "" || newWeapon == null || newWeapon.Id == "" || (oldWeapon.Id != "" && newWeapon.Id != "" && oldWeapon.PropsCategory != newWeapon.PropsCategory))
+                    {
+                        readAllSkill();
+                        updateSkillPredictionDamage(cid);
+                        readCharacterSkillData(cid);
+                    }
+                    readCharacterEquipSkillData(cid);
                 }
-                readCharacterEquipSkillData(cid);
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
         private void weaponComboBox2_TextChanged(object sender, EventArgs e)
         {
-            WeaponComboBox.SelectedIndex = WeaponComboBox2.SelectedIndex;
+            try
+            {
+                WeaponComboBox.SelectedIndex = WeaponComboBox2.SelectedIndex;
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
 
         private void AttachPropsEffect(Props porp, CharacterInfoData user)
         {
-            if (porp.PropsEffect == null)
+            try
             {
-                return;
+                if (porp.PropsEffect == null)
+                {
+                    return;
+                }
+                for (int i = 0; i < porp.PropsEffect.Count; i++)
+                {
+                    porp.PropsEffect[i].AttachPropsEffect(user);
+                }
             }
-            for (int i = 0; i < porp.PropsEffect.Count; i++)
+            catch (Exception ex)
             {
-                porp.PropsEffect[i].AttachPropsEffect(user);
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void DettachPropsEffect(Props porp, CharacterInfoData user)
         {
-            if (porp.PropsEffect == null)
+            try
             {
-                return;
+                if (porp.PropsEffect == null)
+                {
+                    return;
+                }
+                for (int i = 0; i < porp.PropsEffect.Count; i++)
+                {
+                    porp.PropsEffect[i].DettachPropsEffect(user);
+                }
             }
-            for (int i = 0; i < porp.PropsEffect.Count; i++)
+            catch (Exception ex)
             {
-                porp.PropsEffect[i].DettachPropsEffect(user);
+                messageLabel.Text = ex.Message;
             }
         }
 
         private string oldClothComboBoxKey = "";
         private void clothComboBox_TextChanged(object sender, EventArgs e)
         {
-            foreach (ListViewItem lvi in CharacterListView.SelectedItems)
+            try
             {
-                CharacterInfoData cid = gameData.Character[lvi.Text];
-
-
-                if (oldClothComboBoxKey != "")
+                foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    DettachPropsEffect(Data.Get<Props>(oldClothComboBoxKey), cid);
-                }
-                if (ClothComboBox.SelectedIndex != -1)
-                {
-                    oldClothComboBoxKey = ((ComboBoxItem)ClothComboBox.SelectedItem).key;
-                    cid.Equip[EquipType.Cloth] = ((ComboBoxItem)ClothComboBox.SelectedItem).key;
+                    CharacterInfoData cid = gameData.Character[lvi.Text];
 
-                    AttachPropsEffect(Data.Get<Props>(oldClothComboBoxKey), cid);
 
-                }
-                else
-                {
-                    oldClothComboBoxKey = "";
-                    cid.Equip[EquipType.Cloth] = null;
-                }
+                    if (oldClothComboBoxKey != "")
+                    {
+                        DettachPropsEffect(Data.Get<Props>(oldClothComboBoxKey), cid);
+                    }
+                    if (ClothComboBox.SelectedIndex != -1)
+                    {
+                        oldClothComboBoxKey = ((ComboBoxItem)ClothComboBox.SelectedItem).key;
+                        cid.Equip[EquipType.Cloth] = ((ComboBoxItem)ClothComboBox.SelectedItem).key;
 
-                //createFormula(cid);
-                cid.UpgradeProperty(false);
-                readCharacterProperty(cid);
+                        AttachPropsEffect(Data.Get<Props>(oldClothComboBoxKey), cid);
+
+                    }
+                    else
+                    {
+                        oldClothComboBoxKey = "";
+                        cid.Equip[EquipType.Cloth] = null;
+                    }
+
+                    //createFormula(cid);
+                    cid.UpgradeProperty(false);
+                    readCharacterProperty(cid);
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private string oldJewelryComboBoxKy = "";
         private void jewelryComboBox_TextChanged(object sender, EventArgs e)
         {
-            foreach (ListViewItem lvi in CharacterListView.SelectedItems)
+            try
             {
-                CharacterInfoData cid = gameData.Character[lvi.Text];
-
-                if (oldJewelryComboBoxKy != "")
+                foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    DettachPropsEffect(Data.Get<Props>(oldJewelryComboBoxKy), cid);
-                }
-                if (JewelryComboBox.SelectedIndex != -1)
-                {
-                    oldJewelryComboBoxKy = ((ComboBoxItem)JewelryComboBox.SelectedItem).key;
-                    cid.Equip[EquipType.Jewelry] = ((ComboBoxItem)JewelryComboBox.SelectedItem).key;
-                    AttachPropsEffect(Data.Get<Props>(oldJewelryComboBoxKy), cid);
+                    CharacterInfoData cid = gameData.Character[lvi.Text];
 
-                }
-                else
-                {
-                    oldJewelryComboBoxKy = "";
-                    cid.Equip[EquipType.Jewelry] = null;
-                }
+                    if (oldJewelryComboBoxKy != "")
+                    {
+                        DettachPropsEffect(Data.Get<Props>(oldJewelryComboBoxKy), cid);
+                    }
+                    if (JewelryComboBox.SelectedIndex != -1)
+                    {
+                        oldJewelryComboBoxKy = ((ComboBoxItem)JewelryComboBox.SelectedItem).key;
+                        cid.Equip[EquipType.Jewelry] = ((ComboBoxItem)JewelryComboBox.SelectedItem).key;
+                        AttachPropsEffect(Data.Get<Props>(oldJewelryComboBoxKy), cid);
 
-                //createFormula(cid);
-                cid.UpgradeProperty(false);
-                readCharacterProperty(cid);
+                    }
+                    else
+                    {
+                        oldJewelryComboBoxKy = "";
+                        cid.Equip[EquipType.Jewelry] = null;
+                    }
+
+                    //createFormula(cid);
+                    cid.UpgradeProperty(false);
+                    readCharacterProperty(cid);
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void GrowthFactorTextBox_GotFocus(object sender, EventArgs e)
         {
-            GrowthFactorTextBox.Tag = GrowthFactorTextBox.Text;
+            try
+            {
+                GrowthFactorTextBox.Tag = GrowthFactorTextBox.Text;
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
 
         private void GrowthFactorTextBox_LostFocus(object sender, EventArgs e)
@@ -1961,8 +2447,14 @@ namespace 侠之道存档修改器
 
         private void hpTextBox_GotFocus(object sender, EventArgs e)
         {
-
-            HpTextBox.Tag = HpTextBox.Text;
+            try
+            {
+                HpTextBox.Tag = HpTextBox.Text;
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
 
         private void hpTextBox_LostFocus(object sender, EventArgs e)
@@ -1994,7 +2486,14 @@ namespace 侠之道存档修改器
 
         private void maxHpTextBox_GotFocus(object sender, EventArgs e)
         {
-            MaxHpTextBox.Tag = MaxHpTextBox.Text;
+            try
+            {
+                MaxHpTextBox.Tag = MaxHpTextBox.Text;
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
 
         private void maxHpTextBox_LostFocus(object sender, EventArgs e)
@@ -2033,7 +2532,14 @@ namespace 侠之道存档修改器
 
         private void AffiliationTextBox_GotFocus(object sender, EventArgs e)
         {
-            AffiliationTextBox.Tag = AffiliationTextBox.Text;
+            try
+            {
+                AffiliationTextBox.Tag = AffiliationTextBox.Text;
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
 
         private void AffiliationTextBox_LostFocus(object sender, EventArgs e)
@@ -2079,8 +2585,14 @@ namespace 侠之道存档修改器
 
         private void mpTextBox_GotFocus(object sender, EventArgs e)
         {
-
-            MpTextBox.Tag = MpTextBox.Text;
+            try
+            {
+                MpTextBox.Tag = MpTextBox.Text;
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
 
         private void mpTextBox_LostFocus(object sender, EventArgs e)
@@ -2849,142 +3361,196 @@ namespace 侠之道存档修改器
 
         private void learnSkillButton_Click(object sender, EventArgs e)
         {
-
-            foreach (ListViewItem lvi in CharacterListView.SelectedItems)
+            try
             {
-                CharacterInfoData cid = gameData.Character[lvi.Text];
-
-                foreach (ListViewItem skillLvi in SkillListView.SelectedItems)
+                foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    if (!string.IsNullOrEmpty(skillLvi.Text))
+                    CharacterInfoData cid = gameData.Character[lvi.Text];
+
+                    foreach (ListViewItem skillLvi in SkillListView.SelectedItems)
                     {
-                        cid.LearnSkill(skillLvi.Text);
+                        if (!string.IsNullOrEmpty(skillLvi.Text))
+                        {
+                            cid.LearnSkill(skillLvi.Text);
+                        }
                     }
+                    readCharacterSkillData(cid);
+                    readCharacterEquipSkillData(cid);
                 }
-                readCharacterSkillData(cid);
-                readCharacterEquipSkillData(cid);
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void abolishSkillButton_Click(object sender, EventArgs e)
         {
-
-            foreach (ListViewItem lvi in CharacterListView.SelectedItems)
+            try
             {
-                CharacterInfoData cid = gameData.Character[lvi.Text];
-
-                foreach (ListViewItem skillLvi in HavingSkillListView.SelectedItems)
+                foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    cid.AbolishSkill(skillLvi.Text);
-                    cid.EquipSkills.ReplaceEquipSkill(skillLvi.Text, "", cid.IsPlayer);
+                    int index = -1;
+                    CharacterInfoData cid = gameData.Character[lvi.Text];
+
+                    foreach (ListViewItem skillLvi in HavingSkillListView.SelectedItems)
+                    {
+                        index = skillLvi.Index;
+                        cid.AbolishSkill(skillLvi.Text);
+                        cid.EquipSkills.ReplaceEquipSkill(skillLvi.Text, "", cid.IsPlayer);
+                    }
+                    readCharacterSkillData(cid);
+                    readCharacterEquipSkillData(cid);
+
+                    if(index == HavingSkillListView.Items.Count)
+                    {
+                        index--;
+                    }
+                    if(index != -1)
+                    {
+                        HavingSkillListView.Items[index].Selected = true;
+                    }
                 }
-                readCharacterSkillData(cid);
-                readCharacterEquipSkillData(cid);
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void havingSkillListView_SelectedIndexChanged(object sender, EventArgs e)
         {
-            foreach (ListViewItem lvi in CharacterListView.SelectedItems)
+            try
             {
-                CharacterInfoData cid = gameData.Character[lvi.Text];
-
-                foreach (ListViewItem skillLvi in HavingSkillListView.SelectedItems)
+                foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    SkillData sd = cid.Skill[skillLvi.Text];
+                    CharacterInfoData cid = gameData.Character[lvi.Text];
 
-                    SkillCurrentLevelTextBox.Text = sd.Level.ToString();
-                    SkillMaxLevelTextBox.Text = sd.MaxLevel.ToString();
+                    foreach (ListViewItem skillLvi in HavingSkillListView.SelectedItems)
+                    {
+                        SkillData sd = cid.Skill[skillLvi.Text];
+
+                        SkillCurrentLevelTextBox.Text = sd.Level.ToString();
+                        SkillMaxLevelTextBox.Text = sd.MaxLevel.ToString();
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void setSkill1Button_Click(object sender, EventArgs e)
         {
-
-            foreach (ListViewItem lvi in CharacterListView.SelectedItems)
+            try
             {
-                CharacterInfoData cid = gameData.Character[lvi.Text];
-
-                Props weapon = cid.Equip.GetEquip(EquipType.Weapon);
-                if (weapon == null)
+                foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    if (MessageBox.Show("未选择武器的情况下，将默认设定为拳法的技能", "", MessageBoxButtons.OKCancel) == DialogResult.OK)
+                    CharacterInfoData cid = gameData.Character[lvi.Text];
+
+                    Props weapon = cid.Equip.GetEquip(EquipType.Weapon);
+                    if (weapon == null)
                     {
-                        foreach (ListViewItem skillLvi in HavingSkillListView.SelectedItems)
+                        if (MessageBox.Show("未选择武器的情况下，将默认设定为拳法的技能", "", MessageBoxButtons.OKCancel) == DialogResult.OK)
                         {
-                            cid.SetEquipSkill(SkillColumn.Skill01, skillLvi.Text);
-                            readCharacterEquipSkillData(cid);
+                            foreach (ListViewItem skillLvi in HavingSkillListView.SelectedItems)
+                            {
+                                cid.SetEquipSkill(SkillColumn.Skill01, skillLvi.Text);
+                                readCharacterEquipSkillData(cid);
+                            }
                         }
                     }
-                }
 
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void setSkill2Button_Click(object sender, EventArgs e)
         {
-
-            foreach (ListViewItem lvi in CharacterListView.SelectedItems)
+            try
             {
-                CharacterInfoData cid = gameData.Character[lvi.Text];
-
-                Props weapon = cid.Equip.GetEquip(EquipType.Weapon);
-                if (weapon == null)
+                foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    if (MessageBox.Show("未选择武器的情况下，将默认设定为拳法的技能", "", MessageBoxButtons.OKCancel) == DialogResult.OK)
+                    CharacterInfoData cid = gameData.Character[lvi.Text];
+
+                    Props weapon = cid.Equip.GetEquip(EquipType.Weapon);
+                    if (weapon == null)
                     {
-                        foreach (ListViewItem skillLvi in HavingSkillListView.SelectedItems)
+                        if (MessageBox.Show("未选择武器的情况下，将默认设定为拳法的技能", "", MessageBoxButtons.OKCancel) == DialogResult.OK)
                         {
-                            cid.SetEquipSkill(SkillColumn.Skill02, skillLvi.Text);
-                            readCharacterEquipSkillData(cid);
+                            foreach (ListViewItem skillLvi in HavingSkillListView.SelectedItems)
+                            {
+                                cid.SetEquipSkill(SkillColumn.Skill02, skillLvi.Text);
+                                readCharacterEquipSkillData(cid);
+                            }
                         }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void setSkill3Button_Click(object sender, EventArgs e)
         {
-
-            foreach (ListViewItem lvi in CharacterListView.SelectedItems)
+            try
             {
-                CharacterInfoData cid = gameData.Character[lvi.Text];
-
-                Props weapon = cid.Equip.GetEquip(EquipType.Weapon);
-                if (weapon == null)
+                foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    if (MessageBox.Show("未选择武器的情况下，将默认设定为拳法的技能", "", MessageBoxButtons.OKCancel) == DialogResult.OK)
+                    CharacterInfoData cid = gameData.Character[lvi.Text];
+
+                    Props weapon = cid.Equip.GetEquip(EquipType.Weapon);
+                    if (weapon == null)
                     {
-                        foreach (ListViewItem skillLvi in HavingSkillListView.SelectedItems)
+                        if (MessageBox.Show("未选择武器的情况下，将默认设定为拳法的技能", "", MessageBoxButtons.OKCancel) == DialogResult.OK)
                         {
-                            cid.SetEquipSkill(SkillColumn.Skill03, skillLvi.Text);
-                            readCharacterEquipSkillData(cid);
+                            foreach (ListViewItem skillLvi in HavingSkillListView.SelectedItems)
+                            {
+                                cid.SetEquipSkill(SkillColumn.Skill03, skillLvi.Text);
+                                readCharacterEquipSkillData(cid);
+                            }
                         }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void setSkill4Button_Click(object sender, EventArgs e)
         {
-
-            foreach (ListViewItem lvi in CharacterListView.SelectedItems)
+            try
             {
-                CharacterInfoData cid = gameData.Character[lvi.Text];
-
-                Props weapon = cid.Equip.GetEquip(EquipType.Weapon);
-                if (weapon == null)
+                foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    if (MessageBox.Show("未选择武器的情况下，将默认设定为拳法的技能", "", MessageBoxButtons.OKCancel) == DialogResult.OK)
+                    CharacterInfoData cid = gameData.Character[lvi.Text];
+
+                    Props weapon = cid.Equip.GetEquip(EquipType.Weapon);
+                    if (weapon == null)
                     {
-                        foreach (ListViewItem skillLvi in HavingSkillListView.SelectedItems)
+                        if (MessageBox.Show("未选择武器的情况下，将默认设定为拳法的技能", "", MessageBoxButtons.OKCancel) == DialogResult.OK)
                         {
-                            cid.SetEquipSkill(SkillColumn.Skill04, skillLvi.Text);
-                            readCharacterEquipSkillData(cid);
+                            foreach (ListViewItem skillLvi in HavingSkillListView.SelectedItems)
+                            {
+                                cid.SetEquipSkill(SkillColumn.Skill04, skillLvi.Text);
+                                readCharacterEquipSkillData(cid);
+                            }
                         }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
         private void skillCurrentLevelTextBox_GotFocus(object sender, EventArgs e)
@@ -3059,50 +3625,82 @@ namespace 侠之道存档修改器
 
         private void AddTraitButton_Click(object sender, EventArgs e)
         {
-            foreach (ListViewItem lvi in CharacterListView.SelectedItems)
+            try
             {
-                CharacterInfoData cid = gameData.Character[lvi.Text];
-
-                foreach (ListViewItem traitLvi in TraitListView.SelectedItems)
+                foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    cid.LearnTrait(traitLvi.Text);
+                    CharacterInfoData cid = gameData.Character[lvi.Text];
+
+                    foreach (ListViewItem traitLvi in TraitListView.SelectedItems)
+                    {
+                        cid.LearnTrait(traitLvi.Text);
+                    }
+                    readCharacterTraitData(cid);
                 }
-                readCharacterTraitData(cid);
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void AbolishTraitButton_Click(object sender, EventArgs e)
         {
-            foreach (ListViewItem lvi in CharacterListView.SelectedItems)
+            try
             {
-                CharacterInfoData cid = gameData.Character[lvi.Text];
-
-                foreach (ListViewItem traitLvi in HavingTraitListView.SelectedItems)
+                foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    cid.AbolishTrait(traitLvi.Text);
+                    int index = -1;
+                    CharacterInfoData cid = gameData.Character[lvi.Text];
+
+                    foreach (ListViewItem traitLvi in HavingTraitListView.SelectedItems)
+                    {
+                        index = traitLvi.Index;
+                        cid.AbolishTrait(traitLvi.Text);
+                    }
+                    readCharacterTraitData(cid);
+
+                    if (index == HavingTraitListView.Items.Count)
+                    {
+                        index--;
+                    }
+                    if (index != -1)
+                    {
+                        HavingTraitListView.Items[index].Selected = true;
+                    }
                 }
-                readCharacterTraitData(cid);
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         public void readCharacterTraitData(CharacterInfoData cid)
         {
-            HavingTraitListView.Items.Clear();
-            foreach (KeyValuePair<string, TraitData> kv in cid.Trait)
+            try
             {
-                if (kv.Key != "")
+                HavingTraitListView.Items.Clear();
+                foreach (KeyValuePair<string, TraitData> kv in cid.Trait)
                 {
-                    ListViewItem lvi = new ListViewItem();
+                    if (kv.Key != "")
+                    {
+                        ListViewItem lvi = new ListViewItem();
 
-                    lvi.Text = kv.Key;
+                        lvi.Text = kv.Key;
 
-                    lvi.SubItems.Add(kv.Value.Item.Name);
+                        lvi.SubItems.Add(kv.Value.Item.Name);
 
-                    HavingTraitListView.Items.Add(lvi);
+                        HavingTraitListView.Items.Add(lvi);
+                    }
                 }
-            }
 
-            HavingTraitListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。 
+                HavingTraitListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。 
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
 
         private void TraitListView_GotFocus(object sender, EventArgs e)
@@ -3118,22 +3716,29 @@ namespace 侠之道存档修改器
         }
         public void readCharacterMantraData(CharacterInfoData cid)
         {
-            HavingMantraListView.Items.Clear();
-            foreach (KeyValuePair<string, MantraData> kv in cid.Mantra)
+            try
             {
-                if (kv.Key != "")
+                HavingMantraListView.Items.Clear();
+                foreach (KeyValuePair<string, MantraData> kv in cid.Mantra)
                 {
-                    ListViewItem lvi = new ListViewItem();
+                    if (kv.Key != "")
+                    {
+                        ListViewItem lvi = new ListViewItem();
 
-                    lvi.Text = kv.Key;
+                        lvi.Text = kv.Key;
 
-                    lvi.SubItems.Add(kv.Value.Item.Name);
+                        lvi.SubItems.Add(kv.Value.Item.Name);
 
-                    HavingMantraListView.Items.Add(lvi);
+                        HavingMantraListView.Items.Add(lvi);
+                    }
                 }
-            }
 
-            HavingMantraListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。 
+                HavingMantraListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。 
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
         public void readCharacterWorkMantraData(CharacterInfoData cid)
         {
@@ -3162,60 +3767,104 @@ namespace 侠之道存档修改器
 
         private void LearnMantraButton_Click(object sender, EventArgs e)
         {
-            foreach (ListViewItem lvi in CharacterListView.SelectedItems)
+            try
             {
-                CharacterInfoData cid = gameData.Character[lvi.Text];
-
-                foreach (ListViewItem mantraLvi in MantraListView.SelectedItems)
+                foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    cid.LearnMantra(mantraLvi.Text);
+                    CharacterInfoData cid = gameData.Character[lvi.Text];
+
+                    foreach (ListViewItem mantraLvi in MantraListView.SelectedItems)
+                    {
+                        cid.LearnMantra(mantraLvi.Text);
+                    }
+                    readCharacterMantraData(cid);
                 }
-                readCharacterMantraData(cid);
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void AbolishMantraButton_Click(object sender, EventArgs e)
         {
-            foreach (ListViewItem lvi in CharacterListView.SelectedItems)
+            try
             {
-                CharacterInfoData cid = gameData.Character[lvi.Text];
-
-                foreach (ListViewItem mantraLvi in HavingMantraListView.SelectedItems)
+                foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    cid.AbolishMantra(mantraLvi.Text);
+                    int index = -1;
+                    CharacterInfoData cid = gameData.Character[lvi.Text];
+
+                    foreach (ListViewItem mantraLvi in HavingMantraListView.SelectedItems)
+                    {
+                        index = mantraLvi.Index;
+                        cid.AbolishMantra(mantraLvi.Text);
+                        if(cid.WorkMantra == mantraLvi.Text)
+                        {
+                            cid.WorkMantra = null;
+                        }
+                    }
+                    readCharacterMantraData(cid);
+                    readCharacterWorkMantraData(cid);
+
+                    if (index == HavingMantraListView.Items.Count)
+                    {
+                        index--;
+                    }
+                    if (index != -1)
+                    {
+                        HavingMantraListView.Items[index].Selected = true;
+                    }
                 }
-                readCharacterMantraData(cid);
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void SetWorkMantraButton_Click(object sender, EventArgs e)
         {
-            foreach (ListViewItem lvi in CharacterListView.SelectedItems)
+            try
             {
-                CharacterInfoData cid = gameData.Character[lvi.Text];
-
-                foreach (ListViewItem mantraLvi in HavingMantraListView.SelectedItems)
+                foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    cid.WorkMantra = mantraLvi.Text;
-                    readCharacterWorkMantraData(cid);
-                }
+                    CharacterInfoData cid = gameData.Character[lvi.Text];
 
+                    foreach (ListViewItem mantraLvi in HavingMantraListView.SelectedItems)
+                    {
+                        cid.WorkMantra = mantraLvi.Text;
+                        readCharacterWorkMantraData(cid);
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void HavingMantraListView_SelectedIndexChanged(object sender, EventArgs e)
         {
-            foreach (ListViewItem lvi in CharacterListView.SelectedItems)
+            try
             {
-                CharacterInfoData cid = gameData.Character[lvi.Text];
-
-                foreach (ListViewItem mantraLvi in HavingMantraListView.SelectedItems)
+                foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    MantraData md = cid.Mantra[mantraLvi.Text];
+                    CharacterInfoData cid = gameData.Character[lvi.Text];
 
-                    MantraCurrentLevelTextBox.Text = md.Level.ToString();
-                    MantraMaxLevelTextBox.Text = md.MaxLevel.ToString();
+                    foreach (ListViewItem mantraLvi in HavingMantraListView.SelectedItems)
+                    {
+                        MantraData md = cid.Mantra[mantraLvi.Text];
+
+                        MantraCurrentLevelTextBox.Text = md.Level.ToString();
+                        MantraMaxLevelTextBox.Text = md.MaxLevel.ToString();
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
@@ -3290,50 +3939,60 @@ namespace 侠之道存档修改器
         private void characterExteriorListView_SelectedIndexChanged(object sender, EventArgs e)
         {
             messageLabel.Text = "";
-            if (checkSaveFileIsSelected())
+            try
             {
-                try
-                {
-                    foreach (ListViewItem lvi in CharacterExteriorListView.SelectedItems)
-                    {  //选中项遍历 
-                        string id = lvi.Text;
-                        if (id == "in0101")
-                        {
-                            id = "Player";
-                        }
-                        CharacterExteriorData ced = new CharacterExteriorData();
-                        if (!gameData.Exterior.ContainsKey(id))
-                        {
-                            CharacterExterior characterExterior = Data.Get<CharacterExterior>(id);
-                            if (characterExterior != null)
-                            {
-                                ced = new CharacterExteriorData(characterExterior);
-                                gameData.Exterior.Add(id, ced);
-                            }
-                        }
-                        else
-                        {
-                            ced = gameData.Exterior[id];
-                        }
-                        readSelectCharacterExteriorData(ced);
+                foreach (ListViewItem lvi in CharacterExteriorListView.SelectedItems)
+                {  //选中项遍历 
+                    if (!saveFileIsSelected)
+                    {
+                        messageLabel.Text = "请先选择一个存档";
+                        CharacterExteriorListView.SelectedItems.Clear();
+                        return;
                     }
+                    string id = lvi.Text;
+                    if (id == "in0101")
+                    {
+                        id = "Player";
+                    }
+                    CharacterExteriorData ced = new CharacterExteriorData();
+                    if (!gameData.Exterior.ContainsKey(id))
+                    {
+                        CharacterExterior characterExterior = Data.Get<CharacterExterior>(id);
+                        if (characterExterior != null)
+                        {
+                            ced = new CharacterExteriorData(characterExterior);
+                            gameData.Exterior.Add(id, ced);
+                        }
+                    }
+                    else
+                    {
+                        ced = gameData.Exterior[id];
+                    }
+                    readSelectCharacterExteriorData(ced);
                 }
-                catch (Exception ex)
-                {
-                    messageLabel.Text = ex.Message;
-                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         public void readSelectCharacterExteriorData(CharacterExteriorData ced)
         {
-            SurNameTextBox.Text = ced.SurName;
-            NameTextBox.Text = ced.Name;
-            NicknameTextBox.Text = ced.Nickname;
-            ProtraitTextBox.Text = ced.Protrait;
-            ModelTextBox.Text = ced.Model;
-            GenderComboBox.SelectedIndex = (int)ced.Gender;
-            DescriptionTextBox.Text = ced.Description;
+            try
+            {
+                SurNameTextBox.Text = ced.SurName;
+                NameTextBox.Text = ced.Name;
+                NicknameTextBox.Text = ced.Nickname;
+                ProtraitTextBox.Text = ced.Protrait;
+                ModelTextBox.Text = ced.Model;
+                GenderComboBox.SelectedIndex = (int)ced.Gender;
+                DescriptionTextBox.Text = ced.Description;
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
 
         private void SurNameTextBox_GotFocus(object sender, EventArgs e)
@@ -3533,14 +4192,21 @@ namespace 侠之道存档修改器
 
         private void CommunityListView_SelectedIndexChanged(object sender, EventArgs e)
         {
-            foreach (ListViewItem lvi in CommunityListView.SelectedItems)
+            try
             {
-                CommunityData cd = gameData.Community[lvi.Text];
+                foreach (ListViewItem lvi in CommunityListView.SelectedItems)
+                {
+                    CommunityData cd = gameData.Community[lvi.Text];
 
-                CommunityLevelTextBox.Text = cd.Favorability.Level.ToString();
-                CommunityMaxLevelTextBox.Text = cd.Favorability.MaxLevel.ToString();
-                CommunityExpTextBox.Text = cd.Favorability.Exp.ToString();
-                CommunityIsOpenCheckBox.Checked = cd.isOpen;
+                    CommunityLevelTextBox.Text = cd.Favorability.Level.ToString();
+                    CommunityMaxLevelTextBox.Text = cd.Favorability.MaxLevel.ToString();
+                    CommunityExpTextBox.Text = cd.Favorability.Exp.ToString();
+                    CommunityIsOpenCheckBox.Checked = cd.isOpen;
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
@@ -3657,102 +4323,189 @@ namespace 侠之道存档修改器
 
         private void CommunityIsOpenCheckBox_CheckedChanged(object sender, EventArgs e)
         {
-            foreach (ListViewItem lvi in CommunityListView.SelectedItems)
+            try
             {
-                CommunityData cd = gameData.Community[lvi.Text];
-
-                cd.isOpen = CommunityIsOpenCheckBox.Checked;
-
-                if (CommunityIsOpenCheckBox.Checked)
+                foreach (ListViewItem lvi in CommunityListView.SelectedItems)
                 {
-                    Game.GameData.NurturanceOrder.OpenCommunityOrder(lvi.Text);
+                    CommunityData cd = gameData.Community[lvi.Text];
+
+                    cd.isOpen = CommunityIsOpenCheckBox.Checked;
+
+                    if (CommunityIsOpenCheckBox.Checked)
+                    {
+                        Game.GameData.NurturanceOrder.OpenCommunityOrder(lvi.Text);
+                    }
+                    else
+                    {
+                        Game.GameData.NurturanceOrder.CloseCommunityOrder(lvi.Text);
+                    }
                 }
-                else
-                {
-                    Game.GameData.NurturanceOrder.CloseCommunityOrder(lvi.Text);
-                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void AddPartyButton_Click(object sender, EventArgs e)
         {
-            foreach (ListViewItem lvi in CommunityListView.SelectedItems)
+            try
             {
-                Game.GameData.Party.AddParty(lvi.Text, false);
+                foreach (ListViewItem lvi in CommunityListView.SelectedItems)
+                {
+                    Game.GameData.Party.AddParty(lvi.Text, false);
+                }
+                readParty();
             }
-            readParty();
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
 
         private void RemovePartyButton_Click(object sender, EventArgs e)
         {
-            foreach (ListViewItem lvi in PartyListView.SelectedItems)
+            try
             {
-                Game.GameData.Party.RemoveParty(lvi.Text);
+                int index = -1;
+                foreach (ListViewItem lvi in PartyListView.SelectedItems)
+                {
+                    index = lvi.Index;
+                    Game.GameData.Party.RemoveParty(lvi.Text);
+                }
+                readParty();
+
+                if (index == PartyListView.Items.Count)
+                {
+                    index--;
+                }
+                if (index != -1)
+                {
+                    PartyListView.Items[index].Selected = true;
+                }
             }
-            readParty();
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
 
         private void PartyListView_SelectedIndexChanged(object sender, EventArgs e)
         {
-            foreach (ListViewItem lvi in PartyListView.SelectedItems)
+            try
             {
-                if (lvi.Text == "Player")
+                foreach (ListViewItem lvi in PartyListView.SelectedItems)
                 {
-                    RemovePartyButton.Enabled = false;
+                    if (lvi.Text == "Player")
+                    {
+                        RemovePartyButton.Enabled = false;
+                    }
+                    else
+                    {
+                        RemovePartyButton.Enabled = true;
+                    }
                 }
-                else
-                {
-                    RemovePartyButton.Enabled = true;
-                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void FlagAdd1Button_Click(object sender, EventArgs e)
         {
-            messageLabel.Text = "";
-            foreach (ListViewItem lvi in FlagListView.SelectedItems)  //选中项遍历  
+            try
             {
-                Game.GameData.Flag[lvi.Text] += 1;
-                lvi.SubItems[1].Text = Game.GameData.Flag[lvi.Text].ToString();
+                messageLabel.Text = "";
+                if (!saveFileIsSelected)
+                {
+                    messageLabel.Text = "请先选择一个存档";
+                    return;
+                }
+                foreach (ListViewItem lvi in FlagListView.SelectedItems)  //选中项遍历  
+                {
+                    Game.GameData.Flag[lvi.Text] += 1;
+                    lvi.SubItems[1].Text = Game.GameData.Flag[lvi.Text].ToString();
+                }
+                FlagListView.EndUpdate();
+                readFlagLove();
             }
-            FlagListView.EndUpdate();
-            readFlagLove();
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
 
         private void FlagAdd10Button_Click(object sender, EventArgs e)
         {
-            messageLabel.Text = "";
-            foreach (ListViewItem lvi in FlagListView.SelectedItems)  //选中项遍历  
+            try
             {
-                Game.GameData.Flag[lvi.Text] += 10;
-                lvi.SubItems[1].Text = Game.GameData.Flag[lvi.Text].ToString();
+                messageLabel.Text = "";
+                if (!saveFileIsSelected)
+                {
+                    messageLabel.Text = "请先选择一个存档";
+                    return;
+                }
+                foreach (ListViewItem lvi in FlagListView.SelectedItems)  //选中项遍历  
+                {
+                    Game.GameData.Flag[lvi.Text] += 10;
+                    lvi.SubItems[1].Text = Game.GameData.Flag[lvi.Text].ToString();
+                }
+                FlagListView.EndUpdate();
+                readFlagLove();
             }
-            FlagListView.EndUpdate();
-            readFlagLove();
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
 
         private void FlagSub1Button_Click(object sender, EventArgs e)
         {
-            messageLabel.Text = "";
-            foreach (ListViewItem lvi in FlagListView.SelectedItems)  //选中项遍历  
+            try
             {
-                Game.GameData.Flag[lvi.Text] -= 1;
-                lvi.SubItems[1].Text = Game.GameData.Flag[lvi.Text].ToString();
+                messageLabel.Text = "";
+                if (!saveFileIsSelected)
+                {
+                    messageLabel.Text = "请先选择一个存档";
+                    return;
+                }
+                foreach (ListViewItem lvi in FlagListView.SelectedItems)  //选中项遍历  
+                {
+                    Game.GameData.Flag[lvi.Text] -= 1;
+                    lvi.SubItems[1].Text = Game.GameData.Flag[lvi.Text].ToString();
+                }
+                FlagListView.EndUpdate();
+                readFlagLove();
             }
-            FlagListView.EndUpdate();
-            readFlagLove();
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
 
         private void FlagSub10Button_Click(object sender, EventArgs e)
         {
-            messageLabel.Text = "";
-            foreach (ListViewItem lvi in FlagListView.SelectedItems)  //选中项遍历  
+            try
             {
-                Game.GameData.Flag[lvi.Text] -= 10;
-                lvi.SubItems[1].Text = Game.GameData.Flag[lvi.Text].ToString();
+                messageLabel.Text = "";
+                if (!saveFileIsSelected)
+                {
+                    messageLabel.Text = "请先选择一个存档";
+                    return;
+                }
+                foreach (ListViewItem lvi in FlagListView.SelectedItems)  //选中项遍历  
+                {
+                    Game.GameData.Flag[lvi.Text] -= 10;
+                    lvi.SubItems[1].Text = Game.GameData.Flag[lvi.Text].ToString();
+                }
+                FlagListView.EndUpdate();
+                readFlagLove();
             }
-            FlagListView.EndUpdate();
-            readFlagLove();
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
 
         private void ctb_MasterLoveTextBox_GotFocus(object sender, EventArgs e)
@@ -3765,6 +4518,11 @@ namespace 侠之道存档修改器
         {
             try
             {
+                if (!saveFileIsSelected)
+                {
+                    messageLabel.Text = "请先选择一个存档";
+                    return;
+                }
                 if (ctb_MasterLoveTextBox.Text == string.Empty)
                 {
                     ctb_MasterLoveTextBox.Text = "0";
@@ -3797,6 +4555,11 @@ namespace 侠之道存档修改器
         {
             try
             {
+                if (!saveFileIsSelected)
+                {
+                    messageLabel.Text = "请先选择一个存档";
+                    return;
+                }
                 if (dxl_MasterLoveTextBox.Text == string.Empty)
                 {
                     dxl_MasterLoveTextBox.Text = "0";
@@ -3830,6 +4593,11 @@ namespace 侠之道存档修改器
         {
             try
             {
+                if (!saveFileIsSelected)
+                {
+                    messageLabel.Text = "请先选择一个存档";
+                    return;
+                }
                 if (dh_MasterLoveTextBox.Text == string.Empty)
                 {
                     dh_MasterLoveTextBox.Text = "0";
@@ -3863,6 +4631,11 @@ namespace 侠之道存档修改器
         {
             try
             {
+                if (!saveFileIsSelected)
+                {
+                    messageLabel.Text = "请先选择一个存档";
+                    return;
+                }
                 if (lxp_MasterLoveTextBox.Text == string.Empty)
                 {
                     lxp_MasterLoveTextBox.Text = "0";
@@ -3896,6 +4669,11 @@ namespace 侠之道存档修改器
         {
             try
             {
+                if (!saveFileIsSelected)
+                {
+                    messageLabel.Text = "请先选择一个存档";
+                    return;
+                }
                 if (ht_MasterLoveTextBox.Text == string.Empty)
                 {
                     ht_MasterLoveTextBox.Text = "0";
@@ -3929,6 +4707,11 @@ namespace 侠之道存档修改器
         {
             try
             {
+                if (!saveFileIsSelected)
+                {
+                    messageLabel.Text = "请先选择一个存档";
+                    return;
+                }
                 if (tsz_MasterLoveTextBox.Text == string.Empty)
                 {
                     tsz_MasterLoveTextBox.Text = "0";
@@ -3962,6 +4745,11 @@ namespace 侠之道存档修改器
         {
             try
             {
+                if (!saveFileIsSelected)
+                {
+                    messageLabel.Text = "请先选择一个存档";
+                    return;
+                }
                 if (fxlh_MasterLoveTextBox.Text == string.Empty)
                 {
                     fxlh_MasterLoveTextBox.Text = "0";
@@ -3995,6 +4783,11 @@ namespace 侠之道存档修改器
         {
             try
             {
+                if (!saveFileIsSelected)
+                {
+                    messageLabel.Text = "请先选择一个存档";
+                    return;
+                }
                 if (ncc_MasterLoveTextBox.Text == string.Empty)
                 {
                     ncc_MasterLoveTextBox.Text = "0";
@@ -4028,6 +4821,11 @@ namespace 侠之道存档修改器
         {
             try
             {
+                if (!saveFileIsSelected)
+                {
+                    messageLabel.Text = "请先选择一个存档";
+                    return;
+                }
                 if (mrx_MasterLoveTextBox.Text == string.Empty)
                 {
                     mrx_MasterLoveTextBox.Text = "0";
@@ -4062,6 +4860,11 @@ namespace 侠之道存档修改器
 
             try
             {
+                if (!saveFileIsSelected)
+                {
+                    messageLabel.Text = "请先选择一个存档";
+                    return;
+                }
                 if (j_MasterLoveTextBox.Text == string.Empty)
                 {
                     j_MasterLoveTextBox.Text = "0";
@@ -4094,6 +4897,11 @@ namespace 侠之道存档修改器
         {
             try
             {
+                if (!saveFileIsSelected)
+                {
+                    messageLabel.Text = "请先选择一个存档";
+                    return;
+                }
                 if (xx_NpcLoveTextBox.Text == string.Empty)
                 {
                     xx_NpcLoveTextBox.Text = "0";
@@ -4118,142 +4926,218 @@ namespace 侠之道存档修改器
 
         private void QuestListView_SelectedIndexChanged(object sender, EventArgs e)
         {
-            foreach (ListViewItem lvi in QuestListView.SelectedItems)
+            try
             {
-                if (Game.GameData.Quest.IsInProgress(lvi.Text))
+                foreach (ListViewItem lvi in QuestListView.SelectedItems)
                 {
-                    QuestStateComboBox.SelectedIndex = 1;
+                    if (!saveFileIsSelected)
+                    {
+                        messageLabel.Text = "请先选择一个存档";
+                        QuestListView.SelectedItems.Clear();
+                        return;
+                    }
+                    if (Game.GameData.Quest.IsInProgress(lvi.Text))
+                    {
+                        QuestStateComboBox.SelectedIndex = 1;
+                    }
+                    else if (Game.GameData.Quest.IsPassed(lvi.Text))
+                    {
+                        QuestStateComboBox.SelectedIndex = 2;
+                    }
+                    else
+                    {
+                        QuestStateComboBox.SelectedIndex = 0;
+                    }
                 }
-                else if (Game.GameData.Quest.IsPassed(lvi.Text))
-                {
-                    QuestStateComboBox.SelectedIndex = 2;
-                }
-                else
-                {
-                    QuestStateComboBox.SelectedIndex = 0;
-                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void ShowAllQuestComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (!isSaveFileSelecting)
+            try
             {
-                readQuest();
+                if (!isSaveFileSelecting)
+                {
+                    readQuest();
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void QuestChangeState1Button_Click(object sender, EventArgs e)
         {
-            foreach (ListViewItem lvi in QuestListView.SelectedItems)
+            try
             {
-                if (Game.GameData.Quest.TrackedKind != QuestManager.QuestKind.None && Game.GameData.Quest.InProgress[(int)Game.GameData.Quest.TrackedKind] == lvi.Text)
+                foreach (ListViewItem lvi in QuestListView.SelectedItems)
                 {
-                    Game.GameData.Quest.InProgress[(int)Game.GameData.Quest.TrackedKind] = "";
+                    if (Game.GameData.Quest.TrackedKind != QuestManager.QuestKind.None && Game.GameData.Quest.InProgress[(int)Game.GameData.Quest.TrackedKind] == lvi.Text)
+                    {
+                        Game.GameData.Quest.InProgress[(int)Game.GameData.Quest.TrackedKind] = "";
+                    }
+                    Game.GameData.Quest.Passed.Remove(lvi.Text);
+                    QuestStateComboBox.SelectedIndex = 0;
                 }
-                Game.GameData.Quest.Passed.Remove(lvi.Text);
-                QuestStateComboBox.SelectedIndex = 0;
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void QuestChangeState2Button_Click(object sender, EventArgs e)
         {
-            foreach (ListViewItem lvi in QuestListView.SelectedItems)
+            try
             {
-                if (Game.GameData.Quest.TrackedKind != QuestManager.QuestKind.None)
+                foreach (ListViewItem lvi in QuestListView.SelectedItems)
                 {
-                    Game.GameData.Quest.InProgress[(int)Game.GameData.Quest.TrackedKind] = lvi.Text;
+                    if (Game.GameData.Quest.TrackedKind != QuestManager.QuestKind.None)
+                    {
+                        Game.GameData.Quest.InProgress[(int)Game.GameData.Quest.TrackedKind] = lvi.Text;
+                    }
+                    Game.GameData.Quest.Passed.Remove(lvi.Text);
+                    QuestStateComboBox.SelectedIndex = 1;
                 }
-                Game.GameData.Quest.Passed.Remove(lvi.Text);
-                QuestStateComboBox.SelectedIndex = 1;
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void QuestChangeState3Button_Click(object sender, EventArgs e)
         {
-            foreach (ListViewItem lvi in QuestListView.SelectedItems)
+            try
             {
-                if (Game.GameData.Quest.TrackedKind != QuestManager.QuestKind.None && Game.GameData.Quest.InProgress[(int)Game.GameData.Quest.TrackedKind] == lvi.Text)
+                foreach (ListViewItem lvi in QuestListView.SelectedItems)
                 {
-                    Game.GameData.Quest.InProgress[(int)Game.GameData.Quest.TrackedKind] = "";
+                    if (Game.GameData.Quest.TrackedKind != QuestManager.QuestKind.None && Game.GameData.Quest.InProgress[(int)Game.GameData.Quest.TrackedKind] == lvi.Text)
+                    {
+                        Game.GameData.Quest.InProgress[(int)Game.GameData.Quest.TrackedKind] = "";
+                    }
+                    if (!Game.GameData.Quest.Passed.Contains(lvi.Text))
+                    {
+                        Game.GameData.Quest.Passed.Add(lvi.Text);
+                    }
+                    QuestStateComboBox.SelectedIndex = 2;
                 }
-                if (!Game.GameData.Quest.Passed.Contains(lvi.Text))
-                {
-                    Game.GameData.Quest.Passed.Add(lvi.Text);
-                }
-                QuestStateComboBox.SelectedIndex = 2;
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void SetCurrentElectiveButton_Click(object sender, EventArgs e)
         {
-
-            foreach (ListViewItem lvi in ElectiveListView.SelectedItems)
+            try
             {
-                int index = lvi.Index;
-                Game.GameData.Elective.Id = lvi.Text;
-                if (!Data.Get<Elective>(lvi.Text).IsRepeat)
+                foreach (ListViewItem lvi in ElectiveListView.SelectedItems)
                 {
-                    if (!Game.GameData.Elective.Triggered.Contains(lvi.Text))
+                    int index = lvi.Index;
+                    Game.GameData.Elective.Id = lvi.Text;
+                    if (!Data.Get<Elective>(lvi.Text).IsRepeat)
                     {
-                        Game.GameData.Elective.Triggered.Add(lvi.Text);
+                        if (!Game.GameData.Elective.Triggered.Contains(lvi.Text))
+                        {
+                            Game.GameData.Elective.Triggered.Add(lvi.Text);
+                        }
                     }
+                    readElective();
+                    ElectiveListView.Items[index].Selected = true;
                 }
-                readElective();
-                ElectiveListView.Items[index].Selected = true;
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
 
         }
 
         private void NurturanceOrderListView_SelectedIndexChanged(object sender, EventArgs e)
         {
-            foreach (ListViewItem lvi in NurturanceOrderListView.SelectedItems)
+            try
             {
-                NurturanceOrderStateTextBox.Text = getNurturanceOrderContain(Game.GameData.NurturanceOrder.Root, lvi.Text) ? "开启" : "关闭";
+                foreach (ListViewItem lvi in NurturanceOrderListView.SelectedItems)
+                {
+                    NurturanceOrderStateTextBox.Text = getNurturanceOrderContain(Game.GameData.NurturanceOrder.Root, lvi.Text) ? "开启" : "关闭";
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void NurturanceOrderOpenButton_Click(object sender, EventArgs e)
         {
-            foreach (ListViewItem lvi in NurturanceOrderListView.SelectedItems)
+            try
             {
-                Game.GameData.NurturanceOrder.OpenOrder(lvi.Text);
-                NurturanceOrderStateTextBox.Text = getNurturanceOrderContain(Game.GameData.NurturanceOrder.Root, lvi.Text) ? "开启" : "关闭";
+                foreach (ListViewItem lvi in NurturanceOrderListView.SelectedItems)
+                {
+                    Game.GameData.NurturanceOrder.OpenOrder(lvi.Text);
+                    NurturanceOrderStateTextBox.Text = getNurturanceOrderContain(Game.GameData.NurturanceOrder.Root, lvi.Text) ? "开启" : "关闭";
 
-                lvi.SubItems[2].Text = getNurturanceOrderContain(Game.GameData.NurturanceOrder.Root, lvi.Text) ? "开启" : "关闭";
+                    lvi.SubItems[2].Text = getNurturanceOrderContain(Game.GameData.NurturanceOrder.Root, lvi.Text) ? "开启" : "关闭";
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
 
         }
         private void NurturanceOrderCloseButton_Click(object sender, EventArgs e)
         {
-            foreach (ListViewItem lvi in NurturanceOrderListView.SelectedItems)
+            try
             {
-                Game.GameData.NurturanceOrder.CloseOrder(lvi.Text);
-                NurturanceOrderStateTextBox.Text = getNurturanceOrderContain(Game.GameData.NurturanceOrder.Root, lvi.Text) ? "开启" : "关闭";
-                lvi.SubItems[2].Text = getNurturanceOrderContain(Game.GameData.NurturanceOrder.Root, lvi.Text) ? "开启" : "关闭";
+                foreach (ListViewItem lvi in NurturanceOrderListView.SelectedItems)
+                {
+                    Game.GameData.NurturanceOrder.CloseOrder(lvi.Text);
+                    NurturanceOrderStateTextBox.Text = getNurturanceOrderContain(Game.GameData.NurturanceOrder.Root, lvi.Text) ? "开启" : "关闭";
+                    lvi.SubItems[2].Text = getNurturanceOrderContain(Game.GameData.NurturanceOrder.Root, lvi.Text) ? "开启" : "关闭";
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         public bool getNurturanceOrderContain(Tree<Nurturance> root, string nurturanceId)
         {
-            if (root.Value != null && root.Value.Id == nurturanceId)
+            try
             {
-                return true;
-            }
+                if (root.Value != null && root.Value.Id == nurturanceId)
+                {
+                    return true;
+                }
 
-            for (int i = 0; i < root.Children.Count; i++)
-            {
-                bool contains = getNurturanceOrderContain(root.Children[i], nurturanceId);
-                if (contains)
+                for (int i = 0; i < root.Children.Count; i++)
                 {
-                    return contains;
+                    bool contains = getNurturanceOrderContain(root.Children[i], nurturanceId);
+                    if (contains)
+                    {
+                        return contains;
+                    }
+                    else
+                    {
+                        continue;
+                    }
                 }
-                else
-                {
-                    continue;
-                }
+                return false;
             }
-            return false;
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+                return false;
+            }
         }
 
         private void BookListView_GotFocus(object sender, EventArgs e)
@@ -4270,214 +5154,459 @@ namespace 侠之道存档修改器
 
         private void AddBookButton_Click(object sender, EventArgs e)
         {
-            foreach (ListViewItem lvi in BookListView.SelectedItems)
+            try
             {
-                Game.GameData.ReadBookManager.GetBook(lvi.Text);
-                readBook();
-                int index = HavingBookListView.FindItemWithText(lvi.Text).Index;
-                HavingBookListView.EnsureVisible(index);
-                HavingBookListView.Items[index].Selected = true;
+                if (!saveFileIsSelected)
+                {
+                    messageLabel.Text = "请先选择一个存档";
+                    return;
+                }
+                foreach (ListViewItem lvi in BookListView.SelectedItems)
+                {
+                    Game.GameData.ReadBookManager.GetBook(lvi.Text);
+                    readBook();
+                    int index = HavingBookListView.FindItemWithText(lvi.Text).Index;
+                    HavingBookListView.EnsureVisible(index);
+                    HavingBookListView.Items[index].Selected = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void RemoveBookButton_Click(object sender, EventArgs e)
         {
-            foreach (ListViewItem lvi in HavingBookListView.SelectedItems)
+            try
             {
-                int index = lvi.Index;
-                Game.GameData.ReadBookManager.Remove(lvi.Text);
-                HavingBookListView.Items.Remove(lvi);
-                if (index == HavingBookListView.Items.Count)
+                foreach (ListViewItem lvi in HavingBookListView.SelectedItems)
                 {
-                    index = HavingBookListView.Items.Count - 1;
+                    int index = lvi.Index;
+                    Game.GameData.ReadBookManager.Remove(lvi.Text);
+                    HavingBookListView.Items.Remove(lvi);
+                    if (index == HavingBookListView.Items.Count)
+                    {
+                        index = HavingBookListView.Items.Count - 1;
+                    }
+                    if(index != -1)
+                    {
+                        HavingBookListView.Items[index].Selected = true;
+                    }
                 }
-                HavingBookListView.Items[index].Selected = true;
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void LearnAlchemyButton_Click(object sender, EventArgs e)
         {
-            foreach (ListViewItem lvi in AlchemyListView.SelectedItems)
+            try
             {
-                Game.GameData.Alchemy.Learn(lvi.Text);
-                lvi.SubItems[3].Text=Game.GameData.Alchemy.Learned.Contains(lvi.Text) ? "是" : "否";
+                foreach (ListViewItem lvi in AlchemyListView.SelectedItems)
+                {
+                    Game.GameData.Alchemy.Learn(lvi.Text);
+                    lvi.SubItems[3].Text = Game.GameData.Alchemy.Learned.Contains(lvi.Text) ? "是" : "否";
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void AbolishAlchemyButton_Click(object sender, EventArgs e)
         {
-
-            foreach (ListViewItem lvi in AlchemyListView.SelectedItems)
+            try
             {
-                Game.GameData.Alchemy.Learned.Remove(lvi.Text);
-                lvi.SubItems[3].Text = Game.GameData.Alchemy.Learned.Contains(lvi.Text) ? "是" : "否";
+                foreach (ListViewItem lvi in AlchemyListView.SelectedItems)
+                {
+                    Game.GameData.Alchemy.Learned.Remove(lvi.Text);
+                    lvi.SubItems[3].Text = Game.GameData.Alchemy.Learned.Contains(lvi.Text) ? "是" : "否";
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void OpenForgeFightButton_Click(object sender, EventArgs e)
         {
-            foreach (ListViewItem lvi in ForgeFightListView.SelectedItems)
+            try
             {
-                Game.GameData.Forge.Open(lvi.Text);
-                lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
+                foreach (ListViewItem lvi in ForgeFightListView.SelectedItems)
+                {
+                    Game.GameData.Forge.Open(lvi.Text);
+                    lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void CloseForgeFightButton_Click(object sender, EventArgs e)
         {
-            foreach (ListViewItem lvi in ForgeFightListView.SelectedItems)
+            try
             {
-                Game.GameData.Forge.Opened.Remove(lvi.Text);
-                lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
+                foreach (ListViewItem lvi in ForgeFightListView.SelectedItems)
+                {
+                    Game.GameData.Forge.Opened.Remove(lvi.Text);
+                    lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void OpenForgeBladeAndSwordButton_Click(object sender, EventArgs e)
         {
-
-            foreach (ListViewItem lvi in ForgeBladeAndSwordListView.SelectedItems)
+            try
             {
-                Game.GameData.Forge.Open(lvi.Text);
-                lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
+                foreach (ListViewItem lvi in ForgeBladeAndSwordListView.SelectedItems)
+                {
+                    Game.GameData.Forge.Open(lvi.Text);
+                    lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void CloseForgeBladeAndSwordButton_Click(object sender, EventArgs e)
         {
-
-            foreach (ListViewItem lvi in ForgeBladeAndSwordListView.SelectedItems)
+            try
             {
-                Game.GameData.Forge.Opened.Remove(lvi.Text);
-                lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
+                foreach (ListViewItem lvi in ForgeBladeAndSwordListView.SelectedItems)
+                {
+                    Game.GameData.Forge.Opened.Remove(lvi.Text);
+                    lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void OpenForgeLongAndShortButton_Click(object sender, EventArgs e)
         {
-
-            foreach (ListViewItem lvi in ForgeLongAndShortListView.SelectedItems)
+            try
             {
-                Game.GameData.Forge.Open(lvi.Text);
-                lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
+                foreach (ListViewItem lvi in ForgeLongAndShortListView.SelectedItems)
+                {
+                    Game.GameData.Forge.Open(lvi.Text);
+                    lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void CloseForgeLongAndShortButton_Click(object sender, EventArgs e)
         {
-            foreach (ListViewItem lvi in ForgeLongAndShortListView.SelectedItems)
+            try
             {
-                Game.GameData.Forge.Opened.Remove(lvi.Text);
-                lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
-            }
+                foreach (ListViewItem lvi in ForgeLongAndShortListView.SelectedItems)
+                {
+                    Game.GameData.Forge.Opened.Remove(lvi.Text);
+                    lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
+                }
 
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
 
         private void OpenForgeQimenButton_Click(object sender, EventArgs e)
         {
-
-            foreach (ListViewItem lvi in ForgeQimenListView.SelectedItems)
+            try
             {
-                Game.GameData.Forge.Open(lvi.Text);
-                lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
+                foreach (ListViewItem lvi in ForgeQimenListView.SelectedItems)
+                {
+                    Game.GameData.Forge.Open(lvi.Text);
+                    lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void CloseForgeQimenButton_Click(object sender, EventArgs e)
         {
-
-            foreach (ListViewItem lvi in ForgeQimenListView.SelectedItems)
+            try
             {
-                Game.GameData.Forge.Opened.Remove(lvi.Text);
-                lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
+                foreach (ListViewItem lvi in ForgeQimenListView.SelectedItems)
+                {
+                    Game.GameData.Forge.Opened.Remove(lvi.Text);
+                    lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void OpenForgeArmorButton_Click(object sender, EventArgs e)
         {
-
-            foreach (ListViewItem lvi in ForgeArmorListView.SelectedItems)
+            try
             {
-                Game.GameData.Forge.Open(lvi.Text);
-                lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
+                foreach (ListViewItem lvi in ForgeArmorListView.SelectedItems)
+                {
+                    Game.GameData.Forge.Open(lvi.Text);
+                    lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void CloseForgeArmorButton_Click(object sender, EventArgs e)
         {
-
-            foreach (ListViewItem lvi in ForgeArmorListView.SelectedItems)
+            try
             {
-                Game.GameData.Forge.Opened.Remove(lvi.Text);
-                lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
+                foreach (ListViewItem lvi in ForgeArmorListView.SelectedItems)
+                {
+                    Game.GameData.Forge.Opened.Remove(lvi.Text);
+                    lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void AddShopButton_Click(object sender, EventArgs e)
         {
-            foreach (ListViewItem lvi in ShopListView.SelectedItems)
+            try
             {
-                ShopSoldOutInfo shopSoldOutInfo = Game.GameData.Shop.SoldOuts.Find((ShopSoldOutInfo x) => x.SoldOutId == lvi.Text);
-                Game.GameData.Shop.SoldOuts.Remove(shopSoldOutInfo);
+                foreach (ListViewItem lvi in ShopListView.SelectedItems)
+                {
+                    ShopSoldOutInfo shopSoldOutInfo = Game.GameData.Shop.SoldOuts.Find((ShopSoldOutInfo x) => x.SoldOutId == lvi.Text);
+                    Game.GameData.Shop.SoldOuts.Remove(shopSoldOutInfo);
 
-                Shop shop = Data.Get<Shop>(lvi.Text);
-                lvi.SubItems[6].Text = shopIsSoldOut(shop);
+                    Shop shop = Data.Get<Shop>(lvi.Text);
+                    lvi.SubItems[6].Text = shopIsSoldOut(shop);
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void RemoveShopButton_Click(object sender, EventArgs e)
         {
-            foreach (ListViewItem lvi in ShopListView.SelectedItems)
+            try
             {
-                ShopSoldOutInfo item = new ShopSoldOutInfo
+                foreach (ListViewItem lvi in ShopListView.SelectedItems)
                 {
-                    SoldOutId = lvi.Text,
-                    SoldOutRound = Game.GameData.Round.CurrentRound
-                };
-                Game.GameData.Shop.SoldOuts.Add(item);
+                    ShopSoldOutInfo item = new ShopSoldOutInfo
+                    {
+                        SoldOutId = lvi.Text,
+                        SoldOutRound = Game.GameData.Round.CurrentRound
+                    };
+                    Game.GameData.Shop.SoldOuts.Add(item);
 
-                Shop shop = Data.Get<Shop>(lvi.Text);
-                lvi.SubItems[6].Text = shopIsSoldOut(shop);
+                    Shop shop = Data.Get<Shop>(lvi.Text);
+                    lvi.SubItems[6].Text = shopIsSoldOut(shop);
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void SearchFlagButton_Click(object sender, EventArgs e)
         {
-            SearchResultLabel.Text = "";
-            string searchFlag = SearchFlagTextBox.Text;
-            int index = 0;
-            if(FlagListView.SelectedItems.Count != 0)
+            try
             {
-                index = FlagListView.SelectedItems[0].Index + 1;
-            }
-            if(index == FlagListView.Items.Count)
-            {
-                index = 0;
-            }
-            ListViewItem lvi = FlagListView.FindItemWithText(searchFlag, false,index);
-            if(lvi != null)
-            {
-                FlagListView.Items[lvi.Index].Selected = true;
-                FlagListView.EnsureVisible(lvi.Index);
-            }
-            else
-            {
-                lvi = FlagListView.FindItemWithText(searchFlag, false, 0); if (lvi != null)
+                SearchFlagResultLabel.Text = "";
+                string searchFlag = SearchFlagTextBox.Text;
+
+                bool isSearched = false;
+                if (FlagListView.Items.Count != 0)
                 {
-                    FlagListView.Items[lvi.Index].Selected = true;
-                    FlagListView.EnsureVisible(lvi.Index);
+                    int startIndex = 0;
+
+                    if (FlagListView.SelectedItems != null && FlagListView.SelectedItems.Count != 0)
+                    {
+                        startIndex = FlagListView.SelectedItems[0].Index + 1;
+                    }
+
+                    if (startIndex == FlagListView.Items.Count)
+                    {
+                        startIndex = 0;
+                    }
+                    int index = startIndex;
+
+                    do
+                    {
+                        ListViewItem lvi = FlagListView.Items[index];
+
+                        if (lvi.Text.Contains(searchFlag) || lvi.SubItems[2].Text.Contains(searchFlag))
+                        {
+                            lvi.Selected = true;
+                            isSearched = true;
+                            FlagListView.EnsureVisible(lvi.Index);
+                            break;
+                        }
+                        index++;
+
+                        if (index == FlagListView.Items.Count)
+                        {
+                            index = 0;
+                        }
+                    } while (index != startIndex);
                 }
-                else
+                if (!isSearched)
                 {
-                    SearchResultLabel.Text = "未找到该旗标";
+                    SearchFlagResultLabel.Text = "未找到该旗标";
                 }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
             }
         }
 
         private void fixBug()
         {
-            Game.GameData.Character["Player"].Skill.Remove("");
+            try
+            {
+                Game.GameData.Character["Player"].Skill.Remove("");
 
-            gameData.Inventory.Remove("");
+                gameData.Inventory.Remove("");
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
+        }
+
+        private void PropsSearchButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                SearchPropsResultLabel.Text = "";
+                string searchProps = SearchPropsTextBox.Text;
+
+                bool isSearched = false;
+                if (PropsListView.Items.Count != 0)
+                {
+                    int startIndex = 0;
+
+                    if (PropsListView.SelectedItems != null && PropsListView.SelectedItems.Count != 0)
+                    {
+                        startIndex = PropsListView.SelectedItems[0].Index + 1;
+                    }
+
+                    if (startIndex == PropsListView.Items.Count)
+                    {
+                        startIndex = 0;
+                    }
+                    int index = startIndex;
+
+                    do
+                    {
+                        ListViewItem lvi = PropsListView.Items[index];
+
+                        if (lvi.Text.Contains(searchProps) || lvi.SubItems[1].Text.Contains(searchProps))
+                        {
+                            lvi.Selected = true;
+                            isSearched = true;
+                            PropsListView.EnsureVisible(lvi.Index);
+                            break;
+                        }
+                        index++;
+
+                        if (index == PropsListView.Items.Count)
+                        {
+                            index = 0;
+                        }
+                    } while (index != startIndex);
+                }
+                if (!isSearched)
+                {
+                    SearchPropsResultLabel.Text = "未找到该物品";
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
+        }
+
+        private void InventorySearchButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                SearchInventoryResultLabel.Text = "";
+                string searchInventory = SearchInventoryTextBox.Text;
+
+                bool isSearched = false;
+                if (InventoryListView.Items.Count != 0)
+                {
+                    int startIndex = 0;
+
+                    if (InventoryListView.SelectedItems != null && InventoryListView.SelectedItems.Count != 0)
+                    {
+                        startIndex = InventoryListView.SelectedItems[0].Index + 1;
+                    }
+
+                    if (startIndex == InventoryListView.Items.Count)
+                    {
+                        startIndex = 0;
+                    }
+                    int index = startIndex;
+
+                    do
+                    {
+                        ListViewItem lvi = InventoryListView.Items[index];
+
+                        if (lvi.Text.Contains(searchInventory) || lvi.SubItems[1].Text.Contains(searchInventory))
+                        {
+                            lvi.Selected = true;
+                            isSearched = true;
+                            InventoryListView.EnsureVisible(lvi.Index);
+                            break;
+                        }
+                        index++;
+
+                        if (index == InventoryListView.Items.Count)
+                        {
+                            index = 0;
+                        }
+                    } while (index != startIndex);
+                }
+                if (!isSearched)
+                {
+                    SearchInventoryResultLabel.Text = "未找到该物品";
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+            }
         }
     }
 }

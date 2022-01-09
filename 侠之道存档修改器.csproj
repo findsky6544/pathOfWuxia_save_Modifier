@@ -137,6 +137,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="Properties\DataSources\Heluo.Data.Inventory.datasource" />
     <None Include="Properties\Settings.settings">
@@ -164,6 +165,18 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\支付宝.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\1641713626535.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\mm_reward_qrcode_1641713593773.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\1641713231.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
