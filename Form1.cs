@@ -1791,7 +1791,7 @@ namespace 侠之道存档修改器
                 {
                     if (kv.Key != "")
                     {
-                        if (cid.Equip[EquipType.Weapon] == null || cid.Equip[EquipType.Weapon] == "" || Data.Get<Props>(cid.Equip[EquipType.Weapon]).PropsCategory == kv.Value.Item.Type)
+                        if (cid.Equip[EquipType.Weapon] == null || cid.Equip[EquipType.Weapon] == "" || Data.Get<Props>(cid.Equip[EquipType.Weapon]).PropsCategory == kv.Value.Item.Type || kv.Value.Item.DamageType == DamageType.Throwing || kv.Value.Item.DamageType == DamageType.Heal)
                         {
                             ListViewItem lvi = new ListViewItem();
 
