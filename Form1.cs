@@ -4137,21 +4137,29 @@ namespace 侠之道存档修改器
                 {
                     CharacterExteriorData ced = gameData.Exterior[lvi.Text];
 
-                    ced.Model = ModelTextBox.Text;
-                    ModelTextBox.Text = ced.Model;
-
+                    bool hasModel = false;
                     foreach (KeyValuePair<string, CharacterExterior> kv in Data.Get<CharacterExterior>())
                     {
-                        if (kv.Value.Model == ced.Model)
+                        if (kv.Value.Model == ModelTextBox.Text)
                         {
+
+                            ced.Model = kv.Value.Model;
+                            ModelTextBox.Text = ced.Model;
+
                             ced.Gender = kv.Value.Gender;
                             GenderComboBox.SelectedIndex = (int)ced.Gender;
+
+                            ced.Size = kv.Value.Size;
+                            hasModel = true;
                             break;
                         }
                     }
-                    messageLabel.Text = "未找到该模型编号";
+                    if (!hasModel)
+                    {
+                        messageLabel.Text = "未找到该模型编号";
 
-                    ModelTextBox.Text = ModelTextBox.Tag.ToString();
+                        ModelTextBox.Text = ModelTextBox.Tag.ToString();
+                    }
                 }
             }
             catch (Exception ex)

@@ -4178,7 +4178,7 @@ namespace 侠之道存档修改器
             this.Controls.Add(this.saveButton);
             this.Controls.Add(this.tabControl1);
             this.Name = "Form1";
-            this.Text = "侠之道存档修改器";
+            this.Text = "侠之道存档修改器1.4";
             this.tabControl1.ResumeLayout(false);
             this.saveTabPage.ResumeLayout(false);
             this.saveTabPage.PerformLayout();
