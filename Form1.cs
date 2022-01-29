@@ -17,6 +17,8 @@ using static 侠之道存档修改器.EnumData;
 using Heluo.Flow;
 using Heluo.Tree;
 using System.Text.RegularExpressions;
+using System.Globalization;
+using System.Reflection;
 
 namespace 侠之道存档修改器
 {
@@ -24,16 +26,72 @@ namespace 侠之道存档修改器
     {
         private string saveFilesPath = "saveFilesPath.txt";
         private string FlagRemarkFilePath = "FlagRemark.txt";
-        private string logPath = "log.txt";
+        private string logPath = "output.log";
         private GameData gameData = new GameData();
         private PathOfWuxiaSaveHeader pathOfWuxiaSaveHeader = new PathOfWuxiaSaveHeader();
-        private DataManager Data = new DataManager();
+        private DataManager Data;
         private bool saveFileIsSelected = false;
         private bool isSaveFileSelecting = false;
 
         private Dictionary<string, ComboBoxItem> dcbi = new Dictionary<string, ComboBoxItem>();
+
+        static void SetDefaultCulture(CultureInfo culture)
+        {
+            Type type = typeof(CultureInfo);
+
+            try
+            {
+                type.InvokeMember("s_userDefaultCulture",
+                                    BindingFlags.SetField | BindingFlags.NonPublic | BindingFlags.Static,
+                                    null,
+                                    culture,
+                                    new object[] { culture });
+
+                type.InvokeMember("s_userDefaultUICulture",
+                                    BindingFlags.SetField | BindingFlags.NonPublic | BindingFlags.Static,
+                                    null,
+                                    culture,
+                                    new object[] { culture });
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
+            }
+
+            try
+            {
+                type.InvokeMember("m_userDefaultCulture",
+                                    BindingFlags.SetField | BindingFlags.NonPublic | BindingFlags.Static,
+                                    null,
+                                    culture,
+                                    new object[] { culture });
+
+                type.InvokeMember("m_userDefaultUICulture",
+                                    BindingFlags.SetField | BindingFlags.NonPublic | BindingFlags.Static,
+                                    null,
+                                    culture,
+                                    new object[] { culture });
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
+            }
+        }
+
         public Form1()
         {
+            if (File.Exists(logPath))
+            {
+                StreamWriter sr = new StreamWriter(logPath);
+
+                sr.Write("");
+                sr.Close();
+            }
+            XMLHelper.ReadXml();
+
+            SetDefaultCulture(CultureInfo.CreateSpecificCulture("zh-CN"));
+            Data = new DataManager();
+            LogHelper.Debug("initalize");
             try
             {
                 InitializeComponent();
@@ -58,13 +116,7 @@ namespace 侠之道存档修改器
             }
             catch (Exception ex)
             {
-                if (File.Exists(logPath))
-                {
-                    StreamWriter sr = new StreamWriter(logPath);
-
-                    sr.WriteLine(ex.StackTrace);
-                    sr.Close();
-                }
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
 
 
@@ -89,6 +141,7 @@ namespace 侠之道存档修改器
 
         private void selectsaveFilesPathButton_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("selectsaveFilesPathButton_Click");
             try
             {
                 FolderBrowserDialog dialog = new FolderBrowserDialog();
@@ -106,11 +159,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void getSaveFiles()
         {
+            LogHelper.Debug("getSaveFiles");
             try
             {
                 messageLabel.Text = "";
@@ -131,12 +186,14 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
 
         }
 
         private void saveFileListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
+            LogHelper.Debug("saveFileListBox_SelectedIndexChanged");
             try
             {
                 isSaveFileSelecting = true;
@@ -195,11 +252,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void getConfigDatas()
         {
+            LogHelper.Debug("getConfigDatas");
             try
             {
                 readAllMap();
@@ -222,11 +281,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void readAllInventory()
         {
+            LogHelper.Debug("readAllInventory");
             try
             {
                 foreach (KeyValuePair<string, Props> kv in Data.Get<Props>())
@@ -275,11 +336,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void readAllMap()
         {
+            LogHelper.Debug("readAllMap");
             try
             {
                 CurrentMapComboBox.DisplayMember = "value";
@@ -294,11 +357,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void readAllRound()
         {
+            LogHelper.Debug("readAllRound");
             try
             {
                 for (int i = 1; i <= 3; i++)
@@ -321,11 +386,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void readAllGameLevel()
         {
+            LogHelper.Debug("readAllGameLevel");
             try
             {
                 for (int i = 1; i <= 4; i++)
@@ -336,11 +403,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void readAllCharacter()
         {
+            LogHelper.Debug("readAllCharacter");
             try
             {
                 foreach (KeyValuePair<string, CharacterInfo> kv in Data.Get<CharacterInfo>())
@@ -361,11 +430,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void readAllExterior()
         {
+            LogHelper.Debug("readAllExterior");
             try
             {
                 foreach (KeyValuePair<string, CharacterExterior> kv in Data.Get<CharacterExterior>())
@@ -387,11 +458,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void readAllSkill()
         {
+            LogHelper.Debug("readAllSkill");
             try
             {
                 SkillListView.Items.Clear();
@@ -448,16 +521,20 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void readExteriorName()
         {
+            LogHelper.Debug("readExteriorName");
             try
             {
                 if (!saveFileIsSelected)
                 {
-                    messageLabel.Text = "请先选择一个存档";
+                    string message = "请先选择一个存档";
+                    messageLabel.Text = message;
+                    LogHelper.Debug(message);
                     return;
                 }
                 foreach (ListViewItem lvi in CharacterExteriorListView.Items)
@@ -468,11 +545,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void readAllElement()
         {
+            LogHelper.Debug("readAllElement");
             try
             {
                 for (int i = 0; i <= 5; i++)
@@ -483,11 +562,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void readAllSpecialSkill()
         {
+            LogHelper.Debug("readAllSpecialSkill");
             try
             {
                 SpecialSkillComboBox.DisplayMember = "value";
@@ -505,11 +586,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void readAllEquip()
         {
+            LogHelper.Debug("readAllEquip");
             try
             {
                 WeaponComboBox.DisplayMember = "value";
@@ -546,11 +629,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void readAllTrait()
         {
+            LogHelper.Debug("readAllTrait");
             try
             {
                 foreach (KeyValuePair<string, Trait> kv in Data.Get<Trait>())
@@ -568,11 +653,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void readAllMantra()
         {
+            LogHelper.Debug("readAllMantra");
             try
             {
                 foreach (KeyValuePair<string, Mantra> kv in Data.Get<Mantra>())
@@ -598,11 +685,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void readAllGender()
         {
+            LogHelper.Debug("readAllGender");
             try
             {
                 GenderComboBox.DisplayMember = "value";
@@ -617,11 +706,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void readAllQuestState()
         {
+            LogHelper.Debug("readAllQuestState");
             try
             {
                 QuestStateComboBox.DisplayMember = "value";
@@ -636,11 +727,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void readShowAllQuest()
         {
+            LogHelper.Debug("readShowAllQuest");
             try
             {
                 ShowAllQuestComboBox.DisplayMember = "value";
@@ -656,11 +749,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void readAllBook()
         {
+            LogHelper.Debug("readAllBook");
             try
             {
                 foreach (KeyValuePair<string, Book> kv in Data.Get<Book>())
@@ -682,11 +777,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void readDatas()
         {
+            LogHelper.Debug("readDatas");
             try
             {
                 initDatas();
@@ -710,11 +807,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void initDatas()
         {
+            LogHelper.Debug("initDatas");
             try
             {
                 InventoryListView.SelectedItems.Clear();
@@ -822,12 +921,14 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
 
         }
 
         private void readCommonData()
         {
+            LogHelper.Debug("readCommonData");
             try
             {
                 GameVersionTextBox.Text = gameData.GameVersion;
@@ -847,11 +948,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void readInventory()
         {
+            LogHelper.Debug("readInventory");
             try
             {
                 InventoryListView.Items.Clear();
@@ -878,11 +981,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void readCommunity()
         {
+            LogHelper.Debug("readCommunity");
             try
             {
                 CommunityListView.Items.Clear();
@@ -908,11 +1013,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void readParty()
         {
+            LogHelper.Debug("readParty");
             try
             {
                 PartyListView.Items.Clear();
@@ -934,11 +1041,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void readFlag()
         {
+            LogHelper.Debug("readFlag");
             try
             {
                 FlagListView.Items.Clear();
@@ -962,11 +1071,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void readFlagRemark()
         {
+            LogHelper.Debug("readFlagRemark");
             try
             {
                 if (File.Exists(FlagRemarkFilePath))
@@ -998,11 +1109,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void readFlagLove()
         {
+            LogHelper.Debug("readFlagLove");
             try
             {
                 ctb_MasterLoveTextBox.Text = Game.GameData.Flag["fg0201_MasterLove"].ToString();
@@ -1020,11 +1133,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void readQuest()
         {
+            LogHelper.Debug("readQuest");
             try
             {
                 QuestListView.Items.Clear();
@@ -1076,11 +1191,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void readElective()
         {
+            LogHelper.Debug("readElective");
             try
             {
                 ElectiveListView.Items.Clear();
@@ -1119,11 +1236,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void readNurturanceOrder()
         {
+            LogHelper.Debug("readNurturanceOrder");
             try
             {
                 NurturanceOrderListView.Items.Clear();
@@ -1159,11 +1278,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
 
         }
         private void readBook()
         {
+            LogHelper.Debug("readBook");
             try
             {
                 HavingBookListView.Items.Clear();
@@ -1185,11 +1306,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void readAlchemy()
         {
+            LogHelper.Debug("readAlchemy");
             try
             {
                 AlchemyListView.Items.Clear();
@@ -1212,11 +1335,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void readForge()
         {
+            LogHelper.Debug("readForge");
             try
             {
                 ForgeFightListView.Items.Clear();
@@ -1266,11 +1391,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void readShop()
         {
+            LogHelper.Debug("readShop");
             try
             {
                 ShopListView.Items.Clear();
@@ -1303,11 +1430,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         public string shopIsSoldOut(Shop shop)
         {
+            LogHelper.Debug("shopIsSoldOut");
             try
             {
 
@@ -1327,12 +1456,14 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
                 return "";
             }
         }
 
         private void listView1_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("listView1_GotFocus");
             try
             {
                 messageLabel.Text = "";
@@ -1347,11 +1478,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void listView2_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("listView2_GotFocus");
             try
             {
                 messageLabel.Text = "";
@@ -1366,11 +1499,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void InventoryAdd1button_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("InventoryAdd1button_Click");
             try
             {
                 messageLabel.Text = "";
@@ -1379,6 +1514,7 @@ namespace 侠之道存档修改器
                     if (!saveFileIsSelected)
                     {
                         messageLabel.Text = "请先选择一个存档";
+                        LogHelper.Debug("请先选择一个存档");
                         PropsListView.SelectedItems.Clear();
                         return;
                     }
@@ -1415,11 +1551,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void InventoryAdd10button_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("InventoryAdd10button_Click");
             try
             {
                 messageLabel.Text = "";
@@ -1428,6 +1566,7 @@ namespace 侠之道存档修改器
                     if (!saveFileIsSelected)
                     {
                         messageLabel.Text = "请先选择一个存档";
+                        LogHelper.Debug("请先选择一个存档");
                         PropsListView.SelectedItems.Clear();
                         return;
                     }
@@ -1464,11 +1603,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void InventorySub1button_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("InventorySub1button_Click");
             try
             {
                 messageLabel.Text = "";
@@ -1477,6 +1618,7 @@ namespace 侠之道存档修改器
                     if (!saveFileIsSelected)
                     {
                         messageLabel.Text = "请先选择一个存档";
+                        LogHelper.Debug("请先选择一个存档");
                         PropsListView.SelectedItems.Clear();
                         return;
                     }
@@ -1495,11 +1637,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void InventorySub10button_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("InventorySub10button_Click");
             try
             {
                 messageLabel.Text = "";
@@ -1508,6 +1652,7 @@ namespace 侠之道存档修改器
                     if (!saveFileIsSelected)
                     {
                         messageLabel.Text = "请先选择一个存档";
+                        LogHelper.Debug("请先选择一个存档");
                         PropsListView.SelectedItems.Clear();
                         return;
                     }
@@ -1526,11 +1671,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void createFormula(CharacterInfoData cid)
         {
+            LogHelper.Debug("createFormula");
             try
             {
                 cid.CreateFormula();
@@ -1609,11 +1756,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void characterListView_SelectedIndexChanged(object sender, EventArgs e)
         {
+            LogHelper.Debug("characterListView_SelectedIndexChanged");
             messageLabel.Text = "";
             try
             {
@@ -1622,6 +1771,7 @@ namespace 侠之道存档修改器
                     if (!saveFileIsSelected)
                     {
                         messageLabel.Text = "请先选择一个存档";
+                        LogHelper.Debug("请先选择一个存档");
                         CharacterListView.SelectedItems.Clear();
                         return;
                     }
@@ -1655,11 +1805,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         public void readSelectCharacterData(CharacterInfoData cid)
         {
+            LogHelper.Debug("readSelectCharacterData");
             try
             {
                 readCharacterInfoData(cid);
@@ -1678,11 +1830,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         public void readCharacterInfoData(CharacterInfoData cid)
         {
+            LogHelper.Debug("readCharacterInfoData");
             try
             {
                 readCharacterProperty(cid);
@@ -1741,11 +1895,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void readCharacterProperty(CharacterInfoData cid)
         {
+            LogHelper.Debug("readCharacterProperty");
             try
             {
                 HpTextBox.Text = cid.HP.ToString();
@@ -1779,11 +1935,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         public void readCharacterSkillData(CharacterInfoData cid)
         {
+            LogHelper.Debug("readCharacterSkillData");
             try
             {
                 HavingSkillListView.Items.Clear();
@@ -1809,11 +1967,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         public void updateSkillPredictionDamage(CharacterInfoData cid)
         {
+            LogHelper.Debug("updateSkillPredictionDamage");
             try
             {
                 foreach (ListViewItem lvi in SkillListView.Items)
@@ -1858,11 +2018,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         public float GetCoefficient(Dictionary<string, int> dict, Skill skill, int skill_level = 0)
         {
+            LogHelper.Debug("GetCoefficient");
             float result;
             try
             {
@@ -1903,6 +2065,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
                 return 0f;
             }
             return result;
@@ -1910,6 +2073,7 @@ namespace 侠之道存档修改器
 
         public int Calculate(Algorithm algorithm, float value, float coefficient)
         {
+            LogHelper.Debug("Calculate");
             try
             {
                 switch (algorithm)
@@ -1929,12 +2093,14 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
                 return 0;
             }
         }
 
         public void readCharacterEquipSkillData(CharacterInfoData cid)
         {
+            LogHelper.Debug("readCharacterEquipSkillData");
             try
             {
                 string[] equipSkills = cid.GetEquipSkill();
@@ -1952,15 +2118,18 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void saveButton_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("saveButton_Click");
             messageLabel.Text = "";
             if (!saveFileIsSelected)
             {
                 messageLabel.Text = "请先选择一个存档";
+                LogHelper.Debug("请先选择一个存档");
                 return;
             }
             string saveFilePath = SaveFilesPathTextBox.Text + "\\" + SaveFileListBox.SelectedItem.ToString();
@@ -1990,12 +2159,14 @@ namespace 侠之道存档修改器
                     }
                 }
                 messageLabel.Text = "保存成功";
+                LogHelper.Debug("保存成功");
                 sr.Close();
                 writestream.Close();
             }
             catch (Exception ex)
             {
                 messageLabel.Text = "保存失败。" + ex.Message;
+                LogHelper.Debug("保存失败。" + ex.Message);
             }
             finally
             {
@@ -2007,6 +2178,7 @@ namespace 侠之道存档修改器
 
         private void saveTimeDateTimePicker_ValueChanged(object sender, EventArgs e)
         {
+            LogHelper.Debug("saveTimeDateTimePicker_ValueChanged");
             try
             {
                 messageLabel.Text = "";
@@ -2015,11 +2187,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void currentMapComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
+            LogHelper.Debug("currentMapComboBox_SelectedIndexChanged");
             try
             {
                 messageLabel.Text = "";
@@ -2035,11 +2209,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void playerPostioionTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("playerPostioionTextBox_GotFocus");
             try
             {
                 messageLabel.Text = "";
@@ -2049,11 +2225,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void playerPostioionTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("playerPostioionTextBox_LostFocus");
             messageLabel.Text = "";
             try
             {
@@ -2063,12 +2241,14 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
                 PlayerPostioionTextBox.Text = PlayerPostioionTextBox.Tag.ToString();
             }
         }
 
         private void playerForwardTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("playerForwardTextBox_GotFocus");
             try
             {
                 messageLabel.Text = "";
@@ -2077,11 +2257,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void playerForwardTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("playerForwardTextBox_LostFocus");
             try
             {
                 messageLabel.Text = "";
@@ -2091,12 +2273,14 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
                 PlayerForwardTextBox.Text = PlayerForwardTextBox.Tag.ToString();
             }
         }
 
         private Vector3 stringToVector3(string str)
         {
+            LogHelper.Debug("stringToVector3");
             str = str.Replace("(", "").Replace(")", "");
             string[] s = str.Split(',');
             Vector3 v = new Vector3(float.Parse(s[0]), float.Parse(s[1]), float.Parse(s[2]));
@@ -2105,6 +2289,7 @@ namespace 侠之道存档修改器
 
         private void emotionTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("emotionTextBox_GotFocus");
             try
             {
                 messageLabel.Text = "";
@@ -2113,11 +2298,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void emotionTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("emotionTextBox_LostFocus");
             messageLabel.Text = "";
             try
             {
@@ -2128,6 +2315,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 EmotionTextBox.Text = EmotionTextBox.Tag.ToString();
             }
@@ -2135,6 +2323,7 @@ namespace 侠之道存档修改器
 
         private void moneyTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("moneyTextBox_GotFocus");
             try
             {
                 messageLabel.Text = "";
@@ -2143,11 +2332,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void moneyTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("moneyTextBox_LostFocus");
             messageLabel.Text = "";
             try
             {
@@ -2158,6 +2349,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 MoneyTextBox.Text = MoneyTextBox.Tag.ToString();
             }
@@ -2165,6 +2357,7 @@ namespace 侠之道存档修改器
 
         private void gameLevelComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
+            LogHelper.Debug("gameLevelComboBox_SelectedIndexChanged");
             messageLabel.Text = "";
             try
             {
@@ -2173,11 +2366,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void refreshSaveListButton_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("refreshSaveListButton_Click");
             try
             {
                 messageLabel.Text = "";
@@ -2191,11 +2386,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void elementComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
+            LogHelper.Debug("elementComboBox_SelectedIndexChanged");
             try
             {
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
@@ -2207,11 +2404,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void specialSkillComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
+            LogHelper.Debug("specialSkillComboBox_SelectedIndexChanged");
             try
             {
                 if (SpecialSkillComboBox.SelectedIndex != -1)
@@ -2227,12 +2426,14 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private string oldWeaponComboBoxKey = "";
         private void weaponComboBox_TextChanged(object sender, EventArgs e)
         {
+            LogHelper.Debug("weaponComboBox_TextChanged");
             try
             {
                 WeaponComboBox2.SelectedIndex = WeaponComboBox.SelectedIndex;
@@ -2278,10 +2479,12 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
         private void weaponComboBox2_TextChanged(object sender, EventArgs e)
         {
+            LogHelper.Debug("weaponComboBox2_TextChanged");
             try
             {
                 WeaponComboBox.SelectedIndex = WeaponComboBox2.SelectedIndex;
@@ -2289,11 +2492,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void AttachPropsEffect(Props porp, CharacterInfoData user)
         {
+            LogHelper.Debug("AttachPropsEffect");
             try
             {
                 if (porp.PropsEffect == null)
@@ -2308,11 +2513,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void DettachPropsEffect(Props porp, CharacterInfoData user)
         {
+            LogHelper.Debug("DettachPropsEffect");
             try
             {
                 if (porp.PropsEffect == null)
@@ -2327,12 +2534,14 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private string oldClothComboBoxKey = "";
         private void clothComboBox_TextChanged(object sender, EventArgs e)
         {
+            LogHelper.Debug("clothComboBox_TextChanged");
             try
             {
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
@@ -2366,12 +2575,14 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private string oldJewelryComboBoxKy = "";
         private void jewelryComboBox_TextChanged(object sender, EventArgs e)
         {
+            LogHelper.Debug("jewelryComboBox_TextChanged");
             try
             {
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
@@ -2403,11 +2614,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void GrowthFactorTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("GrowthFactorTextBox_GotFocus");
             try
             {
                 GrowthFactorTextBox.Tag = GrowthFactorTextBox.Text;
@@ -2415,11 +2628,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void GrowthFactorTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("GrowthFactorTextBox_LostFocus");
             try
             {
                 if (GrowthFactorTextBox.Text == string.Empty)
@@ -2440,6 +2655,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 GrowthFactorTextBox.Text = GrowthFactorTextBox.Tag.ToString();
             }
@@ -2447,6 +2663,7 @@ namespace 侠之道存档修改器
 
         private void hpTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("hpTextBox_GotFocus");
             try
             {
                 HpTextBox.Tag = HpTextBox.Text;
@@ -2454,11 +2671,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void hpTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("hpTextBox_LostFocus");
             try
             {
                 if (HpTextBox.Text == string.Empty)
@@ -2479,6 +2698,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 HpTextBox.Text = HpTextBox.Tag.ToString();
             }
@@ -2486,6 +2706,7 @@ namespace 侠之道存档修改器
 
         private void maxHpTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("maxHpTextBox_GotFocus");
             try
             {
                 MaxHpTextBox.Tag = MaxHpTextBox.Text;
@@ -2493,11 +2714,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void maxHpTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("maxHpTextBox_LostFocus");
             try
             {
                 int maxHp = 1;
@@ -2525,6 +2748,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 MaxHpTextBox.Text = MaxHpTextBox.Tag.ToString();
             }
@@ -2532,6 +2756,7 @@ namespace 侠之道存档修改器
 
         private void AffiliationTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("AffiliationTextBox_GotFocus");
             try
             {
                 AffiliationTextBox.Tag = AffiliationTextBox.Text;
@@ -2539,11 +2764,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void AffiliationTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("AffiliationTextBox_LostFocus");
             try
             {
                 if (AffiliationTextBox.Text == string.Empty)
@@ -2578,6 +2805,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 AffiliationTextBox.Text = AffiliationTextBox.Tag.ToString();
             }
@@ -2585,6 +2813,7 @@ namespace 侠之道存档修改器
 
         private void mpTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("mpTextBox_GotFocus");
             try
             {
                 MpTextBox.Tag = MpTextBox.Text;
@@ -2592,11 +2821,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void mpTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("mpTextBox_LostFocus");
             try
             {
                 if (MpTextBox.Text == string.Empty)
@@ -2617,6 +2848,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 MpTextBox.Text = MpTextBox.Tag.ToString();
             }
@@ -2624,11 +2856,13 @@ namespace 侠之道存档修改器
 
         private void maxMpTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("maxMpTextBox_GotFocus");
             MaxMpTextBox.Tag = MaxMpTextBox.Text;
         }
 
         private void maxMpTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("maxMpTextBox_LostFocus");
             try
             {
                 if (MaxMpTextBox.Text == string.Empty)
@@ -2654,6 +2888,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 MaxMpTextBox.Text = MaxMpTextBox.Tag.ToString();
             }
@@ -2661,11 +2896,13 @@ namespace 侠之道存档修改器
 
         private void strTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("strTextBox_GotFocus");
             StrTextBox.Tag = StrTextBox.Text;
         }
 
         private void strTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("strTextBox_LostFocus");
             try
             {
                 if (StrTextBox.Text == string.Empty)
@@ -2691,6 +2928,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 StrTextBox.Text = StrTextBox.Tag.ToString();
             }
@@ -2698,11 +2936,13 @@ namespace 侠之道存档修改器
 
         private void vitTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("vitTextBox_GotFocus");
             VitTextBox.Tag = VitTextBox.Text;
         }
 
         private void vitTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("vitTextBox_LostFocus");
             try
             {
                 if (VitTextBox.Text == string.Empty)
@@ -2728,6 +2968,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 VitTextBox.Text = VitTextBox.Tag.ToString();
             }
@@ -2735,11 +2976,13 @@ namespace 侠之道存档修改器
 
         private void dexTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("dexTextBox_GotFocus");
             DexTextBox.Tag = DexTextBox.Text;
         }
 
         private void dexTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("dexTextBox_LostFocus");
             try
             {
                 if (DexTextBox.Text == string.Empty)
@@ -2765,6 +3008,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 DexTextBox.Text = DexTextBox.Tag.ToString();
             }
@@ -2772,11 +3016,13 @@ namespace 侠之道存档修改器
 
         private void spiTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("spiTextBox_GotFocus");
             SpiTextBox.Tag = SpiTextBox.Text;
         }
 
         private void spiTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("spiTextBox_LostFocus");
             try
             {
                 if (SpiTextBox.Text == string.Empty)
@@ -2802,6 +3048,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 SpiTextBox.Text = SpiTextBox.Tag.ToString();
             }
@@ -2809,11 +3056,13 @@ namespace 侠之道存档修改器
 
         private void attackTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("attackTextBox_GotFocus");
             AttackTextBox.Tag = AttackTextBox.Text;
         }
 
         private void attackTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("attackTextBox_LostFocus");
             try
             {
                 if (AttackTextBox.Text == string.Empty)
@@ -2835,6 +3084,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 AttackTextBox.Text = AttackTextBox.Tag.ToString();
             }
@@ -2842,11 +3092,13 @@ namespace 侠之道存档修改器
 
         private void defenseTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("defenseTextBox_GotFocus");
             DefenseTextBox.Tag = DefenseTextBox.Text;
         }
 
         private void defenseTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("defenseTextBox_LostFocus");
             try
             {
                 if (DefenseTextBox.Text == string.Empty)
@@ -2868,6 +3120,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 DefenseTextBox.Text = DefenseTextBox.Tag.ToString();
             }
@@ -2875,11 +3128,13 @@ namespace 侠之道存档修改器
 
         private void hitTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("hitTextBox_GotFocus");
             HitTextBox.Tag = HitTextBox.Text;
         }
 
         private void hitTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("hitTextBox_LostFocus");
             try
             {
                 if (HitTextBox.Text == string.Empty)
@@ -2901,6 +3156,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 HitTextBox.Text = HitTextBox.Tag.ToString();
             }
@@ -2908,11 +3164,13 @@ namespace 侠之道存档修改器
 
         private void moveTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("moveTextBox_GotFocus");
             MoveTextBox.Tag = MoveTextBox.Text;
         }
 
         private void moveTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("moveTextBox_LostFocus");
             try
             {
                 if (MoveTextBox.Text == string.Empty)
@@ -2934,6 +3192,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 MoveTextBox.Text = MoveTextBox.Tag.ToString();
             }
@@ -2941,11 +3200,13 @@ namespace 侠之道存档修改器
 
         private void dodgeTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("dodgeTextBox_GotFocus");
             DodgeTextBox.Tag = DodgeTextBox.Text;
         }
 
         private void dodgeTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("dodgeTextBox_LostFocus");
             try
             {
                 if (DodgeTextBox.Text == string.Empty)
@@ -2967,6 +3228,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 DodgeTextBox.Text = DodgeTextBox.Tag.ToString();
             }
@@ -2974,11 +3236,13 @@ namespace 侠之道存档修改器
 
         private void parryTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("parryTextBox_GotFocus");
             ParryTextBox.Tag = ParryTextBox.Text;
         }
 
         private void parryTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("parryTextBox_LostFocus");
             try
             {
                 if (ParryTextBox.Text == string.Empty)
@@ -3000,6 +3264,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 ParryTextBox.Text = ParryTextBox.Tag.ToString();
             }
@@ -3007,11 +3272,13 @@ namespace 侠之道存档修改器
 
         private void criticalTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("criticalTextBox_GotFocus");
             CriticalTextBox.Tag = CriticalTextBox.Text;
         }
 
         private void criticalTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("criticalTextBox_LostFocus");
             try
             {
                 if (CriticalTextBox.Text == string.Empty)
@@ -3033,6 +3300,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 CriticalTextBox.Text = CriticalTextBox.Tag.ToString();
             }
@@ -3040,11 +3308,13 @@ namespace 侠之道存档修改器
 
         private void counterTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("counterTextBox_GotFocus");
             CounterTextBox.Tag = CounterTextBox.Text;
         }
 
         private void counterTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("counterTextBox_LostFocus");
             try
             {
                 if (CounterTextBox.Text == string.Empty)
@@ -3066,6 +3336,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 CounterTextBox.Text = CounterTextBox.Tag.ToString();
             }
@@ -3073,11 +3344,13 @@ namespace 侠之道存档修改器
 
         private void VibrantTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("VibrantTextBox_GotFocus");
             VibrantTextBox.Tag = VibrantTextBox.Text;
         }
 
         private void VibrantTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("VibrantTextBox_LostFocus");
             try
             {
                 if (VibrantTextBox.Text == string.Empty)
@@ -3099,6 +3372,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 VibrantTextBox.Text = VibrantTextBox.Tag.ToString();
             }
@@ -3106,11 +3380,13 @@ namespace 侠之道存档修改器
 
         private void CultivatedTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("CultivatedTextBox_GotFocus");
             CultivatedTextBox.Tag = CultivatedTextBox.Text;
         }
 
         private void CultivatedTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("CultivatedTextBox_LostFocus");
             try
             {
                 if (CultivatedTextBox.Text == string.Empty)
@@ -3132,6 +3408,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 CultivatedTextBox.Text = CultivatedTextBox.Tag.ToString();
             }
@@ -3139,11 +3416,13 @@ namespace 侠之道存档修改器
 
         private void ResoluteTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("ResoluteTextBox_GotFocus");
             ResoluteTextBox.Tag = ResoluteTextBox.Text;
         }
 
         private void ResoluteTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("ResoluteTextBox_LostFocus");
             try
             {
                 if (ResoluteTextBox.Text == string.Empty)
@@ -3165,6 +3444,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 ResoluteTextBox.Text = ResoluteTextBox.Tag.ToString();
             }
@@ -3172,11 +3452,13 @@ namespace 侠之道存档修改器
 
         private void BraveTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("BraveTextBox_GotFocus");
             BraveTextBox.Tag = BraveTextBox.Text;
         }
 
         private void BraveTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("BraveTextBox_LostFocus");
             try
             {
                 if (BraveTextBox.Text == string.Empty)
@@ -3198,6 +3480,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 BraveTextBox.Text = BraveTextBox.Tag.ToString();
             }
@@ -3205,11 +3488,13 @@ namespace 侠之道存档修改器
 
         private void ZitherTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("ZitherTextBox_GotFocus");
             ZitherTextBox.Tag = ZitherTextBox.Text;
         }
 
         private void ZitherTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("ZitherTextBox_LostFocus");
             try
             {
                 if (ZitherTextBox.Text == string.Empty)
@@ -3231,6 +3516,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 ZitherTextBox.Text = ZitherTextBox.Tag.ToString();
             }
@@ -3238,11 +3524,13 @@ namespace 侠之道存档修改器
 
         private void ChessTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("ChessTextBox_GotFocus");
             ChessTextBox.Tag = ChessTextBox.Text;
         }
 
         private void ChessTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("ChessTextBox_LostFocus");
             try
             {
                 if (ChessTextBox.Text == string.Empty)
@@ -3264,6 +3552,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 ChessTextBox.Text = ChessTextBox.Tag.ToString();
             }
@@ -3271,11 +3560,13 @@ namespace 侠之道存档修改器
 
         private void CalligraphyTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("CalligraphyTextBox_GotFocus");
             CalligraphyTextBox.Tag = CalligraphyTextBox.Text;
         }
 
         private void CalligraphyTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("CalligraphyTextBox_LostFocus");
             try
             {
                 if (CalligraphyTextBox.Text == string.Empty)
@@ -3297,6 +3588,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 CalligraphyTextBox.Text = CalligraphyTextBox.Tag.ToString();
             }
@@ -3304,11 +3596,13 @@ namespace 侠之道存档修改器
 
         private void PaintingTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("PaintingTextBox_GotFocus");
             PaintingTextBox.Tag = PaintingTextBox.Text;
         }
 
         private void PaintingTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("PaintingTextBox_LostFocus");
             try
             {
                 if (PaintingTextBox.Text == string.Empty)
@@ -3330,6 +3624,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 PaintingTextBox.Text = PaintingTextBox.Tag.ToString();
             }
@@ -3337,6 +3632,7 @@ namespace 侠之道存档修改器
 
         private void skillListView_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("skillListView_GotFocus");
             LearnSkillButton.Enabled = true;
             AbolishSkillButton.Enabled = false;
             SetSkill1Button.Enabled = false;
@@ -3349,6 +3645,7 @@ namespace 侠之道存档修改器
 
         private void havingSkillListView_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("havingSkillListView_GotFocus");
             LearnSkillButton.Enabled = false;
             AbolishSkillButton.Enabled = true;
             SetSkill1Button.Enabled = true;
@@ -3361,6 +3658,7 @@ namespace 侠之道存档修改器
 
         private void learnSkillButton_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("learnSkillButton_Click");
             try
             {
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
@@ -3381,11 +3679,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void abolishSkillButton_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("abolishSkillButton_Click");
             try
             {
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
@@ -3402,11 +3702,11 @@ namespace 侠之道存档修改器
                     readCharacterSkillData(cid);
                     readCharacterEquipSkillData(cid);
 
-                    if(index == HavingSkillListView.Items.Count)
+                    if (index == HavingSkillListView.Items.Count)
                     {
                         index--;
                     }
-                    if(index != -1)
+                    if (index != -1)
                     {
                         HavingSkillListView.Items[index].Selected = true;
                     }
@@ -3415,11 +3715,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void havingSkillListView_SelectedIndexChanged(object sender, EventArgs e)
         {
+            LogHelper.Debug("havingSkillListView_SelectedIndexChanged");
             try
             {
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
@@ -3438,11 +3740,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void setSkill1Button_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("setSkill1Button_Click");
             try
             {
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
@@ -3467,11 +3771,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void setSkill2Button_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("setSkill2Button_Click");
             try
             {
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
@@ -3495,11 +3801,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void setSkill3Button_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("setSkill3Button_Click");
             try
             {
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
@@ -3523,11 +3831,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void setSkill4Button_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("setSkill4Button_Click");
             try
             {
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
@@ -3551,15 +3861,18 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
         private void skillCurrentLevelTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("skillCurrentLevelTextBox_GotFocus");
             SkillCurrentLevelTextBox.Tag = SkillCurrentLevelTextBox.Text;
         }
 
         private void skillCurrentLevelTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("skillCurrentLevelTextBox_LostFocus");
             try
             {
                 if (SkillCurrentLevelTextBox.Text == string.Empty)
@@ -3583,6 +3896,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 SkillCurrentLevelTextBox.Text = SkillCurrentLevelTextBox.Tag.ToString();
             }
@@ -3590,11 +3904,13 @@ namespace 侠之道存档修改器
 
         private void skillMaxLevelTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("skillMaxLevelTextBox_GotFocus");
             SkillMaxLevelTextBox.Tag = SkillMaxLevelTextBox.Text;
         }
 
         private void skillMaxLevelTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("skillMaxLevelTextBox_LostFocus");
             try
             {
                 if (SkillMaxLevelTextBox.Text == string.Empty)
@@ -3618,6 +3934,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 SkillMaxLevelTextBox.Text = SkillMaxLevelTextBox.Tag.ToString();
             }
@@ -3625,6 +3942,7 @@ namespace 侠之道存档修改器
 
         private void AddTraitButton_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("AddTraitButton_Click");
             try
             {
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
@@ -3641,11 +3959,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void AbolishTraitButton_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("AbolishTraitButton_Click");
             try
             {
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
@@ -3673,11 +3993,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         public void readCharacterTraitData(CharacterInfoData cid)
         {
+            LogHelper.Debug("readCharacterTraitData");
             try
             {
                 HavingTraitListView.Items.Clear();
@@ -3700,22 +4022,26 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void TraitListView_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("TraitListView_GotFocus");
             AddTraitButton.Enabled = true;
             AbolishTraitButton.Enabled = false;
         }
 
         private void HavingTraitListView_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("HavingTraitListView_GotFocus");
             AddTraitButton.Enabled = false;
             AbolishTraitButton.Enabled = true;
         }
         public void readCharacterMantraData(CharacterInfoData cid)
         {
+            LogHelper.Debug("readCharacterMantraData");
             try
             {
                 HavingMantraListView.Items.Clear();
@@ -3738,10 +4064,12 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
         public void readCharacterWorkMantraData(CharacterInfoData cid)
         {
+            LogHelper.Debug("readCharacterWorkMantraData");
             try
             {
                 String WorkMantra = cid.WorkMantra;
@@ -3750,23 +4078,27 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void MantraListView_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("MantraListView_GotFocus");
             LearnMantraButton.Enabled = true;
             AbolishMantraButton.Enabled = false;
         }
 
         private void HavingMantraListView_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("HavingMantraListView_GotFocus");
             LearnMantraButton.Enabled = false;
             AbolishMantraButton.Enabled = true;
         }
 
         private void LearnMantraButton_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("LearnMantraButton_Click");
             try
             {
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
@@ -3783,11 +4115,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void AbolishMantraButton_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("AbolishMantraButton_Click");
             try
             {
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
@@ -3799,7 +4133,7 @@ namespace 侠之道存档修改器
                     {
                         index = mantraLvi.Index;
                         cid.AbolishMantra(mantraLvi.Text);
-                        if(cid.WorkMantra == mantraLvi.Text)
+                        if (cid.WorkMantra == mantraLvi.Text)
                         {
                             cid.WorkMantra = null;
                         }
@@ -3820,11 +4154,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void SetWorkMantraButton_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("SetWorkMantraButton_Click");
             try
             {
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
@@ -3842,11 +4178,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void HavingMantraListView_SelectedIndexChanged(object sender, EventArgs e)
         {
+            LogHelper.Debug("HavingMantraListView_SelectedIndexChanged");
             try
             {
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
@@ -3865,16 +4203,19 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void MantraCurrentLevelTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("MantraCurrentLevelTextBox_GotFocus");
             MantraCurrentLevelTextBox.Tag = MantraCurrentLevelTextBox.Text;
         }
 
         private void MantraCurrentLevelTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("MantraCurrentLevelTextBox_LostFocus");
             try
             {
                 if (MantraCurrentLevelTextBox.Text == string.Empty)
@@ -3897,6 +4238,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 MantraCurrentLevelTextBox.Text = MantraCurrentLevelTextBox.Tag.ToString();
             }
@@ -3904,11 +4246,13 @@ namespace 侠之道存档修改器
 
         private void MantraMaxLevelTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("MantraMaxLevelTextBox_GotFocus");
             MantraMaxLevelTextBox.Tag = MantraMaxLevelTextBox.Text;
         }
 
         private void MantraMaxLevelTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("MantraMaxLevelTextBox_LostFocus");
             try
             {
                 if (MantraMaxLevelTextBox.Text == string.Empty)
@@ -3931,6 +4275,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 MantraMaxLevelTextBox.Text = MantraMaxLevelTextBox.Tag.ToString();
             }
@@ -3938,6 +4283,7 @@ namespace 侠之道存档修改器
 
         private void characterExteriorListView_SelectedIndexChanged(object sender, EventArgs e)
         {
+            LogHelper.Debug("characterExteriorListView_SelectedIndexChanged");
             messageLabel.Text = "";
             try
             {
@@ -3946,6 +4292,7 @@ namespace 侠之道存档修改器
                     if (!saveFileIsSelected)
                     {
                         messageLabel.Text = "请先选择一个存档";
+                        LogHelper.Debug("请先选择一个存档");
                         CharacterExteriorListView.SelectedItems.Clear();
                         return;
                     }
@@ -3974,11 +4321,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         public void readSelectCharacterExteriorData(CharacterExteriorData ced)
         {
+            LogHelper.Debug("readSelectCharacterExteriorData");
             try
             {
                 SurNameTextBox.Text = ced.SurName;
@@ -3992,17 +4341,20 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void SurNameTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("SurNameTextBox_GotFocus");
             messageLabel.Text = "";
             SurNameTextBox.Tag = SurNameTextBox.Text;
         }
 
         private void SurNameTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("SurNameTextBox_LostFocus");
             messageLabel.Text = "";
             try
             {
@@ -4022,6 +4374,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 SurNameTextBox.Text = SurNameTextBox.Tag.ToString();
             }
@@ -4029,12 +4382,14 @@ namespace 侠之道存档修改器
 
         private void NameTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("NameTextBox_GotFocus");
             messageLabel.Text = "";
             NameTextBox.Tag = NameTextBox.Text;
         }
 
         private void NameTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("NameTextBox_LostFocus");
             messageLabel.Text = "";
             try
             {
@@ -4053,6 +4408,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 NameTextBox.Text = NameTextBox.Tag.ToString();
             }
@@ -4060,12 +4416,14 @@ namespace 侠之道存档修改器
 
         private void NicknameTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("NicknameTextBox_GotFocus");
             messageLabel.Text = "";
             NicknameTextBox.Tag = NicknameTextBox.Text;
         }
 
         private void NicknameTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("NicknameTextBox_LostFocus");
             messageLabel.Text = "";
             try
             {
@@ -4081,6 +4439,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 NicknameTextBox.Text = NicknameTextBox.Tag.ToString();
             }
@@ -4088,12 +4447,14 @@ namespace 侠之道存档修改器
 
         private void ProtraitTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("ProtraitTextBox_GotFocus");
             messageLabel.Text = "";
             ProtraitTextBox.Tag = ProtraitTextBox.Text;
         }
 
         private void ProtraitTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("ProtraitTextBox_LostFocus");
             messageLabel.Text = "";
             try
             {
@@ -4109,6 +4470,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 ProtraitTextBox.Text = ProtraitTextBox.Tag.ToString();
             }
@@ -4116,16 +4478,19 @@ namespace 侠之道存档修改器
 
         private void ModelTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("ModelTextBox_GotFocus");
             messageLabel.Text = "";
             ModelTextBox.Tag = ModelTextBox.Text;
         }
 
         private void ModelTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("ModelTextBox_LostFocus");
             messageLabel.Text = "";
             if (string.IsNullOrEmpty(ModelTextBox.Text))
             {
                 messageLabel.Text = "模型编号不可为空";
+                LogHelper.Debug("模型编号不可为空");
 
                 ModelTextBox.Text = ModelTextBox.Tag.ToString();
                 return;
@@ -4157,6 +4522,7 @@ namespace 侠之道存档修改器
                     if (!hasModel)
                     {
                         messageLabel.Text = "未找到该模型编号";
+                        LogHelper.Debug("未找到该模型编号");
 
                         ModelTextBox.Text = ModelTextBox.Tag.ToString();
                     }
@@ -4165,6 +4531,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 ModelTextBox.Text = ModelTextBox.Tag.ToString();
             }
@@ -4172,12 +4539,14 @@ namespace 侠之道存档修改器
 
         private void DescriptionTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("DescriptionTextBox_GotFocus");
             messageLabel.Text = "";
             DescriptionTextBox.Tag = DescriptionTextBox.Text;
         }
 
         private void DescriptionTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("DescriptionTextBox_LostFocus");
             messageLabel.Text = "";
             try
             {
@@ -4193,6 +4562,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 DescriptionTextBox.Text = DescriptionTextBox.Tag.ToString();
             }
@@ -4200,6 +4570,7 @@ namespace 侠之道存档修改器
 
         private void CommunityListView_SelectedIndexChanged(object sender, EventArgs e)
         {
+            LogHelper.Debug("CommunityListView_SelectedIndexChanged");
             try
             {
                 foreach (ListViewItem lvi in CommunityListView.SelectedItems)
@@ -4215,29 +4586,34 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void CommunityListView_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("CommunityListView_GotFocus");
             AddPartyButton.Enabled = true;
             RemovePartyButton.Enabled = false;
         }
 
         private void PartyListView_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("PartyListView_GotFocus");
             AddPartyButton.Enabled = false;
             RemovePartyButton.Enabled = true;
         }
 
         private void CommunityMaxLevelTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("CommunityMaxLevelTextBox_GotFocus");
             messageLabel.Text = "";
             CommunityMaxLevelTextBox.Tag = CommunityMaxLevelTextBox.Text;
         }
 
         private void CommunityMaxLevelTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("CommunityMaxLevelTextBox_LostFocus");
             try
             {
                 if (CommunityMaxLevelTextBox.Text == string.Empty)
@@ -4258,6 +4634,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 CommunityMaxLevelTextBox.Text = CommunityMaxLevelTextBox.Tag.ToString();
             }
@@ -4265,12 +4642,14 @@ namespace 侠之道存档修改器
 
         private void CommunityLevelTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("CommunityLevelTextBox_GotFocus");
             messageLabel.Text = "";
             CommunityLevelTextBox.Tag = CommunityLevelTextBox.Text;
         }
 
         private void CommunityLevelTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("CommunityLevelTextBox_LostFocus");
             try
             {
                 if (CommunityLevelTextBox.Text == string.Empty)
@@ -4291,6 +4670,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 CommunityLevelTextBox.Text = CommunityLevelTextBox.Tag.ToString();
             }
@@ -4298,12 +4678,14 @@ namespace 侠之道存档修改器
 
         private void CommunityExpTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("CommunityExpTextBox_GotFocus");
             messageLabel.Text = "";
             CommunityExpTextBox.Tag = CommunityExpTextBox.Text;
         }
 
         private void CommunityExpTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("CommunityExpTextBox_LostFocus");
             try
             {
                 if (CommunityExpTextBox.Text == string.Empty)
@@ -4324,6 +4706,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 CommunityExpTextBox.Text = CommunityExpTextBox.Tag.ToString();
             }
@@ -4331,6 +4714,7 @@ namespace 侠之道存档修改器
 
         private void CommunityIsOpenCheckBox_CheckedChanged(object sender, EventArgs e)
         {
+            LogHelper.Debug("CommunityIsOpenCheckBox_CheckedChanged");
             try
             {
                 foreach (ListViewItem lvi in CommunityListView.SelectedItems)
@@ -4352,11 +4736,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void AddPartyButton_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("AddPartyButton_Click");
             try
             {
                 foreach (ListViewItem lvi in CommunityListView.SelectedItems)
@@ -4368,11 +4754,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void RemovePartyButton_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("RemovePartyButton_Click");
             try
             {
                 int index = -1;
@@ -4395,11 +4783,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void PartyListView_SelectedIndexChanged(object sender, EventArgs e)
         {
+            LogHelper.Debug("PartyListView_SelectedIndexChanged");
             try
             {
                 foreach (ListViewItem lvi in PartyListView.SelectedItems)
@@ -4417,17 +4807,20 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void FlagAdd1Button_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("FlagAdd1Button_Click");
             try
             {
                 messageLabel.Text = "";
                 if (!saveFileIsSelected)
                 {
                     messageLabel.Text = "请先选择一个存档";
+                    LogHelper.Debug("请先选择一个存档");
                     return;
                 }
                 foreach (ListViewItem lvi in FlagListView.SelectedItems)  //选中项遍历  
@@ -4441,17 +4834,20 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void FlagAdd10Button_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("FlagAdd10Button_Click");
             try
             {
                 messageLabel.Text = "";
                 if (!saveFileIsSelected)
                 {
                     messageLabel.Text = "请先选择一个存档";
+                    LogHelper.Debug("请先选择一个存档");
                     return;
                 }
                 foreach (ListViewItem lvi in FlagListView.SelectedItems)  //选中项遍历  
@@ -4465,17 +4861,20 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void FlagSub1Button_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("FlagSub1Button_Click");
             try
             {
                 messageLabel.Text = "";
                 if (!saveFileIsSelected)
                 {
                     messageLabel.Text = "请先选择一个存档";
+                    LogHelper.Debug("请先选择一个存档");
                     return;
                 }
                 foreach (ListViewItem lvi in FlagListView.SelectedItems)  //选中项遍历  
@@ -4489,17 +4888,20 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void FlagSub10Button_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("FlagSub10Button_Click");
             try
             {
                 messageLabel.Text = "";
                 if (!saveFileIsSelected)
                 {
                     messageLabel.Text = "请先选择一个存档";
+                    LogHelper.Debug("请先选择一个存档");
                     return;
                 }
                 foreach (ListViewItem lvi in FlagListView.SelectedItems)  //选中项遍历  
@@ -4513,22 +4915,26 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void ctb_MasterLoveTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("ctb_MasterLoveTextBox_GotFocus");
             messageLabel.Text = "";
             ctb_MasterLoveTextBox.Tag = ctb_MasterLoveTextBox.Text;
         }
 
         private void ctb_MasterLoveTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("ctb_MasterLoveTextBox_LostFocus");
             try
             {
                 if (!saveFileIsSelected)
                 {
                     messageLabel.Text = "请先选择一个存档";
+                    LogHelper.Debug("请先选择一个存档");
                     return;
                 }
                 if (ctb_MasterLoveTextBox.Text == string.Empty)
@@ -4547,6 +4953,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 ctb_MasterLoveTextBox.Text = ctb_MasterLoveTextBox.Tag.ToString();
             }
@@ -4554,6 +4961,7 @@ namespace 侠之道存档修改器
 
         private void dxl_MasterLoveTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("dxl_MasterLoveTextBox_GotFocus");
 
             messageLabel.Text = "";
             dxl_MasterLoveTextBox.Tag = dxl_MasterLoveTextBox.Text;
@@ -4561,11 +4969,13 @@ namespace 侠之道存档修改器
 
         private void dxl_MasterLoveTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("dxl_MasterLoveTextBox_LostFocus");
             try
             {
                 if (!saveFileIsSelected)
                 {
                     messageLabel.Text = "请先选择一个存档";
+                    LogHelper.Debug("请先选择一个存档");
                     return;
                 }
                 if (dxl_MasterLoveTextBox.Text == string.Empty)
@@ -4584,6 +4994,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 dxl_MasterLoveTextBox.Text = dxl_MasterLoveTextBox.Tag.ToString();
             }
@@ -4592,6 +5003,7 @@ namespace 侠之道存档修改器
 
         private void dh_MasterLoveTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("dh_MasterLoveTextBox_GotFocus");
 
             messageLabel.Text = "";
             dh_MasterLoveTextBox.Tag = dh_MasterLoveTextBox.Text;
@@ -4599,11 +5011,13 @@ namespace 侠之道存档修改器
 
         private void dh_MasterLoveTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("dh_MasterLoveTextBox_LostFocus");
             try
             {
                 if (!saveFileIsSelected)
                 {
                     messageLabel.Text = "请先选择一个存档";
+                    LogHelper.Debug("请先选择一个存档");
                     return;
                 }
                 if (dh_MasterLoveTextBox.Text == string.Empty)
@@ -4622,6 +5036,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 dh_MasterLoveTextBox.Text = dh_MasterLoveTextBox.Tag.ToString();
             }
@@ -4630,6 +5045,7 @@ namespace 侠之道存档修改器
 
         private void lxp_MasterLoveTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("lxp_MasterLoveTextBox_GotFocus");
 
             messageLabel.Text = "";
             lxp_MasterLoveTextBox.Tag = lxp_MasterLoveTextBox.Text;
@@ -4637,11 +5053,13 @@ namespace 侠之道存档修改器
 
         private void lxp_MasterLoveTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("lxp_MasterLoveTextBox_LostFocus");
             try
             {
                 if (!saveFileIsSelected)
                 {
                     messageLabel.Text = "请先选择一个存档";
+                    LogHelper.Debug("请先选择一个存档");
                     return;
                 }
                 if (lxp_MasterLoveTextBox.Text == string.Empty)
@@ -4660,6 +5078,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 lxp_MasterLoveTextBox.Text = lxp_MasterLoveTextBox.Tag.ToString();
             }
@@ -4668,6 +5087,7 @@ namespace 侠之道存档修改器
 
         private void ht_MasterLoveTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("ht_MasterLoveTextBox_GotFocus");
 
             messageLabel.Text = "";
             ht_MasterLoveTextBox.Tag = ht_MasterLoveTextBox.Text;
@@ -4675,11 +5095,13 @@ namespace 侠之道存档修改器
 
         private void ht_MasterLoveTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("ht_MasterLoveTextBox_LostFocus");
             try
             {
                 if (!saveFileIsSelected)
                 {
                     messageLabel.Text = "请先选择一个存档";
+                    LogHelper.Debug("请先选择一个存档");
                     return;
                 }
                 if (ht_MasterLoveTextBox.Text == string.Empty)
@@ -4698,6 +5120,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 ht_MasterLoveTextBox.Text = ht_MasterLoveTextBox.Tag.ToString();
             }
@@ -4706,6 +5129,7 @@ namespace 侠之道存档修改器
 
         private void tsz_MasterLoveTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("tsz_MasterLoveTextBox_GotFocus");
 
             messageLabel.Text = "";
             tsz_MasterLoveTextBox.Tag = tsz_MasterLoveTextBox.Text;
@@ -4713,11 +5137,13 @@ namespace 侠之道存档修改器
 
         private void tsz_MasterLoveTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("tsz_MasterLoveTextBox_LostFocus");
             try
             {
                 if (!saveFileIsSelected)
                 {
                     messageLabel.Text = "请先选择一个存档";
+                    LogHelper.Debug("请先选择一个存档");
                     return;
                 }
                 if (tsz_MasterLoveTextBox.Text == string.Empty)
@@ -4736,6 +5162,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 tsz_MasterLoveTextBox.Text = tsz_MasterLoveTextBox.Tag.ToString();
             }
@@ -4744,6 +5171,7 @@ namespace 侠之道存档修改器
 
         private void fxlh_MasterLoveTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("fxlh_MasterLoveTextBox_GotFocus");
 
             messageLabel.Text = "";
             fxlh_MasterLoveTextBox.Tag = fxlh_MasterLoveTextBox.Text;
@@ -4751,11 +5179,13 @@ namespace 侠之道存档修改器
 
         private void fxlh_MasterLoveTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("fxlh_MasterLoveTextBox_LostFocus");
             try
             {
                 if (!saveFileIsSelected)
                 {
                     messageLabel.Text = "请先选择一个存档";
+                    LogHelper.Debug("请先选择一个存档");
                     return;
                 }
                 if (fxlh_MasterLoveTextBox.Text == string.Empty)
@@ -4774,6 +5204,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 fxlh_MasterLoveTextBox.Text = fxlh_MasterLoveTextBox.Tag.ToString();
             }
@@ -4782,6 +5213,7 @@ namespace 侠之道存档修改器
 
         private void ncc_MasterLoveTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("ncc_MasterLoveTextBox_GotFocus");
 
             messageLabel.Text = "";
             ncc_MasterLoveTextBox.Tag = ncc_MasterLoveTextBox.Text;
@@ -4789,11 +5221,13 @@ namespace 侠之道存档修改器
 
         private void ncc_MasterLoveTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("ncc_MasterLoveTextBox_LostFocus");
             try
             {
                 if (!saveFileIsSelected)
                 {
                     messageLabel.Text = "请先选择一个存档";
+                    LogHelper.Debug("请先选择一个存档");
                     return;
                 }
                 if (ncc_MasterLoveTextBox.Text == string.Empty)
@@ -4812,6 +5246,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 ncc_MasterLoveTextBox.Text = ncc_MasterLoveTextBox.Tag.ToString();
             }
@@ -4820,6 +5255,7 @@ namespace 侠之道存档修改器
 
         private void mrx_MasterLoveTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("mrx_MasterLoveTextBox_GotFocus");
 
             messageLabel.Text = "";
             mrx_MasterLoveTextBox.Tag = mrx_MasterLoveTextBox.Text;
@@ -4827,11 +5263,13 @@ namespace 侠之道存档修改器
 
         private void mrx_MasterLoveTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("mrx_MasterLoveTextBox_LostFocus");
             try
             {
                 if (!saveFileIsSelected)
                 {
                     messageLabel.Text = "请先选择一个存档";
+                    LogHelper.Debug("请先选择一个存档");
                     return;
                 }
                 if (mrx_MasterLoveTextBox.Text == string.Empty)
@@ -4850,6 +5288,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 mrx_MasterLoveTextBox.Text = mrx_MasterLoveTextBox.Tag.ToString();
             }
@@ -4858,6 +5297,7 @@ namespace 侠之道存档修改器
 
         private void j_MasterLoveTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("j_MasterLoveTextBox_GotFocus");
 
             messageLabel.Text = "";
             j_MasterLoveTextBox.Tag = j_MasterLoveTextBox.Text;
@@ -4865,12 +5305,14 @@ namespace 侠之道存档修改器
 
         private void j_MasterLoveTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("j_MasterLoveTextBox_LostFocus");
 
             try
             {
                 if (!saveFileIsSelected)
                 {
                     messageLabel.Text = "请先选择一个存档";
+                    LogHelper.Debug("请先选择一个存档");
                     return;
                 }
                 if (j_MasterLoveTextBox.Text == string.Empty)
@@ -4889,6 +5331,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 j_MasterLoveTextBox.Text = j_MasterLoveTextBox.Tag.ToString();
             }
@@ -4896,6 +5339,7 @@ namespace 侠之道存档修改器
 
         private void xx_NpcLoveTextBox_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("xx_NpcLoveTextBox_GotFocus");
             messageLabel.Text = "";
             xx_NpcLoveTextBox.Tag = xx_NpcLoveTextBox.Text;
 
@@ -4903,11 +5347,13 @@ namespace 侠之道存档修改器
 
         private void xx_NpcLoveTextBox_LostFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("xx_NpcLoveTextBox_LostFocus");
             try
             {
                 if (!saveFileIsSelected)
                 {
                     messageLabel.Text = "请先选择一个存档";
+                    LogHelper.Debug("请先选择一个存档");
                     return;
                 }
                 if (xx_NpcLoveTextBox.Text == string.Empty)
@@ -4926,6 +5372,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
                 xx_NpcLoveTextBox.Text = xx_NpcLoveTextBox.Tag.ToString();
             }
@@ -4934,6 +5381,7 @@ namespace 侠之道存档修改器
 
         private void QuestListView_SelectedIndexChanged(object sender, EventArgs e)
         {
+            LogHelper.Debug("QuestListView_SelectedIndexChanged");
             try
             {
                 foreach (ListViewItem lvi in QuestListView.SelectedItems)
@@ -4941,6 +5389,7 @@ namespace 侠之道存档修改器
                     if (!saveFileIsSelected)
                     {
                         messageLabel.Text = "请先选择一个存档";
+                        LogHelper.Debug("请先选择一个存档");
                         QuestListView.SelectedItems.Clear();
                         return;
                     }
@@ -4961,11 +5410,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void ShowAllQuestComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
+            LogHelper.Debug("ShowAllQuestComboBox_SelectedIndexChanged");
             try
             {
                 if (!isSaveFileSelecting)
@@ -4976,11 +5427,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void QuestChangeState1Button_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("QuestChangeState1Button_Click");
             try
             {
                 foreach (ListViewItem lvi in QuestListView.SelectedItems)
@@ -4996,11 +5449,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void QuestChangeState2Button_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("QuestChangeState2Button_Click");
             try
             {
                 foreach (ListViewItem lvi in QuestListView.SelectedItems)
@@ -5016,11 +5471,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void QuestChangeState3Button_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("QuestChangeState3Button_Click");
             try
             {
                 foreach (ListViewItem lvi in QuestListView.SelectedItems)
@@ -5039,11 +5496,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void SetCurrentElectiveButton_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("SetCurrentElectiveButton_Click");
             try
             {
                 foreach (ListViewItem lvi in ElectiveListView.SelectedItems)
@@ -5064,12 +5523,14 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
 
         }
 
         private void NurturanceOrderListView_SelectedIndexChanged(object sender, EventArgs e)
         {
+            LogHelper.Debug("NurturanceOrderListView_SelectedIndexChanged");
             try
             {
                 foreach (ListViewItem lvi in NurturanceOrderListView.SelectedItems)
@@ -5080,11 +5541,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void NurturanceOrderOpenButton_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("NurturanceOrderOpenButton_Click");
             try
             {
                 foreach (ListViewItem lvi in NurturanceOrderListView.SelectedItems)
@@ -5098,11 +5561,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
 
         }
         private void NurturanceOrderCloseButton_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("NurturanceOrderCloseButton_Click");
             try
             {
                 foreach (ListViewItem lvi in NurturanceOrderListView.SelectedItems)
@@ -5115,6 +5580,7 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
@@ -5144,29 +5610,34 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
                 return false;
             }
         }
 
         private void BookListView_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("BookListView_GotFocus");
             AddBookButton.Enabled = true;
             RemoveBookButton.Enabled = false;
         }
 
         private void HavingBookListView_GotFocus(object sender, EventArgs e)
         {
+            LogHelper.Debug("HavingBookListView_GotFocus");
             AddBookButton.Enabled = false;
             RemoveBookButton.Enabled = true;
         }
 
         private void AddBookButton_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("AddBookButton_Click");
             try
             {
                 if (!saveFileIsSelected)
                 {
                     messageLabel.Text = "请先选择一个存档";
+                    LogHelper.Debug("请先选择一个存档");
                     return;
                 }
                 foreach (ListViewItem lvi in BookListView.SelectedItems)
@@ -5181,11 +5652,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void RemoveBookButton_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("RemoveBookButton_Click");
             try
             {
                 foreach (ListViewItem lvi in HavingBookListView.SelectedItems)
@@ -5197,7 +5670,7 @@ namespace 侠之道存档修改器
                     {
                         index = HavingBookListView.Items.Count - 1;
                     }
-                    if(index != -1)
+                    if (index != -1)
                     {
                         HavingBookListView.Items[index].Selected = true;
                     }
@@ -5206,11 +5679,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void LearnAlchemyButton_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("LearnAlchemyButton_Click");
             try
             {
                 foreach (ListViewItem lvi in AlchemyListView.SelectedItems)
@@ -5222,11 +5697,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void AbolishAlchemyButton_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("AbolishAlchemyButton_Click");
             try
             {
                 foreach (ListViewItem lvi in AlchemyListView.SelectedItems)
@@ -5238,11 +5715,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void OpenForgeFightButton_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("OpenForgeFightButton_Click");
             try
             {
                 foreach (ListViewItem lvi in ForgeFightListView.SelectedItems)
@@ -5254,11 +5733,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void CloseForgeFightButton_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("CloseForgeFightButton_Click");
             try
             {
                 foreach (ListViewItem lvi in ForgeFightListView.SelectedItems)
@@ -5270,11 +5751,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void OpenForgeBladeAndSwordButton_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("OpenForgeBladeAndSwordButton_Click");
             try
             {
                 foreach (ListViewItem lvi in ForgeBladeAndSwordListView.SelectedItems)
@@ -5286,11 +5769,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void CloseForgeBladeAndSwordButton_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("CloseForgeBladeAndSwordButton_Click");
             try
             {
                 foreach (ListViewItem lvi in ForgeBladeAndSwordListView.SelectedItems)
@@ -5302,11 +5787,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void OpenForgeLongAndShortButton_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("OpenForgeLongAndShortButton_Click");
             try
             {
                 foreach (ListViewItem lvi in ForgeLongAndShortListView.SelectedItems)
@@ -5318,11 +5805,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void CloseForgeLongAndShortButton_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("CloseForgeLongAndShortButton_Click");
             try
             {
                 foreach (ListViewItem lvi in ForgeLongAndShortListView.SelectedItems)
@@ -5335,11 +5824,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void OpenForgeQimenButton_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("OpenForgeQimenButton_Click");
             try
             {
                 foreach (ListViewItem lvi in ForgeQimenListView.SelectedItems)
@@ -5351,11 +5842,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void CloseForgeQimenButton_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("CloseForgeQimenButton_Click");
             try
             {
                 foreach (ListViewItem lvi in ForgeQimenListView.SelectedItems)
@@ -5367,11 +5860,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void OpenForgeArmorButton_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("OpenForgeArmorButton_Click");
             try
             {
                 foreach (ListViewItem lvi in ForgeArmorListView.SelectedItems)
@@ -5383,11 +5878,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void CloseForgeArmorButton_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("CloseForgeArmorButton_Click");
             try
             {
                 foreach (ListViewItem lvi in ForgeArmorListView.SelectedItems)
@@ -5399,11 +5896,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void AddShopButton_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("AddShopButton_Click");
             try
             {
                 foreach (ListViewItem lvi in ShopListView.SelectedItems)
@@ -5418,11 +5917,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void RemoveShopButton_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("RemoveShopButton_Click");
             try
             {
                 foreach (ListViewItem lvi in ShopListView.SelectedItems)
@@ -5441,11 +5942,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void SearchFlagButton_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("SearchFlagButton_Click");
             try
             {
                 SearchFlagResultLabel.Text = "";
@@ -5494,11 +5997,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void fixBug()
         {
+            LogHelper.Debug("fixBug");
             try
             {
                 Game.GameData.Character["Player"].Skill.Remove("");
@@ -5508,11 +6013,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void PropsSearchButton_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("PropsSearchButton_Click");
             try
             {
                 SearchPropsResultLabel.Text = "";
@@ -5561,11 +6068,13 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
 
         private void InventorySearchButton_Click(object sender, EventArgs e)
         {
+            LogHelper.Debug("InventorySearchButton_Click");
             try
             {
                 SearchInventoryResultLabel.Text = "";
@@ -5614,6 +6123,23 @@ namespace 侠之道存档修改器
             catch (Exception ex)
             {
                 messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
+            }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            LogHelper.Debug("button1_Click");
+            string flag = SearchFlagTextBox.Text;
+            if (gameData.Flag.ContainsKey(flag))
+            {
+                messageLabel.Text = "该旗标已存在";
+                LogHelper.Debug("该旗标已存在");
+            }
+            else
+            {
+                gameData.Flag[flag] = 0;
+                readFlag();
             }
         }
     }

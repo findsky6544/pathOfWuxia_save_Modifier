@@ -64,6 +64,13 @@
     <Reference Include="Assembly-CSharp">
       <HintPath>lib\Assembly-CSharp.dll</HintPath>
     </Reference>
+    <Reference Include="FileHelpers, Version=3.2.0.0, Culture=neutral, PublicKeyToken=3e0c08d59cc3d657, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\FileHelpers.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net">
+      <HintPath>lib\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="MessagePack">
       <HintPath>F:\SteamLibrary\steamapps\common\PathOfWuxia\PathOfWuxia_Data\Managed\MessagePack.dll</HintPath>
     </Reference>
@@ -124,8 +131,11 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="LogHelper.cs" />
+    <Compile Include="Parameter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="XMLHelper.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
@@ -177,6 +187,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\1641713231.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Config.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

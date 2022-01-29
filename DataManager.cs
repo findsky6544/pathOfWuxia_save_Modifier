@@ -27,12 +27,14 @@ namespace 侠之道存档修改器
 
 		protected virtual void ReadData(string path)
 		{
+			LogHelper.Debug("ReadData");
 			this.dict = new Dictionary<Type, IDictionary>();
 			Type type = typeof(Item);
 			foreach (Type itemType in from t in type.Assembly.GetTypes()
 									  where t.IsSubclassOf(type) && !t.HasAttribute<Hidden>(false)
 									  select t)
 			{
+				LogHelper.Debug(itemType);
 				Type typeItemDic = typeof(CsvDataSource<>).MakeGenericType(new Type[]
 				{
 					itemType
@@ -43,12 +45,12 @@ namespace 侠之道存档修改器
 					IDictionary itemDic;
 					string textAsset = File.ReadAllText(path + "\\" + itemType.Name + ".txt");
 					fileData = System.Text.Encoding.UTF8.GetBytes(textAsset);
-					itemDic = (Activator.CreateInstance(typeItemDic, new object[] { fileData }) as IDictionary);
+					itemDic = Activator.CreateInstance(typeItemDic, new object[] { fileData }) as IDictionary;
 					this.dict.Add(itemType, itemDic);
 				}
 				catch (Exception ex)
 				{
-					
+					LogHelper.Debug(ex.Message+"\n"+ex.InnerException);
 				}
 			}
 		}

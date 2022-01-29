@@ -433,10 +433,11 @@ namespace 侠之道存档修改器
             this.columnHeader37 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.tabPage6 = new System.Windows.Forms.TabPage();
             this.pictureBox3 = new System.Windows.Forms.PictureBox();
+            this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.saveButton = new System.Windows.Forms.Button();
             this.messageLabel = new System.Windows.Forms.Label();
-            this.pictureBox2 = new System.Windows.Forms.PictureBox();
+            this.button1 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.saveTabPage.SuspendLayout();
             this.inventoryTabPage.SuspendLayout();
@@ -476,8 +477,8 @@ namespace 侠之道存档修改器
             this.shopTabPage.SuspendLayout();
             this.tabPage6.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -2718,6 +2719,7 @@ namespace 侠之道存档修改器
             // 
             // flagTabPage
             // 
+            this.flagTabPage.Controls.Add(this.button1);
             this.flagTabPage.Controls.Add(this.SearchFlagResultLabel);
             this.flagTabPage.Controls.Add(this.SearchFlagButton);
             this.flagTabPage.Controls.Add(this.SearchFlagTextBox);
@@ -4130,6 +4132,16 @@ namespace 侠之道存档修改器
             this.pictureBox3.TabIndex = 2;
             this.pictureBox3.TabStop = false;
             // 
+            // pictureBox2
+            // 
+            this.pictureBox2.Image = global::侠之道存档修改器.Properties.Resources.红包;
+            this.pictureBox2.Location = new System.Drawing.Point(282, 54);
+            this.pictureBox2.Name = "pictureBox2";
+            this.pictureBox2.Size = new System.Drawing.Size(198, 282);
+            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox2.TabIndex = 1;
+            this.pictureBox2.TabStop = false;
+            // 
             // pictureBox1
             // 
             this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
@@ -4159,15 +4171,15 @@ namespace 侠之道存档修改器
             this.messageLabel.TabIndex = 3;
             this.messageLabel.Text = "                       ";
             // 
-            // pictureBox2
+            // button1
             // 
-            this.pictureBox2.Image = global::侠之道存档修改器.Properties.Resources.红包;
-            this.pictureBox2.Location = new System.Drawing.Point(282, 54);
-            this.pictureBox2.Name = "pictureBox2";
-            this.pictureBox2.Size = new System.Drawing.Size(198, 282);
-            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox2.TabIndex = 1;
-            this.pictureBox2.TabStop = false;
+            this.button1.Location = new System.Drawing.Point(250, 3);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 8;
+            this.button1.Text = "添加该旗标";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // Form1
             // 
@@ -4178,7 +4190,7 @@ namespace 侠之道存档修改器
             this.Controls.Add(this.saveButton);
             this.Controls.Add(this.tabControl1);
             this.Name = "Form1";
-            this.Text = "侠之道存档修改器1.4";
+            this.Text = "侠之道存档修改器1.5.0";
             this.tabControl1.ResumeLayout(false);
             this.saveTabPage.ResumeLayout(false);
             this.saveTabPage.PerformLayout();
@@ -4232,8 +4244,8 @@ namespace 侠之道存档修改器
             this.shopTabPage.ResumeLayout(false);
             this.tabPage6.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -4648,6 +4660,7 @@ namespace 侠之道存档修改器
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.PictureBox pictureBox3;
         private System.Windows.Forms.PictureBox pictureBox2;
+        private System.Windows.Forms.Button button1;
     }
 }
 
