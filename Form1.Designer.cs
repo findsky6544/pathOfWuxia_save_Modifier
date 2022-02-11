@@ -268,6 +268,7 @@ namespace 侠之道存档修改器
             this.CommunityIdColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.CommunityNameColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.flagTabPage = new System.Windows.Forms.TabPage();
+            this.button1 = new System.Windows.Forms.Button();
             this.SearchFlagResultLabel = new System.Windows.Forms.Label();
             this.SearchFlagButton = new System.Windows.Forms.Button();
             this.SearchFlagTextBox = new System.Windows.Forms.TextBox();
@@ -437,7 +438,6 @@ namespace 侠之道存档修改器
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.saveButton = new System.Windows.Forms.Button();
             this.messageLabel = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.saveTabPage.SuspendLayout();
             this.inventoryTabPage.SuspendLayout();
@@ -2735,6 +2735,16 @@ namespace 侠之道存档修改器
             this.flagTabPage.Text = "旗标";
             this.flagTabPage.UseVisualStyleBackColor = true;
             // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(250, 3);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 8;
+            this.button1.Text = "添加该旗标";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // SearchFlagResultLabel
             // 
             this.SearchFlagResultLabel.AutoSize = true;
@@ -4165,21 +4175,12 @@ namespace 侠之道存档修改器
             // messageLabel
             // 
             this.messageLabel.AutoSize = true;
-            this.messageLabel.Location = new System.Drawing.Point(16, 12);
+            this.messageLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.messageLabel.Location = new System.Drawing.Point(0, 0);
             this.messageLabel.Name = "messageLabel";
             this.messageLabel.Size = new System.Drawing.Size(143, 12);
             this.messageLabel.TabIndex = 3;
             this.messageLabel.Text = "                       ";
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(250, 3);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 8;
-            this.button1.Text = "添加该旗标";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // Form1
             // 
@@ -4190,7 +4191,9 @@ namespace 侠之道存档修改器
             this.Controls.Add(this.saveButton);
             this.Controls.Add(this.tabControl1);
             this.Name = "Form1";
-            this.Text = "侠之道存档修改器1.5.0";
+            this.Text = "侠之道存档修改器1.5.1";
+            this.Load += new System.EventHandler(this.Form1_Load);
+            this.SizeChanged += new System.EventHandler(this.Form1_SizeChanged);
             this.tabControl1.ResumeLayout(false);
             this.saveTabPage.ResumeLayout(false);
             this.saveTabPage.PerformLayout();

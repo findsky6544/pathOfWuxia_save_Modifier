@@ -24,6 +24,7 @@ namespace 侠之道存档修改器
 {
     public partial class Form1 : Form
     {
+        AutoSizeFormClass asc = new AutoSizeFormClass();
         private string saveFilesPath = "saveFilesPath.txt";
         private string FlagRemarkFilePath = "FlagRemark.txt";
         private string logPath = "output.log";
@@ -121,6 +122,17 @@ namespace 侠之道存档修改器
 
 
 
+        }
+        //2. 为窗体添加Load事件，并在其方法Form1_Load中，调用类的初始化方法，记录窗体和其控件的初始位置和大小
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            asc.controllInitializeSize(this);
+        }
+        //3.为窗体添加SizeChanged事件，并在其方法Form1_SizeChanged中，调用类的自适应方法，完成自适应
+        private void Form1_SizeChanged(object sender, EventArgs e)
+        {
+            asc.controlAutoSize(this);
+            //this.WindowState = (System.Windows.Forms.FormWindowState)(2);//记录完控件的初始位置和大小后，再最大化
         }
 
         public string getBaseFlowGraphStr(BaseFlowGraph bfg)
@@ -475,7 +487,7 @@ namespace 侠之道存档修改器
                         string weaponId = ((ComboBoxItem)WeaponComboBox.SelectedItem).key;
                         Props prop = Data.Get<Props>(weaponId);
 
-                        if (kv.Value.Type != prop.PropsCategory)
+                        if (kv.Value.Type != prop.PropsCategory && kv.Value.Type != Heluo.Data.PropsCategory.Throwing)
                         {
                             continue;
                         }
