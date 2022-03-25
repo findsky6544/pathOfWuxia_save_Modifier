@@ -23,10 +23,12 @@ namespace 侠之道存档修改器
         //存储控件名和他的位置
         public Dictionary<String, controlRect> oldCtrl = new Dictionary<String, controlRect>();
         int ctrlNo = 0;
+        public bool isInit = false;
 
         //记录窗体和其控件的初始位置和大小,
         public void controllInitializeSize(Control mForm)
         {
+            LogHelper.Debug("controllInitializeSize");
             controlRect cR;
             cR.Left = mForm.Left; cR.Top = mForm.Top; cR.Width = mForm.Width; cR.Height = mForm.Height;
 
@@ -37,10 +39,12 @@ namespace 侠之道存档修改器
 
             //this.WindowState = (System.Windows.Forms.FormWindowState)(2);//记录完控件的初始位置和大小后，再最大化
             //0 - Normalize , 1 - Minimize,2- Maximize
+            isInit = true;
         }
 
         private void AddControl(Control ctl)
         {
+            LogHelper.Debug("AddControl");
             foreach (Control c in ctl.Controls)
             {
 
@@ -58,6 +62,7 @@ namespace 侠之道存档修改器
         public void controlAutoSize(Control mForm)
         {
 
+            LogHelper.Debug("controlAutoSize");
             if (ctrlNo == 0)
             {
 
@@ -74,6 +79,7 @@ namespace 侠之道存档修改器
 
         private void AutoScaleControl(Control ctl, float wScale, float hScale)
         {
+            LogHelper.Debug("AutoScaleControl");
             int ctrLeft0, ctrTop0, ctrWidth0, ctrHeight0;
             //int ctrlNo = 1;//第1个是窗体自身的 Left,Top,Width,Height，所以窗体控件从ctrlNo=1开始
             foreach (Control c in ctl.Controls)
@@ -100,6 +106,7 @@ namespace 侠之道存档修改器
         }
         private void AutoScaleFont(Control c)
         {
+            LogHelper.Debug("AutoScaleFont");
             string[] type = c.GetType().ToString().Split('.');
             string controlType = type[type.Length - 1];
 
@@ -120,6 +127,7 @@ namespace 侠之道存档修改器
 
         private void insertDictionary(String name, controlRect cr)   //添加控件名和位置，如果名称重复则更新
         {
+            LogHelper.Debug("insertDictionary:"+ name);
             Dictionary<String, controlRect> temp = new Dictionary<String, controlRect>();
             bool flag = false;
             foreach (var pair in oldCtrl)

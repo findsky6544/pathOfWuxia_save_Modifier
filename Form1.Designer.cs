@@ -4175,8 +4175,7 @@ namespace 侠之道存档修改器
             // messageLabel
             // 
             this.messageLabel.AutoSize = true;
-            this.messageLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.messageLabel.Location = new System.Drawing.Point(0, 0);
+            this.messageLabel.Location = new System.Drawing.Point(14, 12);
             this.messageLabel.Name = "messageLabel";
             this.messageLabel.Size = new System.Drawing.Size(143, 12);
             this.messageLabel.TabIndex = 3;
@@ -4191,7 +4190,7 @@ namespace 侠之道存档修改器
             this.Controls.Add(this.saveButton);
             this.Controls.Add(this.tabControl1);
             this.Name = "Form1";
-            this.Text = "侠之道存档修改器1.5.1";
+            this.Text = "侠之道存档修改器1.5.2";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.SizeChanged += new System.EventHandler(this.Form1_SizeChanged);
             this.tabControl1.ResumeLayout(false);

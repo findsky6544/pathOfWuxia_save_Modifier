@@ -98,6 +98,7 @@ namespace 侠之道存档修改器
                 InitializeComponent();
 
                 Game.Data = Data;
+
                 getConfigDatas();
 
                 if (File.Exists(saveFilesPath))
@@ -126,11 +127,18 @@ namespace 侠之道存档修改器
         //2. 为窗体添加Load事件，并在其方法Form1_Load中，调用类的初始化方法，记录窗体和其控件的初始位置和大小
         private void Form1_Load(object sender, EventArgs e)
         {
-            asc.controllInitializeSize(this);
+            if (!asc.isInit)
+            {
+                asc.controllInitializeSize(this);
+            }
         }
         //3.为窗体添加SizeChanged事件，并在其方法Form1_SizeChanged中，调用类的自适应方法，完成自适应
         private void Form1_SizeChanged(object sender, EventArgs e)
         {
+            if (!asc.isInit)
+            {
+                asc.controllInitializeSize(this);
+            }
             asc.controlAutoSize(this);
             //this.WindowState = (System.Windows.Forms.FormWindowState)(2);//记录完控件的初始位置和大小后，再最大化
         }
@@ -487,7 +495,7 @@ namespace 侠之道存档修改器
                         string weaponId = ((ComboBoxItem)WeaponComboBox.SelectedItem).key;
                         Props prop = Data.Get<Props>(weaponId);
 
-                        if (kv.Value.Type != prop.PropsCategory && kv.Value.Type != Heluo.Data.PropsCategory.Throwing)
+                        if (kv.Value.Type != prop.PropsCategory && kv.Value.Type != Heluo.Data.PropsCategory.Throwing && kv.Value.DamageType != DamageType.Heal)
                         {
                             continue;
                         }
@@ -509,7 +517,7 @@ namespace 侠之道存档修改器
                     lvi.SubItems.Add(kv.Value.RequestMP.ToString());
                     lvi.SubItems.Add(kv.Value.MaxCD.ToString());
                     lvi.SubItems.Add(kv.Value.PushDistance == -1 ? "抓取" : kv.Value.PushDistance.ToString());
-                    if (kv.Value.Summonid != "0" && kv.Value.Summonid != string.Empty)
+                    if (kv.Value.Summonid != "0" && !string.IsNullOrEmpty(kv.Value.Summonid))
                     {
                         string[] summonids = kv.Value.Summonid.Split(',');
                         string summonName = "";
@@ -970,6 +978,7 @@ namespace 侠之道存档修改器
             try
             {
                 InventoryListView.Items.Clear();
+                InventoryListView.BeginUpdate();
 
                 foreach (KeyValuePair<string, InventoryData> kv in gameData.Inventory)
                 {
@@ -980,12 +989,13 @@ namespace 侠之道存档修改器
                         ListViewItem lvi = new ListViewItem();
                         lvi.Text = kv.Key;
 
-                        lvi.SubItems.Add(Data.Get<Props>(kv.Key).Name);
-                        lvi.SubItems.Add(kv.Value.Count.ToString());
-                        InventoryListView.Items.Add(lvi);
+                        if(Data.Get<Props>(kv.Key) != null)
+                        {
+                            lvi.SubItems.Add(Data.Get<Props>(kv.Key).Name);
+                            lvi.SubItems.Add(kv.Value.Count.ToString());
+                            InventoryListView.Items.Add(lvi);
+                        }
                     }
-
-
                 }
 
                 InventoryListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。 
@@ -1478,7 +1488,6 @@ namespace 侠之道存档修改器
             LogHelper.Debug("listView1_GotFocus");
             try
             {
-                messageLabel.Text = "";
                 if (saveFileIsSelected)
                 {
                     InventoryAdd1button.Enabled = true;
@@ -1499,7 +1508,6 @@ namespace 侠之道存档修改器
             LogHelper.Debug("listView2_GotFocus");
             try
             {
-                messageLabel.Text = "";
                 if (saveFileIsSelected)
                 {
                     InventoryAdd1button.Enabled = false;
@@ -1854,7 +1862,7 @@ namespace 侠之道存档修改器
                 readCharacterProperty(cid);
 
                 ElementComboBox.SelectedIndex = (int)cid.Element;
-                if (cid.SpecialSkill != null && cid.SpecialSkill != string.Empty)
+                if (!string.IsNullOrEmpty(cid.SpecialSkill))
                 {
                     SpecialSkillComboBox.SelectedIndex = SpecialSkillComboBox.Items.IndexOf(dcbi[cid.SpecialSkill]);
                 }
@@ -1877,8 +1885,8 @@ namespace 侠之道存档修改器
                 CalligraphyTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Calligraphy].Value.ToString();
                 PaintingTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Painting].Value.ToString();
 
-                //weaponComboBox.SelectedIndex = -1;
-                if (cid.Equip[EquipType.Weapon] != null && cid.Equip[EquipType.Weapon] != string.Empty)
+                //WeaponComboBox.SelectedIndex = -1;
+                if (!string.IsNullOrEmpty(cid.Equip[EquipType.Weapon]) && dcbi.ContainsKey(cid.Equip[EquipType.Weapon]))
                 {
                     WeaponComboBox.SelectedIndex = WeaponComboBox.Items.IndexOf(dcbi[cid.Equip[EquipType.Weapon]]);
                 }
@@ -1887,21 +1895,29 @@ namespace 侠之道存档修改器
                     WeaponComboBox.SelectedIndex = -1;
                 }
                 //weaponComboBox2.SelectedIndex = -1;
-                /*if (cid.Equip[EquipType.Weapon] != null && cid.Equip[EquipType.Weapon] != string.Empty)
+                /*if (!string.IsNullOrEmpty(cid.Equip[EquipType.Weapon]))
                 {
                     weaponComboBox2.SelectedIndex = weaponComboBox2.Items.IndexOf(dcbi[cid.Equip[EquipType.Weapon]]);
                 }*/
 
-                ClothComboBox.SelectedIndex = -1;
-                if (cid.Equip[EquipType.Cloth] != null && cid.Equip[EquipType.Cloth] != string.Empty)
+                //ClothComboBox.SelectedIndex = -1;
+                if (!string.IsNullOrEmpty(cid.Equip[EquipType.Cloth]) && dcbi.ContainsKey(cid.Equip[EquipType.Cloth]))
                 {
                     ClothComboBox.SelectedIndex = ClothComboBox.Items.IndexOf(dcbi[cid.Equip[EquipType.Cloth]]);
                 }
+                else
+                {
+                    ClothComboBox.SelectedIndex = -1;
+                }
 
-                JewelryComboBox.SelectedIndex = -1;
-                if (cid.Equip[EquipType.Jewelry] != null && cid.Equip[EquipType.Jewelry] != string.Empty)
+                //JewelryComboBox.SelectedIndex = -1;
+                if (!string.IsNullOrEmpty(cid.Equip[EquipType.Jewelry]) && dcbi.ContainsKey(cid.Equip[EquipType.Jewelry]))
                 {
                     JewelryComboBox.SelectedIndex = JewelryComboBox.Items.IndexOf(dcbi[cid.Equip[EquipType.Jewelry]]);
+                }
+                else
+                {
+                    JewelryComboBox.SelectedIndex = -1;
                 }
             }
             catch (Exception ex)
@@ -1961,7 +1977,7 @@ namespace 侠之道存档修改器
                 {
                     if (kv.Key != "")
                     {
-                        if (cid.Equip[EquipType.Weapon] == null || cid.Equip[EquipType.Weapon] == "" || Data.Get<Props>(cid.Equip[EquipType.Weapon]).PropsCategory == kv.Value.Item.Type || kv.Value.Item.DamageType == DamageType.Throwing || kv.Value.Item.DamageType == DamageType.Heal)
+                        if (string.IsNullOrEmpty(cid.Equip[EquipType.Weapon]) || Data.Get<Props>(cid.Equip[EquipType.Weapon]) == null || Data.Get<Props>(cid.Equip[EquipType.Weapon]).PropsCategory == kv.Value.Item.Type || kv.Value.Item.DamageType == DamageType.Throwing || kv.Value.Item.DamageType == DamageType.Heal)
                         {
                             ListViewItem lvi = new ListViewItem();
 
@@ -2120,10 +2136,10 @@ namespace 侠之道存档修改器
                 {
                     switch (i)
                     {
-                        case 0: EquipSkill1Label.Text = equipSkills[i] == null || equipSkills[i] == string.Empty ? "无" : Data.Get<Skill>(equipSkills[i]).Name; break;
-                        case 1: EquipSkill2Label.Text = equipSkills[i] == null || equipSkills[i] == string.Empty ? "无" : Data.Get<Skill>(equipSkills[i]).Name; break;
-                        case 2: EquipSkill3Label.Text = equipSkills[i] == null || equipSkills[i] == string.Empty ? "无" : Data.Get<Skill>(equipSkills[i]).Name; break;
-                        case 3: EquipSkill4Label.Text = equipSkills[i] == null || equipSkills[i] == string.Empty ? "无" : Data.Get<Skill>(equipSkills[i]).Name; break;
+                        case 0: EquipSkill1Label.Text = string.IsNullOrEmpty(equipSkills[i]) ? "无" : Data.Get<Skill>(equipSkills[i]).Name; break;
+                        case 1: EquipSkill2Label.Text = string.IsNullOrEmpty(equipSkills[i]) ? "无" : Data.Get<Skill>(equipSkills[i]).Name; break;
+                        case 2: EquipSkill3Label.Text = string.IsNullOrEmpty(equipSkills[i]) ? "无" : Data.Get<Skill>(equipSkills[i]).Name; break;
+                        case 3: EquipSkill4Label.Text = string.IsNullOrEmpty(equipSkills[i]) ? "无" : Data.Get<Skill>(equipSkills[i]).Name; break;
                     }
                 }
             }
@@ -2154,7 +2170,7 @@ namespace 侠之道存档修改器
             }
 
             FileStream writestream = new FileStream(saveFilePath, FileMode.OpenOrCreate);
-            StreamReader sr = new StreamReader(writestream);
+            StreamWriter sw = new StreamWriter(writestream);
             try
             {
 
@@ -2167,12 +2183,12 @@ namespace 侠之道存档修改器
                         LZ4MessagePackSerializer.Serialize(memoryStream, pathOfWuxiaSaveHeader, HeluoResolver.Instance);
                         LZ4MessagePackSerializer.Serialize(memoryStream, gameData, HeluoResolver.Instance);
 
-                        sr.BaseStream.Write(memoryStream.ToArray(), 0, memoryStream.ToArray().Length);
+                        sw.BaseStream.Write(memoryStream.ToArray(), 0, memoryStream.ToArray().Length);
                     }
                 }
                 messageLabel.Text = "保存成功";
                 LogHelper.Debug("保存成功");
-                sr.Close();
+                sw.Close();
                 writestream.Close();
             }
             catch (Exception ex)
@@ -2182,7 +2198,7 @@ namespace 侠之道存档修改器
             }
             finally
             {
-                sr.Close();
+                sw.Close();
                 writestream.Close();
             }
 
@@ -2230,7 +2246,6 @@ namespace 侠之道存档修改器
             LogHelper.Debug("playerPostioionTextBox_GotFocus");
             try
             {
-                messageLabel.Text = "";
 
                 PlayerPostioionTextBox.Tag = PlayerPostioionTextBox.Text;
             }
@@ -2263,7 +2278,6 @@ namespace 侠之道存档修改器
             LogHelper.Debug("playerForwardTextBox_GotFocus");
             try
             {
-                messageLabel.Text = "";
                 PlayerForwardTextBox.Tag = PlayerForwardTextBox.Text;
             }
             catch (Exception ex)
@@ -2304,7 +2318,6 @@ namespace 侠之道存档修改器
             LogHelper.Debug("emotionTextBox_GotFocus");
             try
             {
-                messageLabel.Text = "";
                 EmotionTextBox.Tag = EmotionTextBox.Text;
             }
             catch (Exception ex)
@@ -2338,7 +2351,6 @@ namespace 侠之道存档修改器
             LogHelper.Debug("moneyTextBox_GotFocus");
             try
             {
-                messageLabel.Text = "";
                 MoneyTextBox.Tag = MoneyTextBox.Text;
             }
             catch (Exception ex)
@@ -2649,7 +2661,7 @@ namespace 侠之道存档修改器
             LogHelper.Debug("GrowthFactorTextBox_LostFocus");
             try
             {
-                if (GrowthFactorTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(GrowthFactorTextBox.Text))
                 {
                     GrowthFactorTextBox.Text = "0";
                 }
@@ -2692,7 +2704,7 @@ namespace 侠之道存档修改器
             LogHelper.Debug("hpTextBox_LostFocus");
             try
             {
-                if (HpTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(HpTextBox.Text))
                 {
                     HpTextBox.Text = "1";
                 }
@@ -2737,7 +2749,7 @@ namespace 侠之道存档修改器
             {
                 int maxHp = 1;
 
-                if (MaxHpTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(MaxHpTextBox.Text))
                 {
                     maxHp = 1;
                 }
@@ -2785,7 +2797,7 @@ namespace 侠之道存档修改器
             LogHelper.Debug("AffiliationTextBox_LostFocus");
             try
             {
-                if (AffiliationTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(AffiliationTextBox.Text))
                 {
                     AffiliationTextBox.Text = "0";
                 }
@@ -2842,7 +2854,7 @@ namespace 侠之道存档修改器
             LogHelper.Debug("mpTextBox_LostFocus");
             try
             {
-                if (MpTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(MpTextBox.Text))
                 {
                     MpTextBox.Text = "1";
                 }
@@ -2877,7 +2889,7 @@ namespace 侠之道存档修改器
             LogHelper.Debug("maxMpTextBox_LostFocus");
             try
             {
-                if (MaxMpTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(MaxMpTextBox.Text))
                 {
                     MaxMpTextBox.Text = "1";
                 }
@@ -2917,7 +2929,7 @@ namespace 侠之道存档修改器
             LogHelper.Debug("strTextBox_LostFocus");
             try
             {
-                if (StrTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(StrTextBox.Text))
                 {
                     StrTextBox.Text = "0";
                 }
@@ -2930,7 +2942,7 @@ namespace 侠之道存档修改器
 
                     cid.UpgradeableProperty[CharacterUpgradableProperty.Str].Level = str;
 
-                    StrTextBox.Text = str.ToString();
+                    StrTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Str].Value.ToString();
 
                     //createFormula(cid);
                     cid.UpgradeProperty(false);
@@ -2957,7 +2969,7 @@ namespace 侠之道存档修改器
             LogHelper.Debug("vitTextBox_LostFocus");
             try
             {
-                if (VitTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(VitTextBox.Text))
                 {
                     VitTextBox.Text = "0";
                 }
@@ -2970,7 +2982,7 @@ namespace 侠之道存档修改器
 
                     cid.UpgradeableProperty[CharacterUpgradableProperty.Vit].Level = vit;
 
-                    VitTextBox.Text = vit.ToString();
+                    VitTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Vit].Value.ToString();
 
                     //createFormula(cid);
                     cid.UpgradeProperty(false);
@@ -2997,7 +3009,7 @@ namespace 侠之道存档修改器
             LogHelper.Debug("dexTextBox_LostFocus");
             try
             {
-                if (DexTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(DexTextBox.Text))
                 {
                     DexTextBox.Text = "0";
                 }
@@ -3010,7 +3022,7 @@ namespace 侠之道存档修改器
 
                     cid.UpgradeableProperty[CharacterUpgradableProperty.Dex].Level = dex;
 
-                    DexTextBox.Text = dex.ToString();
+                    DexTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Dex].Value.ToString();
 
                     //createFormula(cid);
                     cid.UpgradeProperty(false);
@@ -3037,7 +3049,7 @@ namespace 侠之道存档修改器
             LogHelper.Debug("spiTextBox_LostFocus");
             try
             {
-                if (SpiTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(SpiTextBox.Text))
                 {
                     SpiTextBox.Text = "0";
                 }
@@ -3050,7 +3062,7 @@ namespace 侠之道存档修改器
 
                     cid.UpgradeableProperty[CharacterUpgradableProperty.Spi].Level = spi;
 
-                    SpiTextBox.Text = spi.ToString();
+                    SpiTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Spi].Value.ToString();
 
                     //createFormula(cid);
                     cid.UpgradeProperty(false);
@@ -3077,7 +3089,7 @@ namespace 侠之道存档修改器
             LogHelper.Debug("attackTextBox_LostFocus");
             try
             {
-                if (AttackTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(AttackTextBox.Text))
                 {
                     AttackTextBox.Text = "0";
                 }
@@ -3113,7 +3125,7 @@ namespace 侠之道存档修改器
             LogHelper.Debug("defenseTextBox_LostFocus");
             try
             {
-                if (DefenseTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(DefenseTextBox.Text))
                 {
                     DefenseTextBox.Text = "0";
                 }
@@ -3149,7 +3161,7 @@ namespace 侠之道存档修改器
             LogHelper.Debug("hitTextBox_LostFocus");
             try
             {
-                if (HitTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(HitTextBox.Text))
                 {
                     HitTextBox.Text = "0";
                 }
@@ -3185,7 +3197,7 @@ namespace 侠之道存档修改器
             LogHelper.Debug("moveTextBox_LostFocus");
             try
             {
-                if (MoveTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(MoveTextBox.Text))
                 {
                     MoveTextBox.Text = "0";
                 }
@@ -3221,7 +3233,7 @@ namespace 侠之道存档修改器
             LogHelper.Debug("dodgeTextBox_LostFocus");
             try
             {
-                if (DodgeTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(DodgeTextBox.Text))
                 {
                     DodgeTextBox.Text = "0";
                 }
@@ -3257,7 +3269,7 @@ namespace 侠之道存档修改器
             LogHelper.Debug("parryTextBox_LostFocus");
             try
             {
-                if (ParryTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(ParryTextBox.Text))
                 {
                     ParryTextBox.Text = "0";
                 }
@@ -3293,7 +3305,7 @@ namespace 侠之道存档修改器
             LogHelper.Debug("criticalTextBox_LostFocus");
             try
             {
-                if (CriticalTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(CriticalTextBox.Text))
                 {
                     CriticalTextBox.Text = "0";
                 }
@@ -3329,7 +3341,7 @@ namespace 侠之道存档修改器
             LogHelper.Debug("counterTextBox_LostFocus");
             try
             {
-                if (CounterTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(CounterTextBox.Text))
                 {
                     CounterTextBox.Text = "0";
                 }
@@ -3365,7 +3377,7 @@ namespace 侠之道存档修改器
             LogHelper.Debug("VibrantTextBox_LostFocus");
             try
             {
-                if (VibrantTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(VibrantTextBox.Text))
                 {
                     VibrantTextBox.Text = "0";
                 }
@@ -3401,7 +3413,7 @@ namespace 侠之道存档修改器
             LogHelper.Debug("CultivatedTextBox_LostFocus");
             try
             {
-                if (CultivatedTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(CultivatedTextBox.Text))
                 {
                     CultivatedTextBox.Text = "0";
                 }
@@ -3437,7 +3449,7 @@ namespace 侠之道存档修改器
             LogHelper.Debug("ResoluteTextBox_LostFocus");
             try
             {
-                if (ResoluteTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(ResoluteTextBox.Text))
                 {
                     ResoluteTextBox.Text = "0";
                 }
@@ -3473,7 +3485,7 @@ namespace 侠之道存档修改器
             LogHelper.Debug("BraveTextBox_LostFocus");
             try
             {
-                if (BraveTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(BraveTextBox.Text))
                 {
                     BraveTextBox.Text = "0";
                 }
@@ -3509,7 +3521,7 @@ namespace 侠之道存档修改器
             LogHelper.Debug("ZitherTextBox_LostFocus");
             try
             {
-                if (ZitherTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(ZitherTextBox.Text))
                 {
                     ZitherTextBox.Text = "0";
                 }
@@ -3545,7 +3557,7 @@ namespace 侠之道存档修改器
             LogHelper.Debug("ChessTextBox_LostFocus");
             try
             {
-                if (ChessTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(ChessTextBox.Text))
                 {
                     ChessTextBox.Text = "0";
                 }
@@ -3581,7 +3593,7 @@ namespace 侠之道存档修改器
             LogHelper.Debug("CalligraphyTextBox_LostFocus");
             try
             {
-                if (CalligraphyTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(CalligraphyTextBox.Text))
                 {
                     CalligraphyTextBox.Text = "0";
                 }
@@ -3617,7 +3629,7 @@ namespace 侠之道存档修改器
             LogHelper.Debug("PaintingTextBox_LostFocus");
             try
             {
-                if (PaintingTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(PaintingTextBox.Text))
                 {
                     PaintingTextBox.Text = "0";
                 }
@@ -3887,7 +3899,7 @@ namespace 侠之道存档修改器
             LogHelper.Debug("skillCurrentLevelTextBox_LostFocus");
             try
             {
-                if (SkillCurrentLevelTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(SkillCurrentLevelTextBox.Text))
                 {
                     SkillCurrentLevelTextBox.Text = "1";
                 }
@@ -3925,7 +3937,7 @@ namespace 侠之道存档修改器
             LogHelper.Debug("skillMaxLevelTextBox_LostFocus");
             try
             {
-                if (SkillMaxLevelTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(SkillMaxLevelTextBox.Text))
                 {
                     SkillMaxLevelTextBox.Text = "1";
                 }
@@ -4084,8 +4096,8 @@ namespace 侠之道存档修改器
             LogHelper.Debug("readCharacterWorkMantraData");
             try
             {
-                String WorkMantra = cid.WorkMantra;
-                WorkMantraLabel.Text = WorkMantra == null || WorkMantra == string.Empty ? "无" : Data.Get<Mantra>(WorkMantra).Name;
+                string WorkMantra = cid.WorkMantra;
+                WorkMantraLabel.Text = string.IsNullOrEmpty(WorkMantra) ? "无" : Data.Get<Mantra>(WorkMantra).Name;
             }
             catch (Exception ex)
             {
@@ -4230,7 +4242,7 @@ namespace 侠之道存档修改器
             LogHelper.Debug("MantraCurrentLevelTextBox_LostFocus");
             try
             {
-                if (MantraCurrentLevelTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(MantraCurrentLevelTextBox.Text))
                 {
                     MantraCurrentLevelTextBox.Text = "1";
                 }
@@ -4267,7 +4279,7 @@ namespace 侠之道存档修改器
             LogHelper.Debug("MantraMaxLevelTextBox_LostFocus");
             try
             {
-                if (MantraMaxLevelTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(MantraMaxLevelTextBox.Text))
                 {
                     MantraMaxLevelTextBox.Text = "1";
                 }
@@ -4360,7 +4372,6 @@ namespace 侠之道存档修改器
         private void SurNameTextBox_GotFocus(object sender, EventArgs e)
         {
             LogHelper.Debug("SurNameTextBox_GotFocus");
-            messageLabel.Text = "";
             SurNameTextBox.Tag = SurNameTextBox.Text;
         }
 
@@ -4395,7 +4406,6 @@ namespace 侠之道存档修改器
         private void NameTextBox_GotFocus(object sender, EventArgs e)
         {
             LogHelper.Debug("NameTextBox_GotFocus");
-            messageLabel.Text = "";
             NameTextBox.Tag = NameTextBox.Text;
         }
 
@@ -4429,7 +4439,6 @@ namespace 侠之道存档修改器
         private void NicknameTextBox_GotFocus(object sender, EventArgs e)
         {
             LogHelper.Debug("NicknameTextBox_GotFocus");
-            messageLabel.Text = "";
             NicknameTextBox.Tag = NicknameTextBox.Text;
         }
 
@@ -4460,7 +4469,6 @@ namespace 侠之道存档修改器
         private void ProtraitTextBox_GotFocus(object sender, EventArgs e)
         {
             LogHelper.Debug("ProtraitTextBox_GotFocus");
-            messageLabel.Text = "";
             ProtraitTextBox.Tag = ProtraitTextBox.Text;
         }
 
@@ -4475,8 +4483,25 @@ namespace 侠之道存档修改器
                 {
                     CharacterExteriorData ced = gameData.Exterior[lvi.Text];
 
-                    ced.Protrait = ProtraitTextBox.Text;
-                    ProtraitTextBox.Text = ced.Protrait;
+                    bool hasProtrait = false;
+                    foreach (KeyValuePair<string, CharacterExterior> kv in Data.Get<CharacterExterior>())
+                    {
+                        if (kv.Value.Protrait == ProtraitTextBox.Text)
+                        {
+
+                            ced.Protrait = ProtraitTextBox.Text;
+                            ProtraitTextBox.Text = ced.Protrait;
+                            hasProtrait = true;
+                            break;
+                        }
+                    }
+                    if (!hasProtrait)
+                    {
+                        messageLabel.Text = "未找到该头像编号";
+                        LogHelper.Debug("未找到该头像编号");
+
+                        ModelTextBox.Text = ModelTextBox.Tag.ToString();
+                    }
                 }
             }
             catch (Exception ex)
@@ -4491,7 +4516,6 @@ namespace 侠之道存档修改器
         private void ModelTextBox_GotFocus(object sender, EventArgs e)
         {
             LogHelper.Debug("ModelTextBox_GotFocus");
-            messageLabel.Text = "";
             ModelTextBox.Tag = ModelTextBox.Text;
         }
 
@@ -4528,6 +4552,18 @@ namespace 侠之道存档修改器
 
                             ced.Size = kv.Value.Size;
                             hasModel = true;
+
+                            if (lvi.Text == "Player")
+                            {
+                                string[] playerCharacters = new string[] { "in0196", "in0197", "in0101", "in0115" };
+                                for (int i = 0; i < playerCharacters.Length; i++)
+                                {
+                                    CharacterExteriorData cedtemp = gameData.Exterior[playerCharacters[i]];
+                                    cedtemp.Model = kv.Value.Model;
+                                    cedtemp.Gender = kv.Value.Gender;
+                                    cedtemp.Size = kv.Value.Size;
+                                }
+                            }
                             break;
                         }
                     }
@@ -4552,7 +4588,6 @@ namespace 侠之道存档修改器
         private void DescriptionTextBox_GotFocus(object sender, EventArgs e)
         {
             LogHelper.Debug("DescriptionTextBox_GotFocus");
-            messageLabel.Text = "";
             DescriptionTextBox.Tag = DescriptionTextBox.Text;
         }
 
@@ -4619,7 +4654,6 @@ namespace 侠之道存档修改器
         private void CommunityMaxLevelTextBox_GotFocus(object sender, EventArgs e)
         {
             LogHelper.Debug("CommunityMaxLevelTextBox_GotFocus");
-            messageLabel.Text = "";
             CommunityMaxLevelTextBox.Tag = CommunityMaxLevelTextBox.Text;
         }
 
@@ -4628,7 +4662,7 @@ namespace 侠之道存档修改器
             LogHelper.Debug("CommunityMaxLevelTextBox_LostFocus");
             try
             {
-                if (CommunityMaxLevelTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(CommunityMaxLevelTextBox.Text))
                 {
                     CommunityMaxLevelTextBox.Text = "1";
                 }
@@ -4655,7 +4689,6 @@ namespace 侠之道存档修改器
         private void CommunityLevelTextBox_GotFocus(object sender, EventArgs e)
         {
             LogHelper.Debug("CommunityLevelTextBox_GotFocus");
-            messageLabel.Text = "";
             CommunityLevelTextBox.Tag = CommunityLevelTextBox.Text;
         }
 
@@ -4664,7 +4697,7 @@ namespace 侠之道存档修改器
             LogHelper.Debug("CommunityLevelTextBox_LostFocus");
             try
             {
-                if (CommunityLevelTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(CommunityLevelTextBox.Text))
                 {
                     CommunityLevelTextBox.Text = "1";
                 }
@@ -4691,7 +4724,6 @@ namespace 侠之道存档修改器
         private void CommunityExpTextBox_GotFocus(object sender, EventArgs e)
         {
             LogHelper.Debug("CommunityExpTextBox_GotFocus");
-            messageLabel.Text = "";
             CommunityExpTextBox.Tag = CommunityExpTextBox.Text;
         }
 
@@ -4700,7 +4732,7 @@ namespace 侠之道存档修改器
             LogHelper.Debug("CommunityExpTextBox_LostFocus");
             try
             {
-                if (CommunityExpTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(CommunityExpTextBox.Text))
                 {
                     CommunityExpTextBox.Text = "1";
                 }
@@ -4934,7 +4966,6 @@ namespace 侠之道存档修改器
         private void ctb_MasterLoveTextBox_GotFocus(object sender, EventArgs e)
         {
             LogHelper.Debug("ctb_MasterLoveTextBox_GotFocus");
-            messageLabel.Text = "";
             ctb_MasterLoveTextBox.Tag = ctb_MasterLoveTextBox.Text;
         }
 
@@ -4949,7 +4980,7 @@ namespace 侠之道存档修改器
                     LogHelper.Debug("请先选择一个存档");
                     return;
                 }
-                if (ctb_MasterLoveTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(ctb_MasterLoveTextBox.Text))
                 {
                     ctb_MasterLoveTextBox.Text = "0";
                 }
@@ -4975,7 +5006,6 @@ namespace 侠之道存档修改器
         {
             LogHelper.Debug("dxl_MasterLoveTextBox_GotFocus");
 
-            messageLabel.Text = "";
             dxl_MasterLoveTextBox.Tag = dxl_MasterLoveTextBox.Text;
         }
 
@@ -4990,7 +5020,7 @@ namespace 侠之道存档修改器
                     LogHelper.Debug("请先选择一个存档");
                     return;
                 }
-                if (dxl_MasterLoveTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(dxl_MasterLoveTextBox.Text))
                 {
                     dxl_MasterLoveTextBox.Text = "0";
                 }
@@ -5017,7 +5047,6 @@ namespace 侠之道存档修改器
         {
             LogHelper.Debug("dh_MasterLoveTextBox_GotFocus");
 
-            messageLabel.Text = "";
             dh_MasterLoveTextBox.Tag = dh_MasterLoveTextBox.Text;
         }
 
@@ -5032,7 +5061,7 @@ namespace 侠之道存档修改器
                     LogHelper.Debug("请先选择一个存档");
                     return;
                 }
-                if (dh_MasterLoveTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(dh_MasterLoveTextBox.Text))
                 {
                     dh_MasterLoveTextBox.Text = "0";
                 }
@@ -5059,7 +5088,6 @@ namespace 侠之道存档修改器
         {
             LogHelper.Debug("lxp_MasterLoveTextBox_GotFocus");
 
-            messageLabel.Text = "";
             lxp_MasterLoveTextBox.Tag = lxp_MasterLoveTextBox.Text;
         }
 
@@ -5074,7 +5102,7 @@ namespace 侠之道存档修改器
                     LogHelper.Debug("请先选择一个存档");
                     return;
                 }
-                if (lxp_MasterLoveTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(lxp_MasterLoveTextBox.Text))
                 {
                     lxp_MasterLoveTextBox.Text = "0";
                 }
@@ -5101,7 +5129,6 @@ namespace 侠之道存档修改器
         {
             LogHelper.Debug("ht_MasterLoveTextBox_GotFocus");
 
-            messageLabel.Text = "";
             ht_MasterLoveTextBox.Tag = ht_MasterLoveTextBox.Text;
         }
 
@@ -5116,7 +5143,7 @@ namespace 侠之道存档修改器
                     LogHelper.Debug("请先选择一个存档");
                     return;
                 }
-                if (ht_MasterLoveTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(ht_MasterLoveTextBox.Text))
                 {
                     ht_MasterLoveTextBox.Text = "0";
                 }
@@ -5143,7 +5170,6 @@ namespace 侠之道存档修改器
         {
             LogHelper.Debug("tsz_MasterLoveTextBox_GotFocus");
 
-            messageLabel.Text = "";
             tsz_MasterLoveTextBox.Tag = tsz_MasterLoveTextBox.Text;
         }
 
@@ -5158,7 +5184,7 @@ namespace 侠之道存档修改器
                     LogHelper.Debug("请先选择一个存档");
                     return;
                 }
-                if (tsz_MasterLoveTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(tsz_MasterLoveTextBox.Text))
                 {
                     tsz_MasterLoveTextBox.Text = "0";
                 }
@@ -5185,7 +5211,6 @@ namespace 侠之道存档修改器
         {
             LogHelper.Debug("fxlh_MasterLoveTextBox_GotFocus");
 
-            messageLabel.Text = "";
             fxlh_MasterLoveTextBox.Tag = fxlh_MasterLoveTextBox.Text;
         }
 
@@ -5200,7 +5225,7 @@ namespace 侠之道存档修改器
                     LogHelper.Debug("请先选择一个存档");
                     return;
                 }
-                if (fxlh_MasterLoveTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(fxlh_MasterLoveTextBox.Text))
                 {
                     fxlh_MasterLoveTextBox.Text = "0";
                 }
@@ -5227,7 +5252,6 @@ namespace 侠之道存档修改器
         {
             LogHelper.Debug("ncc_MasterLoveTextBox_GotFocus");
 
-            messageLabel.Text = "";
             ncc_MasterLoveTextBox.Tag = ncc_MasterLoveTextBox.Text;
         }
 
@@ -5242,7 +5266,7 @@ namespace 侠之道存档修改器
                     LogHelper.Debug("请先选择一个存档");
                     return;
                 }
-                if (ncc_MasterLoveTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(ncc_MasterLoveTextBox.Text))
                 {
                     ncc_MasterLoveTextBox.Text = "0";
                 }
@@ -5269,7 +5293,6 @@ namespace 侠之道存档修改器
         {
             LogHelper.Debug("mrx_MasterLoveTextBox_GotFocus");
 
-            messageLabel.Text = "";
             mrx_MasterLoveTextBox.Tag = mrx_MasterLoveTextBox.Text;
         }
 
@@ -5284,7 +5307,7 @@ namespace 侠之道存档修改器
                     LogHelper.Debug("请先选择一个存档");
                     return;
                 }
-                if (mrx_MasterLoveTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(mrx_MasterLoveTextBox.Text))
                 {
                     mrx_MasterLoveTextBox.Text = "0";
                 }
@@ -5311,7 +5334,6 @@ namespace 侠之道存档修改器
         {
             LogHelper.Debug("j_MasterLoveTextBox_GotFocus");
 
-            messageLabel.Text = "";
             j_MasterLoveTextBox.Tag = j_MasterLoveTextBox.Text;
         }
 
@@ -5327,7 +5349,7 @@ namespace 侠之道存档修改器
                     LogHelper.Debug("请先选择一个存档");
                     return;
                 }
-                if (j_MasterLoveTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(j_MasterLoveTextBox.Text))
                 {
                     j_MasterLoveTextBox.Text = "0";
                 }
@@ -5352,7 +5374,6 @@ namespace 侠之道存档修改器
         private void xx_NpcLoveTextBox_GotFocus(object sender, EventArgs e)
         {
             LogHelper.Debug("xx_NpcLoveTextBox_GotFocus");
-            messageLabel.Text = "";
             xx_NpcLoveTextBox.Tag = xx_NpcLoveTextBox.Text;
 
         }
@@ -5368,7 +5389,7 @@ namespace 侠之道存档修改器
                     LogHelper.Debug("请先选择一个存档");
                     return;
                 }
-                if (xx_NpcLoveTextBox.Text == string.Empty)
+                if (string.IsNullOrEmpty(xx_NpcLoveTextBox.Text))
                 {
                     xx_NpcLoveTextBox.Text = "0";
                 }
