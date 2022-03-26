@@ -1782,7 +1782,6 @@ namespace 侠之道存档修改器
         private void characterListView_SelectedIndexChanged(object sender, EventArgs e)
         {
             LogHelper.Debug("characterListView_SelectedIndexChanged");
-            isChangeCharacter = true;
             messageLabel.Text = "";
             try
             {
@@ -1826,10 +1825,6 @@ namespace 侠之道存档修改器
             {
                 messageLabel.Text = ex.Message;
                 LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
-            }
-            finally
-            {
-                isChangeCharacter = false;
             }
         }
 
