@@ -1779,10 +1779,10 @@ namespace 侠之道存档修改器
                 LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
             }
         }
-
         private void characterListView_SelectedIndexChanged(object sender, EventArgs e)
         {
             LogHelper.Debug("characterListView_SelectedIndexChanged");
+            isChangeCharacter = true;
             messageLabel.Text = "";
             try
             {
@@ -1826,6 +1826,10 @@ namespace 侠之道存档修改器
             {
                 messageLabel.Text = ex.Message;
                 LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
+            }
+            finally
+            {
+                isChangeCharacter = false;
             }
         }
 
@@ -2454,7 +2458,7 @@ namespace 侠之道存档修改器
             }
         }
 
-        private string oldWeaponComboBoxKey = "";
+        //private string oldWeaponComboBoxKey = "";
         private void weaponComboBox_TextChanged(object sender, EventArgs e)
         {
             LogHelper.Debug("weaponComboBox_TextChanged");
@@ -2462,12 +2466,16 @@ namespace 侠之道存档修改器
             {
                 WeaponComboBox2.SelectedIndex = WeaponComboBox.SelectedIndex;
 
-                Props oldWeapon = Data.Get<Props>(oldWeaponComboBoxKey);
+                Props oldWeapon = new Props(); 
                 Props newWeapon = new Props();
 
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
                     CharacterInfoData cid = gameData.Character[lvi.Text];
+
+                    string oldWeaponComboBoxKey = cid.Equip[EquipType.Weapon];
+
+                    oldWeapon = Data.Get<Props>(cid.Equip[EquipType.Weapon]);
 
                     if (oldWeaponComboBoxKey != "")
                     {
@@ -2476,16 +2484,16 @@ namespace 侠之道存档修改器
 
                     if (WeaponComboBox.SelectedIndex != -1)
                     {
-                        oldWeaponComboBoxKey = ((ComboBoxItem)WeaponComboBox.SelectedItem).key;
-                        cid.Equip[EquipType.Weapon] = oldWeaponComboBoxKey;
-                        AttachPropsEffect(Data.Get<Props>(oldWeaponComboBoxKey), cid);
+                        string newWeaponComboBoxKey = ((ComboBoxItem)WeaponComboBox.SelectedItem).key;
+                        cid.Equip[EquipType.Weapon] = newWeaponComboBoxKey;
+                        AttachPropsEffect(Data.Get<Props>(newWeaponComboBoxKey), cid);
 
-                        newWeapon = Data.Get<Props>(oldWeaponComboBoxKey);
+                        newWeapon = Data.Get<Props>(newWeaponComboBoxKey);
                     }
                     else
                     {
-                        oldWeaponComboBoxKey = "";
-                        cid.Equip[EquipType.Weapon] = null;
+                        //oldWeaponComboBoxKey = "";
+                        cid.Equip[EquipType.Weapon] = "";
                     }
 
                     //createFormula(cid);
@@ -2562,7 +2570,7 @@ namespace 侠之道存档修改器
             }
         }
 
-        private string oldClothComboBoxKey = "";
+        //private string oldClothComboBoxKey = "";
         private void clothComboBox_TextChanged(object sender, EventArgs e)
         {
             LogHelper.Debug("clothComboBox_TextChanged");
@@ -2572,23 +2580,23 @@ namespace 侠之道存档修改器
                 {
                     CharacterInfoData cid = gameData.Character[lvi.Text];
 
-
+                    string oldClothComboBoxKey = cid.Equip[EquipType.Cloth];
                     if (oldClothComboBoxKey != "")
                     {
                         DettachPropsEffect(Data.Get<Props>(oldClothComboBoxKey), cid);
                     }
                     if (ClothComboBox.SelectedIndex != -1)
                     {
-                        oldClothComboBoxKey = ((ComboBoxItem)ClothComboBox.SelectedItem).key;
-                        cid.Equip[EquipType.Cloth] = ((ComboBoxItem)ClothComboBox.SelectedItem).key;
+                        string newClothComboBoxKey = ((ComboBoxItem)ClothComboBox.SelectedItem).key;
+                        cid.Equip[EquipType.Cloth] = newClothComboBoxKey;
 
-                        AttachPropsEffect(Data.Get<Props>(oldClothComboBoxKey), cid);
+                        AttachPropsEffect(Data.Get<Props>(newClothComboBoxKey), cid);
 
                     }
                     else
                     {
-                        oldClothComboBoxKey = "";
-                        cid.Equip[EquipType.Cloth] = null;
+                        //oldClothComboBoxKey = "";
+                        cid.Equip[EquipType.Cloth] = "";
                     }
 
                     //createFormula(cid);
@@ -2603,7 +2611,7 @@ namespace 侠之道存档修改器
             }
         }
 
-        private string oldJewelryComboBoxKy = "";
+        //private string oldJewelryComboBoxKy = "";
         private void jewelryComboBox_TextChanged(object sender, EventArgs e)
         {
             LogHelper.Debug("jewelryComboBox_TextChanged");
@@ -2613,21 +2621,22 @@ namespace 侠之道存档修改器
                 {
                     CharacterInfoData cid = gameData.Character[lvi.Text];
 
-                    if (oldJewelryComboBoxKy != "")
+                    string oldJewelryComboBoxKey = cid.Equip[EquipType.Jewelry];
+                    if (oldJewelryComboBoxKey != "")
                     {
-                        DettachPropsEffect(Data.Get<Props>(oldJewelryComboBoxKy), cid);
+                        DettachPropsEffect(Data.Get<Props>(oldJewelryComboBoxKey), cid);
                     }
                     if (JewelryComboBox.SelectedIndex != -1)
                     {
-                        oldJewelryComboBoxKy = ((ComboBoxItem)JewelryComboBox.SelectedItem).key;
-                        cid.Equip[EquipType.Jewelry] = ((ComboBoxItem)JewelryComboBox.SelectedItem).key;
-                        AttachPropsEffect(Data.Get<Props>(oldJewelryComboBoxKy), cid);
+                        string newJewelryComboBoxKey = ((ComboBoxItem)JewelryComboBox.SelectedItem).key;
+                        cid.Equip[EquipType.Jewelry] = newJewelryComboBoxKey;
+                        AttachPropsEffect(Data.Get<Props>(newJewelryComboBoxKey), cid);
 
                     }
                     else
                     {
-                        oldJewelryComboBoxKy = "";
-                        cid.Equip[EquipType.Jewelry] = null;
+                        //oldJewelryComboBoxKey = "";
+                        cid.Equip[EquipType.Jewelry] = "";
                     }
 
                     //createFormula(cid);

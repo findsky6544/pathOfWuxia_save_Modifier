@@ -4190,7 +4190,7 @@ namespace 侠之道存档修改器
             this.Controls.Add(this.saveButton);
             this.Controls.Add(this.tabControl1);
             this.Name = "Form1";
-            this.Text = "侠之道存档修改器1.5.2";
+            this.Text = "侠之道存档修改器1.5.4";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.SizeChanged += new System.EventHandler(this.Form1_SizeChanged);
             this.tabControl1.ResumeLayout(false);
