@@ -952,7 +952,9 @@ namespace 侠之道存档修改器
             try
             {
                 GameVersionTextBox.Text = gameData.GameVersion;
-                SaveTimeDateTimePicker.Text = pathOfWuxiaSaveHeader.SaveTime.ToString();
+                string text = pathOfWuxiaSaveHeader.SaveTime.ToString();
+                text = text.Replace("/星期一", "").Replace("/星期二", "").Replace("/星期三", "").Replace("/星期四", "").Replace("/星期五", "").Replace("/星期六", "").Replace("/星期日", "").Replace("/周一", "").Replace("/周二", "").Replace("/周三", "").Replace("/周四", "").Replace("/周五", "").Replace("/周六", "").Replace("/周日", "");
+                SaveTimeDateTimePicker.Text = text;
                 CurrentMapComboBox.SelectedIndex = CurrentMapComboBox.Items.IndexOf(dcbi[gameData.MapId]);
                 PlayerPostioionTextBox.Text = gameData.PlayerPostioion.ToString();
                 PlayerForwardTextBox.Text = gameData.PlayerForward.ToString();
