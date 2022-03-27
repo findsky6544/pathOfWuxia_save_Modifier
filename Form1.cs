@@ -994,7 +994,7 @@ namespace 侠之道存档修改器
                 {
 
 
-                    if (kv.Key != "")
+                    if (!string.IsNullOrEmpty(kv.Key))
                     {
                         ListViewItem lvi = new ListViewItem();
                         lvi.Text = kv.Key;
@@ -1207,7 +1207,7 @@ namespace 侠之道存档修改器
                                 {
                                     EvaluationReward += kv.Value.Count + "钱,";
                                 }
-                                else if (kv.Value.Id != "")
+                                else if (!string.IsNullOrEmpty(kv.Value.Id))
                                 {
                                     EvaluationReward += Data.Get<Props>(kv.Value.Id).Name + "*" + kv.Value.Count + ",";
                                 }
@@ -1733,35 +1733,6 @@ namespace 侠之道存档修改器
                                        }), null, null);
                         }
                     }
-                    Dictionary<string, int> baseFormulaProperty = cid.GetBaseFormulaProperty();
-
-                    foreach (object obj in Enum.GetValues(typeof(CharacterProperty)))
-                    {
-                        CharacterProperty index = (CharacterProperty)obj;
-                        string key = string.Format("basic_{0}", index.ToString().ToLower());
-                        if (CharacterInfoData.PropertyFormula.ContainsKey(key))
-                        {
-                            GameFormula gameFormula = CharacterInfoData.PropertyFormula[key];
-
-
-                            if (gameFormula.Formula._script == null)
-                            {
-                                gameFormula.Formula._script = new Script(CoreModules.Math);
-                            }
-                            foreach (KeyValuePair<string, int> keyValuePair in baseFormulaProperty)
-                            {
-                                gameFormula.Formula._script.Globals.Set(keyValuePair.Key, DynValue.NewNumber(keyValuePair.Value));
-                            }
-                            gameFormula.Formula._script.DoString(string.Concat(new string[]
-                               {
-                                            "function ",
-                                            gameFormula.Id,
-                                            "() return ",
-                                            gameFormula.Formula.Expression,
-                                            " end"
-                               }), null, null);
-                        }
-                    }
                     int level = Game.GameData.Community[cid.Id].Favorability.Level;
                     if (cid.CommunityFormulaProperty == null)
                     {
@@ -1780,6 +1751,35 @@ namespace 侠之道存档修改器
                     else
                     {
                         cid.CommunityFormulaProperty.Add("community_lv", level);
+                    }
+                }
+                Dictionary<string, int> baseFormulaProperty = cid.GetBaseFormulaProperty();
+
+                foreach (object obj in Enum.GetValues(typeof(CharacterProperty)))
+                {
+                    CharacterProperty index = (CharacterProperty)obj;
+                    string key = string.Format("basic_{0}", index.ToString().ToLower());
+                    if (CharacterInfoData.PropertyFormula.ContainsKey(key))
+                    {
+                        GameFormula gameFormula = CharacterInfoData.PropertyFormula[key];
+
+
+                        if (gameFormula.Formula._script == null)
+                        {
+                            gameFormula.Formula._script = new Script(CoreModules.Math);
+                        }
+                        foreach (KeyValuePair<string, int> keyValuePair in baseFormulaProperty)
+                        {
+                            gameFormula.Formula._script.Globals.Set(keyValuePair.Key, DynValue.NewNumber(keyValuePair.Value));
+                        }
+                        gameFormula.Formula._script.DoString(string.Concat(new string[]
+                           {
+                                            "function ",
+                                            gameFormula.Id,
+                                            "() return ",
+                                            gameFormula.Formula.Expression,
+                                            " end"
+                           }), null, null);
                     }
                 }
             }
@@ -1996,7 +1996,7 @@ namespace 侠之道存档修改器
                 HavingSkillListView.Items.Clear();
                 foreach (KeyValuePair<string, SkillData> kv in cid.Skill)
                 {
-                    if (kv.Key != "")
+                    if (!string.IsNullOrEmpty(kv.Key))
                     {
                         if (string.IsNullOrEmpty(cid.Equip[EquipType.Weapon]) || Data.Get<Props>(cid.Equip[EquipType.Weapon]) == null || Data.Get<Props>(cid.Equip[EquipType.Weapon]).PropsCategory == kv.Value.Item.Type || kv.Value.Item.DamageType == DamageType.Throwing || kv.Value.Item.DamageType == DamageType.Heal)
                         {
@@ -2494,7 +2494,7 @@ namespace 侠之道存档修改器
 
                     oldWeapon = Data.Get<Props>(cid.Equip[EquipType.Weapon]);
 
-                    if (oldWeaponComboBoxKey != "")
+                    if (!string.IsNullOrEmpty(oldWeaponComboBoxKey))
                     {
                         DettachPropsEffect(Data.Get<Props>(oldWeaponComboBoxKey), cid);
                     }
@@ -2513,10 +2513,10 @@ namespace 侠之道存档修改器
                         cid.Equip[EquipType.Weapon] = "";
                     }
 
-                    //createFormula(cid);
+                    createFormula(cid);
                     cid.UpgradeProperty(false);
                     readCharacterProperty(cid);
-                    if (oldWeapon == null || oldWeapon.Id == "" || newWeapon == null || newWeapon.Id == "" || (oldWeapon.Id != "" && newWeapon.Id != "" && oldWeapon.PropsCategory != newWeapon.PropsCategory))
+                    if (oldWeapon == null || string.IsNullOrEmpty(oldWeapon.Id) || newWeapon == null || string.IsNullOrEmpty(newWeapon.Id) || (!string.IsNullOrEmpty(oldWeapon.Id) && !string.IsNullOrEmpty(newWeapon.Id) && oldWeapon.PropsCategory != newWeapon.PropsCategory))
                     {
                         readAllSkill();
                         updateSkillPredictionDamage(cid);
@@ -2598,7 +2598,7 @@ namespace 侠之道存档修改器
                     CharacterInfoData cid = gameData.Character[lvi.Text];
 
                     string oldClothComboBoxKey = cid.Equip[EquipType.Cloth];
-                    if (oldClothComboBoxKey != "")
+                    if (!string.IsNullOrEmpty(oldClothComboBoxKey))
                     {
                         DettachPropsEffect(Data.Get<Props>(oldClothComboBoxKey), cid);
                     }
@@ -2639,7 +2639,7 @@ namespace 侠之道存档修改器
                     CharacterInfoData cid = gameData.Character[lvi.Text];
 
                     string oldJewelryComboBoxKey = cid.Equip[EquipType.Jewelry];
-                    if (oldJewelryComboBoxKey != "")
+                    if (!string.IsNullOrEmpty(oldJewelryComboBoxKey))
                     {
                         DettachPropsEffect(Data.Get<Props>(oldJewelryComboBoxKey), cid);
                     }
@@ -2699,6 +2699,20 @@ namespace 侠之道存档修改器
                     cid.GrowthFactor = float.Parse(GrowthFactorTextBox.Text);
 
                     GrowthFactorTextBox.Text = cid.GrowthFactor.ToString();
+
+                    cid.GetUpgradeableProperty(CharacterUpgradableProperty.Str);
+                    cid.GetUpgradeableProperty(CharacterUpgradableProperty.Vit);
+                    cid.GetUpgradeableProperty(CharacterUpgradableProperty.Dex);
+                    cid.GetUpgradeableProperty(CharacterUpgradableProperty.Spi);
+
+                    StrTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Str].Value.ToString();
+                    StrExtraTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Str].Extra.ToString();
+                    VitTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Vit].Value.ToString();
+                    VitExtraTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Vit].Extra.ToString();
+                    DexTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Dex].Value.ToString();
+                    DexExtraTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Dex].Extra.ToString();
+                    SpiTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Spi].Value.ToString();
+                    SpiExtraTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Spi].Extra.ToString();
                 }
 
             }
@@ -4067,7 +4081,7 @@ namespace 侠之道存档修改器
                 HavingTraitListView.Items.Clear();
                 foreach (KeyValuePair<string, TraitData> kv in cid.Trait)
                 {
-                    if (kv.Key != "")
+                    if (!string.IsNullOrEmpty(kv.Key))
                     {
                         ListViewItem lvi = new ListViewItem();
 
@@ -4109,7 +4123,7 @@ namespace 侠之道存档修改器
                 HavingMantraListView.Items.Clear();
                 foreach (KeyValuePair<string, MantraData> kv in cid.Mantra)
                 {
-                    if (kv.Key != "")
+                    if (!string.IsNullOrEmpty(kv.Key))
                     {
                         ListViewItem lvi = new ListViewItem();
 
