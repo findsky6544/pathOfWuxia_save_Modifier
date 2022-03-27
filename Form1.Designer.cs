@@ -438,6 +438,22 @@ namespace 侠之道存档修改器
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.saveButton = new System.Windows.Forms.Button();
             this.messageLabel = new System.Windows.Forms.Label();
+            this.label72 = new System.Windows.Forms.Label();
+            this.StrLevelTextBox = new System.Windows.Forms.TextBox();
+            this.label73 = new System.Windows.Forms.Label();
+            this.StrExtraTextBox = new System.Windows.Forms.TextBox();
+            this.VitExtraTextBox = new System.Windows.Forms.TextBox();
+            this.label74 = new System.Windows.Forms.Label();
+            this.VitLevelTextBox = new System.Windows.Forms.TextBox();
+            this.label75 = new System.Windows.Forms.Label();
+            this.DexExtraTextBox = new System.Windows.Forms.TextBox();
+            this.label76 = new System.Windows.Forms.Label();
+            this.DexLevelTextBox = new System.Windows.Forms.TextBox();
+            this.label77 = new System.Windows.Forms.Label();
+            this.SpiExtraTextBox = new System.Windows.Forms.TextBox();
+            this.label78 = new System.Windows.Forms.Label();
+            this.SpiLevelTextBox = new System.Windows.Forms.TextBox();
+            this.label79 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.saveTabPage.SuspendLayout();
             this.inventoryTabPage.SuspendLayout();
@@ -501,7 +517,7 @@ namespace 侠之道存档修改器
             this.tabControl1.Location = new System.Drawing.Point(12, 41);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(776, 397);
+            this.tabControl1.Size = new System.Drawing.Size(891, 397);
             this.tabControl1.TabIndex = 0;
             // 
             // saveTabPage
@@ -539,7 +555,7 @@ namespace 侠之道存档修改器
             this.saveTabPage.Location = new System.Drawing.Point(4, 22);
             this.saveTabPage.Name = "saveTabPage";
             this.saveTabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.saveTabPage.Size = new System.Drawing.Size(768, 371);
+            this.saveTabPage.Size = new System.Drawing.Size(883, 371);
             this.saveTabPage.TabIndex = 0;
             this.saveTabPage.Text = "存档";
             this.saveTabPage.UseVisualStyleBackColor = true;
@@ -547,7 +563,7 @@ namespace 侠之道存档修改器
             // label71
             // 
             this.label71.AutoSize = true;
-            this.label71.Location = new System.Drawing.Point(692, 350);
+            this.label71.Location = new System.Drawing.Point(812, 350);
             this.label71.Name = "label71";
             this.label71.Size = new System.Drawing.Size(65, 12);
             this.label71.TabIndex = 29;
@@ -572,7 +588,7 @@ namespace 侠之道存档修改器
             // 
             // RefreshSaveListButton
             // 
-            this.RefreshSaveListButton.Location = new System.Drawing.Point(673, 6);
+            this.RefreshSaveListButton.Location = new System.Drawing.Point(788, 6);
             this.RefreshSaveListButton.Name = "RefreshSaveListButton";
             this.RefreshSaveListButton.Size = new System.Drawing.Size(89, 23);
             this.RefreshSaveListButton.TabIndex = 26;
@@ -799,7 +815,7 @@ namespace 侠之道存档修改器
             // 
             // SelectsaveFilesPathButton
             // 
-            this.SelectsaveFilesPathButton.Location = new System.Drawing.Point(566, 6);
+            this.SelectsaveFilesPathButton.Location = new System.Drawing.Point(681, 6);
             this.SelectsaveFilesPathButton.Name = "SelectsaveFilesPathButton";
             this.SelectsaveFilesPathButton.Size = new System.Drawing.Size(101, 23);
             this.SelectsaveFilesPathButton.TabIndex = 1;
@@ -811,7 +827,7 @@ namespace 侠之道存档修改器
             // 
             this.SaveFilesPathTextBox.Location = new System.Drawing.Point(6, 6);
             this.SaveFilesPathTextBox.Name = "SaveFilesPathTextBox";
-            this.SaveFilesPathTextBox.Size = new System.Drawing.Size(554, 21);
+            this.SaveFilesPathTextBox.Size = new System.Drawing.Size(669, 21);
             this.SaveFilesPathTextBox.TabIndex = 0;
             // 
             // inventoryTabPage
@@ -824,7 +840,7 @@ namespace 侠之道存档修改器
             this.inventoryTabPage.Controls.Add(this.InventoryAdd1button);
             this.inventoryTabPage.Location = new System.Drawing.Point(4, 22);
             this.inventoryTabPage.Name = "inventoryTabPage";
-            this.inventoryTabPage.Size = new System.Drawing.Size(768, 371);
+            this.inventoryTabPage.Size = new System.Drawing.Size(883, 371);
             this.inventoryTabPage.TabIndex = 2;
             this.inventoryTabPage.Text = "行囊";
             this.inventoryTabPage.UseVisualStyleBackColor = true;
@@ -837,7 +853,7 @@ namespace 侠之道存档修改器
             this.groupBox2.Controls.Add(this.InventoryListView);
             this.groupBox2.Location = new System.Drawing.Point(490, 4);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(275, 358);
+            this.groupBox2.Size = new System.Drawing.Size(390, 358);
             this.groupBox2.TabIndex = 8;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "行囊";
@@ -879,7 +895,7 @@ namespace 侠之道存档修改器
             this.InventoryListView.Location = new System.Drawing.Point(6, 52);
             this.InventoryListView.MultiSelect = false;
             this.InventoryListView.Name = "InventoryListView";
-            this.InventoryListView.Size = new System.Drawing.Size(263, 300);
+            this.InventoryListView.Size = new System.Drawing.Size(378, 300);
             this.InventoryListView.TabIndex = 2;
             this.InventoryListView.UseCompatibleStateImageBehavior = false;
             this.InventoryListView.View = System.Windows.Forms.View.Details;
@@ -1055,7 +1071,7 @@ namespace 侠之道存档修改器
             this.characterInfoTabPage.Controls.Add(this.CharacterListView);
             this.characterInfoTabPage.Location = new System.Drawing.Point(4, 22);
             this.characterInfoTabPage.Name = "characterInfoTabPage";
-            this.characterInfoTabPage.Size = new System.Drawing.Size(768, 371);
+            this.characterInfoTabPage.Size = new System.Drawing.Size(883, 371);
             this.characterInfoTabPage.TabIndex = 4;
             this.characterInfoTabPage.Text = "角色信息";
             this.characterInfoTabPage.UseVisualStyleBackColor = true;
@@ -1069,11 +1085,27 @@ namespace 侠之道存档修改器
             this.tabControl2.Location = new System.Drawing.Point(239, 4);
             this.tabControl2.Name = "tabControl2";
             this.tabControl2.SelectedIndex = 0;
-            this.tabControl2.Size = new System.Drawing.Size(517, 364);
+            this.tabControl2.Size = new System.Drawing.Size(641, 364);
             this.tabControl2.TabIndex = 68;
             // 
             // characterInfoPropertyTabPage
             // 
+            this.characterInfoPropertyTabPage.Controls.Add(this.SpiExtraTextBox);
+            this.characterInfoPropertyTabPage.Controls.Add(this.label78);
+            this.characterInfoPropertyTabPage.Controls.Add(this.SpiLevelTextBox);
+            this.characterInfoPropertyTabPage.Controls.Add(this.label79);
+            this.characterInfoPropertyTabPage.Controls.Add(this.DexExtraTextBox);
+            this.characterInfoPropertyTabPage.Controls.Add(this.label76);
+            this.characterInfoPropertyTabPage.Controls.Add(this.DexLevelTextBox);
+            this.characterInfoPropertyTabPage.Controls.Add(this.label77);
+            this.characterInfoPropertyTabPage.Controls.Add(this.VitExtraTextBox);
+            this.characterInfoPropertyTabPage.Controls.Add(this.label74);
+            this.characterInfoPropertyTabPage.Controls.Add(this.VitLevelTextBox);
+            this.characterInfoPropertyTabPage.Controls.Add(this.label75);
+            this.characterInfoPropertyTabPage.Controls.Add(this.StrExtraTextBox);
+            this.characterInfoPropertyTabPage.Controls.Add(this.label73);
+            this.characterInfoPropertyTabPage.Controls.Add(this.StrLevelTextBox);
+            this.characterInfoPropertyTabPage.Controls.Add(this.label72);
             this.characterInfoPropertyTabPage.Controls.Add(this.AffiliationStrTextBox);
             this.characterInfoPropertyTabPage.Controls.Add(this.elementLabel);
             this.characterInfoPropertyTabPage.Controls.Add(this.ElementComboBox);
@@ -1140,7 +1172,7 @@ namespace 侠之道存档修改器
             this.characterInfoPropertyTabPage.Location = new System.Drawing.Point(4, 22);
             this.characterInfoPropertyTabPage.Name = "characterInfoPropertyTabPage";
             this.characterInfoPropertyTabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.characterInfoPropertyTabPage.Size = new System.Drawing.Size(509, 338);
+            this.characterInfoPropertyTabPage.Size = new System.Drawing.Size(633, 338);
             this.characterInfoPropertyTabPage.TabIndex = 0;
             this.characterInfoPropertyTabPage.Text = "属性";
             this.characterInfoPropertyTabPage.UseVisualStyleBackColor = true;
@@ -1263,9 +1295,9 @@ namespace 侠之道存档修改器
             // 
             // PaintingTextBox
             // 
-            this.PaintingTextBox.Location = new System.Drawing.Point(350, 248);
+            this.PaintingTextBox.Location = new System.Drawing.Point(510, 248);
             this.PaintingTextBox.Name = "PaintingTextBox";
-            this.PaintingTextBox.Size = new System.Drawing.Size(62, 21);
+            this.PaintingTextBox.Size = new System.Drawing.Size(115, 21);
             this.PaintingTextBox.TabIndex = 60;
             this.PaintingTextBox.GotFocus += new System.EventHandler(this.PaintingTextBox_GotFocus);
             this.PaintingTextBox.LostFocus += new System.EventHandler(this.PaintingTextBox_LostFocus);
@@ -1282,7 +1314,7 @@ namespace 侠之道存档修改器
             // label35
             // 
             this.label35.AutoSize = true;
-            this.label35.Location = new System.Drawing.Point(315, 251);
+            this.label35.Location = new System.Drawing.Point(475, 251);
             this.label35.Name = "label35";
             this.label35.Size = new System.Drawing.Size(17, 12);
             this.label35.TabIndex = 59;
@@ -1299,9 +1331,9 @@ namespace 侠之道存档修改器
             // 
             // CalligraphyTextBox
             // 
-            this.CalligraphyTextBox.Location = new System.Drawing.Point(247, 248);
+            this.CalligraphyTextBox.Location = new System.Drawing.Point(354, 247);
             this.CalligraphyTextBox.Name = "CalligraphyTextBox";
-            this.CalligraphyTextBox.Size = new System.Drawing.Size(62, 21);
+            this.CalligraphyTextBox.Size = new System.Drawing.Size(115, 21);
             this.CalligraphyTextBox.TabIndex = 58;
             this.CalligraphyTextBox.GotFocus += new System.EventHandler(this.CalligraphyTextBox_GotFocus);
             this.CalligraphyTextBox.LostFocus += new System.EventHandler(this.CalligraphyTextBox_LostFocus);
@@ -1318,7 +1350,7 @@ namespace 侠之道存档修改器
             // label36
             // 
             this.label36.AutoSize = true;
-            this.label36.Location = new System.Drawing.Point(212, 251);
+            this.label36.Location = new System.Drawing.Point(319, 250);
             this.label36.Name = "label36";
             this.label36.Size = new System.Drawing.Size(17, 12);
             this.label36.TabIndex = 57;
@@ -1335,9 +1367,9 @@ namespace 侠之道存档修改器
             // 
             // ChessTextBox
             // 
-            this.ChessTextBox.Location = new System.Drawing.Point(144, 248);
+            this.ChessTextBox.Location = new System.Drawing.Point(197, 248);
             this.ChessTextBox.Name = "ChessTextBox";
-            this.ChessTextBox.Size = new System.Drawing.Size(62, 21);
+            this.ChessTextBox.Size = new System.Drawing.Size(116, 21);
             this.ChessTextBox.TabIndex = 56;
             this.ChessTextBox.GotFocus += new System.EventHandler(this.ChessTextBox_GotFocus);
             this.ChessTextBox.LostFocus += new System.EventHandler(this.ChessTextBox_LostFocus);
@@ -1354,7 +1386,7 @@ namespace 侠之道存档修改器
             // label37
             // 
             this.label37.AutoSize = true;
-            this.label37.Location = new System.Drawing.Point(109, 251);
+            this.label37.Location = new System.Drawing.Point(162, 251);
             this.label37.Name = "label37";
             this.label37.Size = new System.Drawing.Size(17, 12);
             this.label37.TabIndex = 55;
@@ -1373,7 +1405,7 @@ namespace 侠之道存档修改器
             // 
             this.ZitherTextBox.Location = new System.Drawing.Point(41, 248);
             this.ZitherTextBox.Name = "ZitherTextBox";
-            this.ZitherTextBox.Size = new System.Drawing.Size(62, 21);
+            this.ZitherTextBox.Size = new System.Drawing.Size(115, 21);
             this.ZitherTextBox.TabIndex = 54;
             this.ZitherTextBox.GotFocus += new System.EventHandler(this.ZitherTextBox_GotFocus);
             this.ZitherTextBox.LostFocus += new System.EventHandler(this.ZitherTextBox_LostFocus);
@@ -1407,12 +1439,13 @@ namespace 侠之道存档修改器
             // 
             // SpiTextBox
             // 
-            this.SpiTextBox.Location = new System.Drawing.Point(350, 194);
+            this.SpiTextBox.Enabled = false;
+            this.SpiTextBox.Location = new System.Drawing.Point(510, 194);
             this.SpiTextBox.Name = "SpiTextBox";
-            this.SpiTextBox.Size = new System.Drawing.Size(62, 21);
+            this.SpiTextBox.Size = new System.Drawing.Size(31, 21);
             this.SpiTextBox.TabIndex = 52;
-            this.SpiTextBox.GotFocus += new System.EventHandler(this.spiTextBox_GotFocus);
-            this.SpiTextBox.LostFocus += new System.EventHandler(this.spiTextBox_LostFocus);
+            this.SpiLevelTextBox.GotFocus += new System.EventHandler(this.spiLevelTextBox_GotFocus);
+            this.SpiLevelTextBox.LostFocus += new System.EventHandler(this.spiLevelTextBox_LostFocus);
             // 
             // label17
             // 
@@ -1426,7 +1459,7 @@ namespace 侠之道存档修改器
             // label27
             // 
             this.label27.AutoSize = true;
-            this.label27.Location = new System.Drawing.Point(315, 197);
+            this.label27.Location = new System.Drawing.Point(475, 197);
             this.label27.Name = "label27";
             this.label27.Size = new System.Drawing.Size(29, 12);
             this.label27.TabIndex = 51;
@@ -1443,9 +1476,9 @@ namespace 侠之道存档修改器
             // 
             // BraveTextBox
             // 
-            this.BraveTextBox.Location = new System.Drawing.Point(350, 221);
+            this.BraveTextBox.Location = new System.Drawing.Point(510, 221);
             this.BraveTextBox.Name = "BraveTextBox";
-            this.BraveTextBox.Size = new System.Drawing.Size(62, 21);
+            this.BraveTextBox.Size = new System.Drawing.Size(115, 21);
             this.BraveTextBox.TabIndex = 50;
             this.BraveTextBox.GotFocus += new System.EventHandler(this.BraveTextBox_GotFocus);
             this.BraveTextBox.LostFocus += new System.EventHandler(this.BraveTextBox_LostFocus);
@@ -1462,7 +1495,7 @@ namespace 侠之道存档修改器
             // label28
             // 
             this.label28.AutoSize = true;
-            this.label28.Location = new System.Drawing.Point(315, 224);
+            this.label28.Location = new System.Drawing.Point(475, 224);
             this.label28.Name = "label28";
             this.label28.Size = new System.Drawing.Size(29, 12);
             this.label28.TabIndex = 49;
@@ -1479,9 +1512,9 @@ namespace 侠之道存档修改器
             // 
             // ResoluteTextBox
             // 
-            this.ResoluteTextBox.Location = new System.Drawing.Point(247, 221);
+            this.ResoluteTextBox.Location = new System.Drawing.Point(354, 220);
             this.ResoluteTextBox.Name = "ResoluteTextBox";
-            this.ResoluteTextBox.Size = new System.Drawing.Size(62, 21);
+            this.ResoluteTextBox.Size = new System.Drawing.Size(115, 21);
             this.ResoluteTextBox.TabIndex = 48;
             this.ResoluteTextBox.GotFocus += new System.EventHandler(this.ResoluteTextBox_GotFocus);
             this.ResoluteTextBox.LostFocus += new System.EventHandler(this.ResoluteTextBox_LostFocus);
@@ -1498,7 +1531,7 @@ namespace 侠之道存档修改器
             // label29
             // 
             this.label29.AutoSize = true;
-            this.label29.Location = new System.Drawing.Point(212, 224);
+            this.label29.Location = new System.Drawing.Point(319, 223);
             this.label29.Name = "label29";
             this.label29.Size = new System.Drawing.Size(29, 12);
             this.label29.TabIndex = 47;
@@ -1515,9 +1548,9 @@ namespace 侠之道存档修改器
             // 
             // CultivatedTextBox
             // 
-            this.CultivatedTextBox.Location = new System.Drawing.Point(144, 221);
+            this.CultivatedTextBox.Location = new System.Drawing.Point(197, 221);
             this.CultivatedTextBox.Name = "CultivatedTextBox";
-            this.CultivatedTextBox.Size = new System.Drawing.Size(62, 21);
+            this.CultivatedTextBox.Size = new System.Drawing.Size(116, 21);
             this.CultivatedTextBox.TabIndex = 46;
             this.CultivatedTextBox.GotFocus += new System.EventHandler(this.CultivatedTextBox_GotFocus);
             this.CultivatedTextBox.LostFocus += new System.EventHandler(this.CultivatedTextBox_LostFocus);
@@ -1534,7 +1567,7 @@ namespace 侠之道存档修改器
             // label30
             // 
             this.label30.AutoSize = true;
-            this.label30.Location = new System.Drawing.Point(109, 224);
+            this.label30.Location = new System.Drawing.Point(162, 224);
             this.label30.Name = "label30";
             this.label30.Size = new System.Drawing.Size(29, 12);
             this.label30.TabIndex = 45;
@@ -1553,7 +1586,7 @@ namespace 侠之道存档修改器
             // 
             this.VibrantTextBox.Location = new System.Drawing.Point(41, 221);
             this.VibrantTextBox.Name = "VibrantTextBox";
-            this.VibrantTextBox.Size = new System.Drawing.Size(62, 21);
+            this.VibrantTextBox.Size = new System.Drawing.Size(115, 21);
             this.VibrantTextBox.TabIndex = 44;
             this.VibrantTextBox.GotFocus += new System.EventHandler(this.VibrantTextBox_GotFocus);
             this.VibrantTextBox.LostFocus += new System.EventHandler(this.VibrantTextBox_LostFocus);
@@ -1587,12 +1620,13 @@ namespace 侠之道存档修改器
             // 
             // DexTextBox
             // 
-            this.DexTextBox.Location = new System.Drawing.Point(247, 194);
+            this.DexTextBox.Enabled = false;
+            this.DexTextBox.Location = new System.Drawing.Point(354, 193);
             this.DexTextBox.Name = "DexTextBox";
-            this.DexTextBox.Size = new System.Drawing.Size(62, 21);
+            this.DexTextBox.Size = new System.Drawing.Size(31, 21);
             this.DexTextBox.TabIndex = 42;
-            this.DexTextBox.GotFocus += new System.EventHandler(this.dexTextBox_GotFocus);
-            this.DexTextBox.LostFocus += new System.EventHandler(this.dexTextBox_LostFocus);
+            this.DexLevelTextBox.GotFocus += new System.EventHandler(this.dexLevelTextBox_GotFocus);
+            this.DexLevelTextBox.LostFocus += new System.EventHandler(this.dexLevelTextBox_LostFocus);
             // 
             // label20
             // 
@@ -1606,7 +1640,7 @@ namespace 侠之道存档修改器
             // label32
             // 
             this.label32.AutoSize = true;
-            this.label32.Location = new System.Drawing.Point(212, 197);
+            this.label32.Location = new System.Drawing.Point(319, 197);
             this.label32.Name = "label32";
             this.label32.Size = new System.Drawing.Size(29, 12);
             this.label32.TabIndex = 41;
@@ -1623,12 +1657,13 @@ namespace 侠之道存档修改器
             // 
             // VitTextBox
             // 
-            this.VitTextBox.Location = new System.Drawing.Point(144, 194);
+            this.VitTextBox.Enabled = false;
+            this.VitTextBox.Location = new System.Drawing.Point(197, 194);
             this.VitTextBox.Name = "VitTextBox";
-            this.VitTextBox.Size = new System.Drawing.Size(62, 21);
+            this.VitTextBox.Size = new System.Drawing.Size(31, 21);
             this.VitTextBox.TabIndex = 40;
-            this.VitTextBox.GotFocus += new System.EventHandler(this.vitTextBox_GotFocus);
-            this.VitTextBox.LostFocus += new System.EventHandler(this.vitTextBox_LostFocus);
+            this.VitLevelTextBox.GotFocus += new System.EventHandler(this.vitLevelTextBox_GotFocus);
+            this.VitLevelTextBox.LostFocus += new System.EventHandler(this.vitLevelTextBox_LostFocus);
             // 
             // label23
             // 
@@ -1642,7 +1677,7 @@ namespace 侠之道存档修改器
             // label33
             // 
             this.label33.AutoSize = true;
-            this.label33.Location = new System.Drawing.Point(109, 197);
+            this.label33.Location = new System.Drawing.Point(162, 197);
             this.label33.Name = "label33";
             this.label33.Size = new System.Drawing.Size(29, 12);
             this.label33.TabIndex = 39;
@@ -1659,12 +1694,13 @@ namespace 侠之道存档修改器
             // 
             // StrTextBox
             // 
+            this.StrTextBox.Enabled = false;
             this.StrTextBox.Location = new System.Drawing.Point(41, 194);
             this.StrTextBox.Name = "StrTextBox";
-            this.StrTextBox.Size = new System.Drawing.Size(62, 21);
+            this.StrTextBox.Size = new System.Drawing.Size(31, 21);
             this.StrTextBox.TabIndex = 38;
-            this.StrTextBox.GotFocus += new System.EventHandler(this.strTextBox_GotFocus);
-            this.StrTextBox.LostFocus += new System.EventHandler(this.strTextBox_LostFocus);
+            this.StrLevelTextBox.GotFocus += new System.EventHandler(this.strLevelTextBox_GotFocus);
+            this.StrLevelTextBox.LostFocus += new System.EventHandler(this.strLevelTextBox_LostFocus);
             // 
             // label24
             // 
@@ -1734,7 +1770,7 @@ namespace 侠之道存档修改器
             this.characterSkillTabPage.Location = new System.Drawing.Point(4, 22);
             this.characterSkillTabPage.Name = "characterSkillTabPage";
             this.characterSkillTabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.characterSkillTabPage.Size = new System.Drawing.Size(509, 338);
+            this.characterSkillTabPage.Size = new System.Drawing.Size(633, 338);
             this.characterSkillTabPage.TabIndex = 1;
             this.characterSkillTabPage.Text = "技能";
             this.characterSkillTabPage.UseVisualStyleBackColor = true;
@@ -1760,7 +1796,7 @@ namespace 侠之道存档修改器
             // groupBox6
             // 
             this.groupBox6.Controls.Add(this.HavingSkillListView);
-            this.groupBox6.Location = new System.Drawing.Point(276, 29);
+            this.groupBox6.Location = new System.Drawing.Point(402, 29);
             this.groupBox6.Name = "groupBox6";
             this.groupBox6.Size = new System.Drawing.Size(226, 248);
             this.groupBox6.TabIndex = 19;
@@ -1798,7 +1834,7 @@ namespace 侠之道存档修改器
             this.groupBox5.Controls.Add(this.SkillListView);
             this.groupBox5.Location = new System.Drawing.Point(6, 29);
             this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(223, 248);
+            this.groupBox5.Size = new System.Drawing.Size(349, 248);
             this.groupBox5.TabIndex = 18;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "全部技能";
@@ -1828,7 +1864,7 @@ namespace 侠之道存档修改器
             this.SkillListView.MultiSelect = false;
             this.SkillListView.Name = "SkillListView";
             this.SkillListView.ShowItemToolTips = true;
-            this.SkillListView.Size = new System.Drawing.Size(211, 222);
+            this.SkillListView.Size = new System.Drawing.Size(337, 222);
             this.SkillListView.TabIndex = 0;
             this.SkillListView.UseCompatibleStateImageBehavior = false;
             this.SkillListView.View = System.Windows.Forms.View.Details;
@@ -1904,7 +1940,7 @@ namespace 侠之道存档修改器
             // label49
             // 
             this.label49.AutoSize = true;
-            this.label49.Location = new System.Drawing.Point(343, 315);
+            this.label49.Location = new System.Drawing.Point(463, 315);
             this.label49.Name = "label49";
             this.label49.Size = new System.Drawing.Size(53, 12);
             this.label49.TabIndex = 17;
@@ -1912,7 +1948,7 @@ namespace 侠之道存档修改器
             // 
             // SkillMaxLevelTextBox
             // 
-            this.SkillMaxLevelTextBox.Location = new System.Drawing.Point(402, 312);
+            this.SkillMaxLevelTextBox.Location = new System.Drawing.Point(522, 312);
             this.SkillMaxLevelTextBox.Name = "SkillMaxLevelTextBox";
             this.SkillMaxLevelTextBox.Size = new System.Drawing.Size(100, 21);
             this.SkillMaxLevelTextBox.TabIndex = 16;
@@ -1922,7 +1958,7 @@ namespace 侠之道存档修改器
             // label48
             // 
             this.label48.AutoSize = true;
-            this.label48.Location = new System.Drawing.Point(343, 290);
+            this.label48.Location = new System.Drawing.Point(463, 290);
             this.label48.Name = "label48";
             this.label48.Size = new System.Drawing.Size(53, 12);
             this.label48.TabIndex = 15;
@@ -1930,7 +1966,7 @@ namespace 侠之道存档修改器
             // 
             // SkillCurrentLevelTextBox
             // 
-            this.SkillCurrentLevelTextBox.Location = new System.Drawing.Point(402, 285);
+            this.SkillCurrentLevelTextBox.Location = new System.Drawing.Point(522, 285);
             this.SkillCurrentLevelTextBox.Name = "SkillCurrentLevelTextBox";
             this.SkillCurrentLevelTextBox.Size = new System.Drawing.Size(100, 21);
             this.SkillCurrentLevelTextBox.TabIndex = 14;
@@ -2016,7 +2052,7 @@ namespace 侠之道存档修改器
             // AbolishSkillButton
             // 
             this.AbolishSkillButton.Enabled = false;
-            this.AbolishSkillButton.Location = new System.Drawing.Point(235, 149);
+            this.AbolishSkillButton.Location = new System.Drawing.Point(361, 150);
             this.AbolishSkillButton.Name = "AbolishSkillButton";
             this.AbolishSkillButton.Size = new System.Drawing.Size(35, 23);
             this.AbolishSkillButton.TabIndex = 2;
@@ -2027,7 +2063,7 @@ namespace 侠之道存档修改器
             // LearnSkillButton
             // 
             this.LearnSkillButton.Enabled = false;
-            this.LearnSkillButton.Location = new System.Drawing.Point(235, 119);
+            this.LearnSkillButton.Location = new System.Drawing.Point(361, 120);
             this.LearnSkillButton.Name = "LearnSkillButton";
             this.LearnSkillButton.Size = new System.Drawing.Size(35, 23);
             this.LearnSkillButton.TabIndex = 1;
@@ -2043,7 +2079,7 @@ namespace 侠之道存档修改器
             this.characterTraitTabPage.Controls.Add(this.groupBox3);
             this.characterTraitTabPage.Location = new System.Drawing.Point(4, 22);
             this.characterTraitTabPage.Name = "characterTraitTabPage";
-            this.characterTraitTabPage.Size = new System.Drawing.Size(509, 338);
+            this.characterTraitTabPage.Size = new System.Drawing.Size(633, 338);
             this.characterTraitTabPage.TabIndex = 2;
             this.characterTraitTabPage.Text = "特质";
             this.characterTraitTabPage.UseVisualStyleBackColor = true;
@@ -2051,7 +2087,7 @@ namespace 侠之道存档修改器
             // AbolishTraitButton
             // 
             this.AbolishTraitButton.Enabled = false;
-            this.AbolishTraitButton.Location = new System.Drawing.Point(218, 141);
+            this.AbolishTraitButton.Location = new System.Drawing.Point(342, 140);
             this.AbolishTraitButton.Name = "AbolishTraitButton";
             this.AbolishTraitButton.Size = new System.Drawing.Size(75, 23);
             this.AbolishTraitButton.TabIndex = 3;
@@ -2062,7 +2098,7 @@ namespace 侠之道存档修改器
             // AddTraitButton
             // 
             this.AddTraitButton.Enabled = false;
-            this.AddTraitButton.Location = new System.Drawing.Point(217, 111);
+            this.AddTraitButton.Location = new System.Drawing.Point(341, 110);
             this.AddTraitButton.Name = "AddTraitButton";
             this.AddTraitButton.Size = new System.Drawing.Size(75, 23);
             this.AddTraitButton.TabIndex = 2;
@@ -2073,7 +2109,7 @@ namespace 侠之道存档修改器
             // groupBox4
             // 
             this.groupBox4.Controls.Add(this.HavingTraitListView);
-            this.groupBox4.Location = new System.Drawing.Point(298, 3);
+            this.groupBox4.Location = new System.Drawing.Point(422, 6);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Size = new System.Drawing.Size(208, 332);
             this.groupBox4.TabIndex = 1;
@@ -2109,7 +2145,7 @@ namespace 侠之道存档修改器
             this.groupBox3.Controls.Add(this.TraitListView);
             this.groupBox3.Location = new System.Drawing.Point(4, 4);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(207, 331);
+            this.groupBox3.Size = new System.Drawing.Size(331, 331);
             this.groupBox3.TabIndex = 0;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "全部特质";
@@ -2126,7 +2162,7 @@ namespace 侠之道存档修改器
             this.TraitListView.MultiSelect = false;
             this.TraitListView.Name = "TraitListView";
             this.TraitListView.ShowItemToolTips = true;
-            this.TraitListView.Size = new System.Drawing.Size(194, 304);
+            this.TraitListView.Size = new System.Drawing.Size(318, 304);
             this.TraitListView.TabIndex = 0;
             this.TraitListView.UseCompatibleStateImageBehavior = false;
             this.TraitListView.View = System.Windows.Forms.View.Details;
@@ -2159,7 +2195,7 @@ namespace 侠之道存档修改器
             this.characterMantraTabPage.Controls.Add(this.groupBox7);
             this.characterMantraTabPage.Location = new System.Drawing.Point(4, 22);
             this.characterMantraTabPage.Name = "characterMantraTabPage";
-            this.characterMantraTabPage.Size = new System.Drawing.Size(509, 338);
+            this.characterMantraTabPage.Size = new System.Drawing.Size(633, 338);
             this.characterMantraTabPage.TabIndex = 3;
             this.characterMantraTabPage.Text = "心法";
             this.characterMantraTabPage.UseVisualStyleBackColor = true;
@@ -2167,7 +2203,7 @@ namespace 侠之道存档修改器
             // label50
             // 
             this.label50.AutoSize = true;
-            this.label50.Location = new System.Drawing.Point(354, 313);
+            this.label50.Location = new System.Drawing.Point(478, 317);
             this.label50.Name = "label50";
             this.label50.Size = new System.Drawing.Size(53, 12);
             this.label50.TabIndex = 9;
@@ -2175,7 +2211,7 @@ namespace 侠之道存档修改器
             // 
             // MantraMaxLevelTextBox
             // 
-            this.MantraMaxLevelTextBox.Location = new System.Drawing.Point(413, 310);
+            this.MantraMaxLevelTextBox.Location = new System.Drawing.Point(537, 314);
             this.MantraMaxLevelTextBox.Name = "MantraMaxLevelTextBox";
             this.MantraMaxLevelTextBox.Size = new System.Drawing.Size(89, 21);
             this.MantraMaxLevelTextBox.TabIndex = 8;
@@ -2185,7 +2221,7 @@ namespace 侠之道存档修改器
             // label47
             // 
             this.label47.AutoSize = true;
-            this.label47.Location = new System.Drawing.Point(200, 313);
+            this.label47.Location = new System.Drawing.Point(324, 317);
             this.label47.Name = "label47";
             this.label47.Size = new System.Drawing.Size(53, 12);
             this.label47.TabIndex = 7;
@@ -2193,7 +2229,7 @@ namespace 侠之道存档修改器
             // 
             // SetWorkMantraButton
             // 
-            this.SetWorkMantraButton.Location = new System.Drawing.Point(300, 281);
+            this.SetWorkMantraButton.Location = new System.Drawing.Point(424, 285);
             this.SetWorkMantraButton.Name = "SetWorkMantraButton";
             this.SetWorkMantraButton.Size = new System.Drawing.Size(105, 23);
             this.SetWorkMantraButton.TabIndex = 6;
@@ -2203,7 +2239,7 @@ namespace 侠之道存档修改器
             // 
             // MantraCurrentLevelTextBox
             // 
-            this.MantraCurrentLevelTextBox.Location = new System.Drawing.Point(259, 310);
+            this.MantraCurrentLevelTextBox.Location = new System.Drawing.Point(383, 314);
             this.MantraCurrentLevelTextBox.Name = "MantraCurrentLevelTextBox";
             this.MantraCurrentLevelTextBox.Size = new System.Drawing.Size(89, 21);
             this.MantraCurrentLevelTextBox.TabIndex = 5;
@@ -2213,7 +2249,7 @@ namespace 侠之道存档修改器
             // WorkMantraLabel
             // 
             this.WorkMantraLabel.AutoSize = true;
-            this.WorkMantraLabel.Location = new System.Drawing.Point(411, 286);
+            this.WorkMantraLabel.Location = new System.Drawing.Point(535, 290);
             this.WorkMantraLabel.Name = "WorkMantraLabel";
             this.WorkMantraLabel.Size = new System.Drawing.Size(53, 12);
             this.WorkMantraLabel.TabIndex = 4;
@@ -2222,7 +2258,7 @@ namespace 侠之道存档修改器
             // AbolishMantraButton
             // 
             this.AbolishMantraButton.Enabled = false;
-            this.AbolishMantraButton.Location = new System.Drawing.Point(219, 141);
+            this.AbolishMantraButton.Location = new System.Drawing.Point(343, 137);
             this.AbolishMantraButton.Name = "AbolishMantraButton";
             this.AbolishMantraButton.Size = new System.Drawing.Size(75, 23);
             this.AbolishMantraButton.TabIndex = 3;
@@ -2233,7 +2269,7 @@ namespace 侠之道存档修改器
             // LearnMantraButton
             // 
             this.LearnMantraButton.Enabled = false;
-            this.LearnMantraButton.Location = new System.Drawing.Point(219, 111);
+            this.LearnMantraButton.Location = new System.Drawing.Point(343, 107);
             this.LearnMantraButton.Name = "LearnMantraButton";
             this.LearnMantraButton.Size = new System.Drawing.Size(75, 23);
             this.LearnMantraButton.TabIndex = 2;
@@ -2244,7 +2280,7 @@ namespace 侠之道存档修改器
             // groupBox8
             // 
             this.groupBox8.Controls.Add(this.HavingMantraListView);
-            this.groupBox8.Location = new System.Drawing.Point(300, 3);
+            this.groupBox8.Location = new System.Drawing.Point(424, 4);
             this.groupBox8.Name = "groupBox8";
             this.groupBox8.Size = new System.Drawing.Size(206, 275);
             this.groupBox8.TabIndex = 1;
@@ -2283,7 +2319,7 @@ namespace 侠之道存档修改器
             this.groupBox7.Controls.Add(this.MantraListView);
             this.groupBox7.Location = new System.Drawing.Point(4, 4);
             this.groupBox7.Name = "groupBox7";
-            this.groupBox7.Size = new System.Drawing.Size(209, 275);
+            this.groupBox7.Size = new System.Drawing.Size(333, 275);
             this.groupBox7.TabIndex = 0;
             this.groupBox7.TabStop = false;
             this.groupBox7.Text = "全部心法";
@@ -2302,7 +2338,7 @@ namespace 侠之道存档修改器
             this.MantraListView.MultiSelect = false;
             this.MantraListView.Name = "MantraListView";
             this.MantraListView.ShowItemToolTips = true;
-            this.MantraListView.Size = new System.Drawing.Size(196, 247);
+            this.MantraListView.Size = new System.Drawing.Size(320, 247);
             this.MantraListView.TabIndex = 0;
             this.MantraListView.UseCompatibleStateImageBehavior = false;
             this.MantraListView.View = System.Windows.Forms.View.Details;
@@ -2376,7 +2412,7 @@ namespace 侠之道存档修改器
             this.characterExteriorTabPage.Controls.Add(this.CharacterExteriorListView);
             this.characterExteriorTabPage.Location = new System.Drawing.Point(4, 22);
             this.characterExteriorTabPage.Name = "characterExteriorTabPage";
-            this.characterExteriorTabPage.Size = new System.Drawing.Size(768, 371);
+            this.characterExteriorTabPage.Size = new System.Drawing.Size(883, 371);
             this.characterExteriorTabPage.TabIndex = 15;
             this.characterExteriorTabPage.Text = "角色外观";
             this.characterExteriorTabPage.UseVisualStyleBackColor = true;
@@ -2422,7 +2458,7 @@ namespace 侠之道存档修改器
             this.groupBox9.Controls.Add(this.DescriptionTextBox);
             this.groupBox9.Location = new System.Drawing.Point(244, 59);
             this.groupBox9.Name = "groupBox9";
-            this.groupBox9.Size = new System.Drawing.Size(521, 100);
+            this.groupBox9.Size = new System.Drawing.Size(636, 100);
             this.groupBox9.TabIndex = 10;
             this.groupBox9.TabStop = false;
             this.groupBox9.Text = "人物描述";
@@ -2433,7 +2469,7 @@ namespace 侠之道存档修改器
             this.DescriptionTextBox.Multiline = true;
             this.DescriptionTextBox.Name = "DescriptionTextBox";
             this.DescriptionTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.DescriptionTextBox.Size = new System.Drawing.Size(508, 73);
+            this.DescriptionTextBox.Size = new System.Drawing.Size(623, 73);
             this.DescriptionTextBox.TabIndex = 0;
             this.DescriptionTextBox.GotFocus += new System.EventHandler(this.DescriptionTextBox_GotFocus);
             this.DescriptionTextBox.LostFocus += new System.EventHandler(this.DescriptionTextBox_LostFocus);
@@ -2549,7 +2585,7 @@ namespace 侠之道存档修改器
             this.partyTabPage.Controls.Add(this.groupBox10);
             this.partyTabPage.Location = new System.Drawing.Point(4, 22);
             this.partyTabPage.Name = "partyTabPage";
-            this.partyTabPage.Size = new System.Drawing.Size(768, 371);
+            this.partyTabPage.Size = new System.Drawing.Size(883, 371);
             this.partyTabPage.TabIndex = 14;
             this.partyTabPage.Text = "队伍";
             this.partyTabPage.UseVisualStyleBackColor = true;
@@ -2579,7 +2615,7 @@ namespace 侠之道存档修改器
             this.groupBox11.Controls.Add(this.PartyListView);
             this.groupBox11.Location = new System.Drawing.Point(454, 4);
             this.groupBox11.Name = "groupBox11";
-            this.groupBox11.Size = new System.Drawing.Size(311, 358);
+            this.groupBox11.Size = new System.Drawing.Size(426, 358);
             this.groupBox11.TabIndex = 2;
             this.groupBox11.TabStop = false;
             this.groupBox11.Text = "队伍";
@@ -2594,7 +2630,7 @@ namespace 侠之道存档修改器
             this.PartyListView.Location = new System.Drawing.Point(7, 21);
             this.PartyListView.MultiSelect = false;
             this.PartyListView.Name = "PartyListView";
-            this.PartyListView.Size = new System.Drawing.Size(298, 331);
+            this.PartyListView.Size = new System.Drawing.Size(413, 331);
             this.PartyListView.TabIndex = 0;
             this.PartyListView.UseCompatibleStateImageBehavior = false;
             this.PartyListView.View = System.Windows.Forms.View.Details;
@@ -2730,7 +2766,7 @@ namespace 侠之道存档修改器
             this.flagTabPage.Controls.Add(this.FlagListView);
             this.flagTabPage.Location = new System.Drawing.Point(4, 22);
             this.flagTabPage.Name = "flagTabPage";
-            this.flagTabPage.Size = new System.Drawing.Size(768, 371);
+            this.flagTabPage.Size = new System.Drawing.Size(883, 371);
             this.flagTabPage.TabIndex = 5;
             this.flagTabPage.Text = "旗标";
             this.flagTabPage.UseVisualStyleBackColor = true;
@@ -2823,7 +2859,7 @@ namespace 侠之道存档修改器
             this.FlagListView.MultiSelect = false;
             this.FlagListView.Name = "FlagListView";
             this.FlagListView.ShowItemToolTips = true;
-            this.FlagListView.Size = new System.Drawing.Size(761, 309);
+            this.FlagListView.Size = new System.Drawing.Size(876, 309);
             this.FlagListView.TabIndex = 0;
             this.FlagListView.UseCompatibleStateImageBehavior = false;
             this.FlagListView.View = System.Windows.Forms.View.Details;
@@ -2868,7 +2904,7 @@ namespace 侠之道存档修改器
             this.FlagLoveTabPage.Controls.Add(this.label54);
             this.FlagLoveTabPage.Location = new System.Drawing.Point(4, 22);
             this.FlagLoveTabPage.Name = "FlagLoveTabPage";
-            this.FlagLoveTabPage.Size = new System.Drawing.Size(768, 371);
+            this.FlagLoveTabPage.Size = new System.Drawing.Size(883, 371);
             this.FlagLoveTabPage.TabIndex = 16;
             this.FlagLoveTabPage.Text = "欣赏值";
             this.FlagLoveTabPage.UseVisualStyleBackColor = true;
@@ -3083,14 +3119,14 @@ namespace 侠之道存档修改器
             this.QuestTabPage.Controls.Add(this.QuestListView);
             this.QuestTabPage.Location = new System.Drawing.Point(4, 22);
             this.QuestTabPage.Name = "QuestTabPage";
-            this.QuestTabPage.Size = new System.Drawing.Size(768, 371);
+            this.QuestTabPage.Size = new System.Drawing.Size(883, 371);
             this.QuestTabPage.TabIndex = 6;
             this.QuestTabPage.Text = "传书";
             this.QuestTabPage.UseVisualStyleBackColor = true;
             // 
             // label67
             // 
-            this.label67.Location = new System.Drawing.Point(591, 137);
+            this.label67.Location = new System.Drawing.Point(724, 140);
             this.label67.Name = "label67";
             this.label67.Size = new System.Drawing.Size(156, 40);
             this.label67.TabIndex = 7;
@@ -3098,7 +3134,7 @@ namespace 侠之道存档修改器
             // 
             // QuestChangeState3Button
             // 
-            this.QuestChangeState3Button.Location = new System.Drawing.Point(593, 111);
+            this.QuestChangeState3Button.Location = new System.Drawing.Point(726, 114);
             this.QuestChangeState3Button.Name = "QuestChangeState3Button";
             this.QuestChangeState3Button.Size = new System.Drawing.Size(154, 23);
             this.QuestChangeState3Button.TabIndex = 6;
@@ -3108,7 +3144,7 @@ namespace 侠之道存档修改器
             // 
             // QuestChangeState2Button
             // 
-            this.QuestChangeState2Button.Location = new System.Drawing.Point(593, 81);
+            this.QuestChangeState2Button.Location = new System.Drawing.Point(726, 84);
             this.QuestChangeState2Button.Name = "QuestChangeState2Button";
             this.QuestChangeState2Button.Size = new System.Drawing.Size(154, 23);
             this.QuestChangeState2Button.TabIndex = 5;
@@ -3118,7 +3154,7 @@ namespace 侠之道存档修改器
             // 
             // QuestChangeState1Button
             // 
-            this.QuestChangeState1Button.Location = new System.Drawing.Point(593, 52);
+            this.QuestChangeState1Button.Location = new System.Drawing.Point(726, 55);
             this.QuestChangeState1Button.Name = "QuestChangeState1Button";
             this.QuestChangeState1Button.Size = new System.Drawing.Size(154, 23);
             this.QuestChangeState1Button.TabIndex = 4;
@@ -3139,7 +3175,7 @@ namespace 侠之道存档修改器
             // 
             this.QuestStateComboBox.Enabled = false;
             this.QuestStateComboBox.FormattingEnabled = true;
-            this.QuestStateComboBox.Location = new System.Drawing.Point(626, 26);
+            this.QuestStateComboBox.Location = new System.Drawing.Point(759, 29);
             this.QuestStateComboBox.Name = "QuestStateComboBox";
             this.QuestStateComboBox.Size = new System.Drawing.Size(121, 20);
             this.QuestStateComboBox.TabIndex = 2;
@@ -3147,7 +3183,7 @@ namespace 侠之道存档修改器
             // label66
             // 
             this.label66.AutoSize = true;
-            this.label66.Location = new System.Drawing.Point(591, 29);
+            this.label66.Location = new System.Drawing.Point(724, 32);
             this.label66.Name = "label66";
             this.label66.Size = new System.Drawing.Size(29, 12);
             this.label66.TabIndex = 1;
@@ -3170,7 +3206,7 @@ namespace 侠之道存档修改器
             this.QuestListView.MultiSelect = false;
             this.QuestListView.Name = "QuestListView";
             this.QuestListView.ShowItemToolTips = true;
-            this.QuestListView.Size = new System.Drawing.Size(581, 339);
+            this.QuestListView.Size = new System.Drawing.Size(716, 339);
             this.QuestListView.TabIndex = 0;
             this.QuestListView.UseCompatibleStateImageBehavior = false;
             this.QuestListView.View = System.Windows.Forms.View.Details;
@@ -3220,7 +3256,7 @@ namespace 侠之道存档修改器
             this.electiveTabPage.Controls.Add(this.ElectiveListView);
             this.electiveTabPage.Location = new System.Drawing.Point(4, 22);
             this.electiveTabPage.Name = "electiveTabPage";
-            this.electiveTabPage.Size = new System.Drawing.Size(768, 371);
+            this.electiveTabPage.Size = new System.Drawing.Size(883, 371);
             this.electiveTabPage.TabIndex = 7;
             this.electiveTabPage.Text = "选课";
             this.electiveTabPage.UseVisualStyleBackColor = true;
@@ -3258,7 +3294,7 @@ namespace 侠之道存档修改器
             this.ElectiveListView.MultiSelect = false;
             this.ElectiveListView.Name = "ElectiveListView";
             this.ElectiveListView.ShowItemToolTips = true;
-            this.ElectiveListView.Size = new System.Drawing.Size(761, 313);
+            this.ElectiveListView.Size = new System.Drawing.Size(876, 313);
             this.ElectiveListView.TabIndex = 0;
             this.ElectiveListView.UseCompatibleStateImageBehavior = false;
             this.ElectiveListView.View = System.Windows.Forms.View.Details;
@@ -3298,7 +3334,7 @@ namespace 侠之道存档修改器
             this.nurturanceOrderTabPage.Controls.Add(this.NurturanceOrderListView);
             this.nurturanceOrderTabPage.Location = new System.Drawing.Point(4, 22);
             this.nurturanceOrderTabPage.Name = "nurturanceOrderTabPage";
-            this.nurturanceOrderTabPage.Size = new System.Drawing.Size(768, 371);
+            this.nurturanceOrderTabPage.Size = new System.Drawing.Size(883, 371);
             this.nurturanceOrderTabPage.TabIndex = 8;
             this.nurturanceOrderTabPage.Text = "养成指令";
             this.nurturanceOrderTabPage.UseVisualStyleBackColor = true;
@@ -3368,7 +3404,7 @@ namespace 侠之道存档修改器
             this.NurturanceOrderListView.MultiSelect = false;
             this.NurturanceOrderListView.Name = "NurturanceOrderListView";
             this.NurturanceOrderListView.ShowItemToolTips = true;
-            this.NurturanceOrderListView.Size = new System.Drawing.Size(761, 319);
+            this.NurturanceOrderListView.Size = new System.Drawing.Size(876, 319);
             this.NurturanceOrderListView.TabIndex = 0;
             this.NurturanceOrderListView.UseCompatibleStateImageBehavior = false;
             this.NurturanceOrderListView.View = System.Windows.Forms.View.Details;
@@ -3427,7 +3463,7 @@ namespace 侠之道存档修改器
             this.readBookTabPage.Controls.Add(this.BookListView);
             this.readBookTabPage.Location = new System.Drawing.Point(4, 22);
             this.readBookTabPage.Name = "readBookTabPage";
-            this.readBookTabPage.Size = new System.Drawing.Size(768, 371);
+            this.readBookTabPage.Size = new System.Drawing.Size(883, 371);
             this.readBookTabPage.TabIndex = 9;
             this.readBookTabPage.Text = "书籍";
             this.readBookTabPage.UseVisualStyleBackColor = true;
@@ -3465,7 +3501,7 @@ namespace 侠之道存档修改器
             this.HavingBookListView.MultiSelect = false;
             this.HavingBookListView.Name = "HavingBookListView";
             this.HavingBookListView.ShowItemToolTips = true;
-            this.HavingBookListView.Size = new System.Drawing.Size(221, 364);
+            this.HavingBookListView.Size = new System.Drawing.Size(336, 364);
             this.HavingBookListView.TabIndex = 1;
             this.HavingBookListView.UseCompatibleStateImageBehavior = false;
             this.HavingBookListView.View = System.Windows.Forms.View.Details;
@@ -3546,7 +3582,7 @@ namespace 侠之道存档修改器
             this.alchemyTabPage.Controls.Add(this.AlchemyListView);
             this.alchemyTabPage.Location = new System.Drawing.Point(4, 22);
             this.alchemyTabPage.Name = "alchemyTabPage";
-            this.alchemyTabPage.Size = new System.Drawing.Size(768, 371);
+            this.alchemyTabPage.Size = new System.Drawing.Size(883, 371);
             this.alchemyTabPage.TabIndex = 10;
             this.alchemyTabPage.Text = "炼药";
             this.alchemyTabPage.UseVisualStyleBackColor = true;
@@ -3584,7 +3620,7 @@ namespace 侠之道存档修改器
             this.AlchemyListView.MultiSelect = false;
             this.AlchemyListView.Name = "AlchemyListView";
             this.AlchemyListView.ShowItemToolTips = true;
-            this.AlchemyListView.Size = new System.Drawing.Size(761, 319);
+            this.AlchemyListView.Size = new System.Drawing.Size(876, 319);
             this.AlchemyListView.TabIndex = 1;
             this.AlchemyListView.UseCompatibleStateImageBehavior = false;
             this.AlchemyListView.View = System.Windows.Forms.View.Details;
@@ -3614,7 +3650,7 @@ namespace 侠之道存档修改器
             this.forgeTabPage.Controls.Add(this.tabControl3);
             this.forgeTabPage.Location = new System.Drawing.Point(4, 22);
             this.forgeTabPage.Name = "forgeTabPage";
-            this.forgeTabPage.Size = new System.Drawing.Size(768, 371);
+            this.forgeTabPage.Size = new System.Drawing.Size(883, 371);
             this.forgeTabPage.TabIndex = 11;
             this.forgeTabPage.Text = "锻造";
             this.forgeTabPage.UseVisualStyleBackColor = true;
@@ -3629,7 +3665,7 @@ namespace 侠之道存档修改器
             this.tabControl3.Location = new System.Drawing.Point(4, 4);
             this.tabControl3.Name = "tabControl3";
             this.tabControl3.SelectedIndex = 0;
-            this.tabControl3.Size = new System.Drawing.Size(761, 364);
+            this.tabControl3.Size = new System.Drawing.Size(876, 364);
             this.tabControl3.TabIndex = 7;
             // 
             // tabPage1
@@ -3640,7 +3676,7 @@ namespace 侠之道存档修改器
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(753, 338);
+            this.tabPage1.Size = new System.Drawing.Size(868, 338);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "搏击";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -3660,7 +3696,7 @@ namespace 侠之道存档修改器
             this.ForgeFightListView.MultiSelect = false;
             this.ForgeFightListView.Name = "ForgeFightListView";
             this.ForgeFightListView.ShowItemToolTips = true;
-            this.ForgeFightListView.Size = new System.Drawing.Size(741, 293);
+            this.ForgeFightListView.Size = new System.Drawing.Size(856, 293);
             this.ForgeFightListView.TabIndex = 4;
             this.ForgeFightListView.UseCompatibleStateImageBehavior = false;
             this.ForgeFightListView.View = System.Windows.Forms.View.Details;
@@ -3721,7 +3757,7 @@ namespace 侠之道存档修改器
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(753, 338);
+            this.tabPage2.Size = new System.Drawing.Size(868, 338);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "刀剑";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -3761,7 +3797,7 @@ namespace 侠之道存档修改器
             this.ForgeBladeAndSwordListView.MultiSelect = false;
             this.ForgeBladeAndSwordListView.Name = "ForgeBladeAndSwordListView";
             this.ForgeBladeAndSwordListView.ShowItemToolTips = true;
-            this.ForgeBladeAndSwordListView.Size = new System.Drawing.Size(741, 293);
+            this.ForgeBladeAndSwordListView.Size = new System.Drawing.Size(856, 293);
             this.ForgeBladeAndSwordListView.TabIndex = 5;
             this.ForgeBladeAndSwordListView.UseCompatibleStateImageBehavior = false;
             this.ForgeBladeAndSwordListView.View = System.Windows.Forms.View.Details;
@@ -3801,7 +3837,7 @@ namespace 侠之道存档修改器
             this.tabPage3.Controls.Add(this.ForgeLongAndShortListView);
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Size = new System.Drawing.Size(753, 338);
+            this.tabPage3.Size = new System.Drawing.Size(868, 338);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "长短兵";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -3841,7 +3877,7 @@ namespace 侠之道存档修改器
             this.ForgeLongAndShortListView.MultiSelect = false;
             this.ForgeLongAndShortListView.Name = "ForgeLongAndShortListView";
             this.ForgeLongAndShortListView.ShowItemToolTips = true;
-            this.ForgeLongAndShortListView.Size = new System.Drawing.Size(741, 293);
+            this.ForgeLongAndShortListView.Size = new System.Drawing.Size(859, 293);
             this.ForgeLongAndShortListView.TabIndex = 5;
             this.ForgeLongAndShortListView.UseCompatibleStateImageBehavior = false;
             this.ForgeLongAndShortListView.View = System.Windows.Forms.View.Details;
@@ -3881,7 +3917,7 @@ namespace 侠之道存档修改器
             this.tabPage4.Controls.Add(this.ForgeQimenListView);
             this.tabPage4.Location = new System.Drawing.Point(4, 22);
             this.tabPage4.Name = "tabPage4";
-            this.tabPage4.Size = new System.Drawing.Size(753, 338);
+            this.tabPage4.Size = new System.Drawing.Size(868, 338);
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "奇门";
             this.tabPage4.UseVisualStyleBackColor = true;
@@ -3921,7 +3957,7 @@ namespace 侠之道存档修改器
             this.ForgeQimenListView.MultiSelect = false;
             this.ForgeQimenListView.Name = "ForgeQimenListView";
             this.ForgeQimenListView.ShowItemToolTips = true;
-            this.ForgeQimenListView.Size = new System.Drawing.Size(741, 293);
+            this.ForgeQimenListView.Size = new System.Drawing.Size(859, 293);
             this.ForgeQimenListView.TabIndex = 5;
             this.ForgeQimenListView.UseCompatibleStateImageBehavior = false;
             this.ForgeQimenListView.View = System.Windows.Forms.View.Details;
@@ -3961,7 +3997,7 @@ namespace 侠之道存档修改器
             this.tabPage5.Controls.Add(this.ForgeArmorListView);
             this.tabPage5.Location = new System.Drawing.Point(4, 22);
             this.tabPage5.Name = "tabPage5";
-            this.tabPage5.Size = new System.Drawing.Size(753, 338);
+            this.tabPage5.Size = new System.Drawing.Size(868, 338);
             this.tabPage5.TabIndex = 4;
             this.tabPage5.Text = "防具";
             this.tabPage5.UseVisualStyleBackColor = true;
@@ -4001,7 +4037,7 @@ namespace 侠之道存档修改器
             this.ForgeArmorListView.MultiSelect = false;
             this.ForgeArmorListView.Name = "ForgeArmorListView";
             this.ForgeArmorListView.ShowItemToolTips = true;
-            this.ForgeArmorListView.Size = new System.Drawing.Size(741, 293);
+            this.ForgeArmorListView.Size = new System.Drawing.Size(859, 293);
             this.ForgeArmorListView.TabIndex = 5;
             this.ForgeArmorListView.UseCompatibleStateImageBehavior = false;
             this.ForgeArmorListView.View = System.Windows.Forms.View.Details;
@@ -4041,7 +4077,7 @@ namespace 侠之道存档修改器
             this.shopTabPage.Controls.Add(this.ShopListView);
             this.shopTabPage.Location = new System.Drawing.Point(4, 22);
             this.shopTabPage.Name = "shopTabPage";
-            this.shopTabPage.Size = new System.Drawing.Size(768, 371);
+            this.shopTabPage.Size = new System.Drawing.Size(883, 371);
             this.shopTabPage.TabIndex = 12;
             this.shopTabPage.Text = "商店";
             this.shopTabPage.UseVisualStyleBackColor = true;
@@ -4082,7 +4118,7 @@ namespace 侠之道存档修改器
             this.ShopListView.MultiSelect = false;
             this.ShopListView.Name = "ShopListView";
             this.ShopListView.ShowItemToolTips = true;
-            this.ShopListView.Size = new System.Drawing.Size(761, 319);
+            this.ShopListView.Size = new System.Drawing.Size(876, 319);
             this.ShopListView.TabIndex = 4;
             this.ShopListView.UseCompatibleStateImageBehavior = false;
             this.ShopListView.View = System.Windows.Forms.View.Details;
@@ -4127,7 +4163,7 @@ namespace 侠之道存档修改器
             this.tabPage6.Controls.Add(this.pictureBox1);
             this.tabPage6.Location = new System.Drawing.Point(4, 22);
             this.tabPage6.Name = "tabPage6";
-            this.tabPage6.Size = new System.Drawing.Size(768, 371);
+            this.tabPage6.Size = new System.Drawing.Size(883, 371);
             this.tabPage6.TabIndex = 17;
             this.tabPage6.Text = "捐助作者";
             this.tabPage6.UseVisualStyleBackColor = true;
@@ -4164,7 +4200,7 @@ namespace 侠之道存档修改器
             // 
             // saveButton
             // 
-            this.saveButton.Location = new System.Drawing.Point(713, 12);
+            this.saveButton.Location = new System.Drawing.Point(824, 12);
             this.saveButton.Name = "saveButton";
             this.saveButton.Size = new System.Drawing.Size(75, 23);
             this.saveButton.TabIndex = 2;
@@ -4181,16 +4217,148 @@ namespace 侠之道存档修改器
             this.messageLabel.TabIndex = 3;
             this.messageLabel.Text = "                       ";
             // 
+            // label72
+            // 
+            this.label72.AutoSize = true;
+            this.label72.Location = new System.Drawing.Point(72, 199);
+            this.label72.Name = "label72";
+            this.label72.Size = new System.Drawing.Size(11, 12);
+            this.label72.TabIndex = 66;
+            this.label72.Text = "=";
+            // 
+            // StrLevelTextBox
+            // 
+            this.StrLevelTextBox.Location = new System.Drawing.Point(83, 194);
+            this.StrLevelTextBox.Name = "StrLevelTextBox";
+            this.StrLevelTextBox.Size = new System.Drawing.Size(31, 21);
+            this.StrLevelTextBox.TabIndex = 67;
+            // 
+            // label73
+            // 
+            this.label73.AutoSize = true;
+            this.label73.Location = new System.Drawing.Point(114, 199);
+            this.label73.Name = "label73";
+            this.label73.Size = new System.Drawing.Size(11, 12);
+            this.label73.TabIndex = 68;
+            this.label73.Text = "+";
+            // 
+            // StrExtraTextBox
+            // 
+            this.StrExtraTextBox.Enabled = false;
+            this.StrExtraTextBox.Location = new System.Drawing.Point(125, 194);
+            this.StrExtraTextBox.Name = "StrExtraTextBox";
+            this.StrExtraTextBox.Size = new System.Drawing.Size(31, 21);
+            this.StrExtraTextBox.TabIndex = 69;
+            // 
+            // VitExtraTextBox
+            // 
+            this.VitExtraTextBox.Enabled = false;
+            this.VitExtraTextBox.Location = new System.Drawing.Point(282, 194);
+            this.VitExtraTextBox.Name = "VitExtraTextBox";
+            this.VitExtraTextBox.Size = new System.Drawing.Size(31, 21);
+            this.VitExtraTextBox.TabIndex = 73;
+            // 
+            // label74
+            // 
+            this.label74.AutoSize = true;
+            this.label74.Location = new System.Drawing.Point(271, 199);
+            this.label74.Name = "label74";
+            this.label74.Size = new System.Drawing.Size(11, 12);
+            this.label74.TabIndex = 72;
+            this.label74.Text = "+";
+            // 
+            // VitLevelTextBox
+            // 
+            this.VitLevelTextBox.Location = new System.Drawing.Point(240, 194);
+            this.VitLevelTextBox.Name = "VitLevelTextBox";
+            this.VitLevelTextBox.Size = new System.Drawing.Size(31, 21);
+            this.VitLevelTextBox.TabIndex = 71;
+            // 
+            // label75
+            // 
+            this.label75.AutoSize = true;
+            this.label75.Location = new System.Drawing.Point(229, 199);
+            this.label75.Name = "label75";
+            this.label75.Size = new System.Drawing.Size(11, 12);
+            this.label75.TabIndex = 70;
+            this.label75.Text = "=";
+            // 
+            // DexExtraTextBox
+            // 
+            this.DexExtraTextBox.Enabled = false;
+            this.DexExtraTextBox.Location = new System.Drawing.Point(438, 193);
+            this.DexExtraTextBox.Name = "DexExtraTextBox";
+            this.DexExtraTextBox.Size = new System.Drawing.Size(31, 21);
+            this.DexExtraTextBox.TabIndex = 77;
+            // 
+            // label76
+            // 
+            this.label76.AutoSize = true;
+            this.label76.Location = new System.Drawing.Point(427, 198);
+            this.label76.Name = "label76";
+            this.label76.Size = new System.Drawing.Size(11, 12);
+            this.label76.TabIndex = 76;
+            this.label76.Text = "+";
+            // 
+            // DexLevelTextBox
+            // 
+            this.DexLevelTextBox.Location = new System.Drawing.Point(396, 193);
+            this.DexLevelTextBox.Name = "DexLevelTextBox";
+            this.DexLevelTextBox.Size = new System.Drawing.Size(31, 21);
+            this.DexLevelTextBox.TabIndex = 75;
+            // 
+            // label77
+            // 
+            this.label77.AutoSize = true;
+            this.label77.Location = new System.Drawing.Point(385, 198);
+            this.label77.Name = "label77";
+            this.label77.Size = new System.Drawing.Size(11, 12);
+            this.label77.TabIndex = 74;
+            this.label77.Text = "=";
+            // 
+            // SpiExtraTextBox
+            // 
+            this.SpiExtraTextBox.Enabled = false;
+            this.SpiExtraTextBox.Location = new System.Drawing.Point(594, 193);
+            this.SpiExtraTextBox.Name = "SpiExtraTextBox";
+            this.SpiExtraTextBox.Size = new System.Drawing.Size(31, 21);
+            this.SpiExtraTextBox.TabIndex = 81;
+            // 
+            // label78
+            // 
+            this.label78.AutoSize = true;
+            this.label78.Location = new System.Drawing.Point(583, 198);
+            this.label78.Name = "label78";
+            this.label78.Size = new System.Drawing.Size(11, 12);
+            this.label78.TabIndex = 80;
+            this.label78.Text = "+";
+            // 
+            // SpiLevelTextBox
+            // 
+            this.SpiLevelTextBox.Location = new System.Drawing.Point(552, 193);
+            this.SpiLevelTextBox.Name = "SpiLevelTextBox";
+            this.SpiLevelTextBox.Size = new System.Drawing.Size(31, 21);
+            this.SpiLevelTextBox.TabIndex = 79;
+            // 
+            // label79
+            // 
+            this.label79.AutoSize = true;
+            this.label79.Location = new System.Drawing.Point(541, 198);
+            this.label79.Name = "label79";
+            this.label79.Size = new System.Drawing.Size(11, 12);
+            this.label79.TabIndex = 78;
+            this.label79.Text = "=";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(915, 450);
             this.Controls.Add(this.messageLabel);
             this.Controls.Add(this.saveButton);
             this.Controls.Add(this.tabControl1);
             this.Name = "Form1";
-            this.Text = "侠之道存档修改器1.5.5";
+            this.Text = "侠之道存档修改器1.5.6";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.SizeChanged += new System.EventHandler(this.Form1_SizeChanged);
             this.tabControl1.ResumeLayout(false);
@@ -4663,6 +4831,22 @@ namespace 侠之道存档修改器
         private System.Windows.Forms.PictureBox pictureBox3;
         private System.Windows.Forms.PictureBox pictureBox2;
         private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.TextBox StrExtraTextBox;
+        private System.Windows.Forms.Label label73;
+        private System.Windows.Forms.TextBox StrLevelTextBox;
+        private System.Windows.Forms.Label label72;
+        private System.Windows.Forms.TextBox SpiExtraTextBox;
+        private System.Windows.Forms.Label label78;
+        private System.Windows.Forms.TextBox SpiLevelTextBox;
+        private System.Windows.Forms.Label label79;
+        private System.Windows.Forms.TextBox DexExtraTextBox;
+        private System.Windows.Forms.Label label76;
+        private System.Windows.Forms.TextBox DexLevelTextBox;
+        private System.Windows.Forms.Label label77;
+        private System.Windows.Forms.TextBox VitExtraTextBox;
+        private System.Windows.Forms.Label label74;
+        private System.Windows.Forms.TextBox VitLevelTextBox;
+        private System.Windows.Forms.Label label75;
     }
 }
 

@@ -860,9 +860,17 @@ namespace 侠之道存档修改器
                 ClothComboBox.SelectedIndex = -1;
                 JewelryComboBox.SelectedIndex = -1;
                 StrTextBox.Text = "";
+                StrLevelTextBox.Text = "";
+                StrExtraTextBox.Text = "";
                 VitTextBox.Text = "";
+                VitLevelTextBox.Text = "";
+                VitExtraTextBox.Text = "";
                 DexTextBox.Text = "";
+                DexLevelTextBox.Text = "";
+                DexExtraTextBox.Text = "";
                 SpiTextBox.Text = "";
+                SpiLevelTextBox.Text = "";
+                SpiExtraTextBox.Text = "";
                 VibrantTextBox.Text = "";
                 CultivatedTextBox.Text = "";
                 ResoluteTextBox.Text = "";
@@ -1874,9 +1882,21 @@ namespace 侠之道存档修改器
                 GrowthFactorTextBox.Text = cid.GrowthFactor.ToString();
 
                 StrTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Str].Value.ToString();
+                StrLevelTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Str].Level.ToString();
+                StrExtraTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Str].Extra.ToString();
+
                 VitTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Vit].Value.ToString();
+                VitLevelTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Vit].Level.ToString();
+                VitExtraTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Vit].Extra.ToString();
+
                 DexTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Dex].Value.ToString();
+                DexLevelTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Dex].Level.ToString();
+                DexExtraTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Dex].Extra.ToString();
+
                 SpiTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Spi].Value.ToString();
+                SpiLevelTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Spi].Level.ToString();
+                SpiExtraTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Spi].Extra.ToString();
+
                 VibrantTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Vibrant].Value.ToString();
                 CultivatedTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Cultivated].Value.ToString();
                 ResoluteTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Resolute].Value.ToString();
@@ -2924,23 +2944,23 @@ namespace 侠之道存档修改器
             }
         }
 
-        private void strTextBox_GotFocus(object sender, EventArgs e)
+        private void strLevelTextBox_GotFocus(object sender, EventArgs e)
         {
-            LogHelper.Debug("strTextBox_GotFocus");
-            StrTextBox.Tag = StrTextBox.Text;
+            LogHelper.Debug("strLevelTextBox_GotFocus");
+            StrLevelTextBox.Tag = StrLevelTextBox.Text;
         }
 
-        private void strTextBox_LostFocus(object sender, EventArgs e)
+        private void strLevelTextBox_LostFocus(object sender, EventArgs e)
         {
-            LogHelper.Debug("strTextBox_LostFocus");
+            LogHelper.Debug("strLevelTextBox_LostFocus");
             try
             {
-                if (string.IsNullOrEmpty(StrTextBox.Text))
+                if (string.IsNullOrEmpty(StrLevelTextBox.Text))
                 {
-                    StrTextBox.Text = "0";
+                    StrLevelTextBox.Text = "0";
                 }
 
-                int str = Mathf.Clamp(int.Parse(StrTextBox.Text), 1, int.MaxValue);
+                int str = Mathf.Clamp(int.Parse(StrLevelTextBox.Text), 1, int.MaxValue);
 
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
@@ -2948,7 +2968,10 @@ namespace 侠之道存档修改器
 
                     cid.UpgradeableProperty[CharacterUpgradableProperty.Str].Level = str;
 
+                    cid.GetUpgradeableProperty(CharacterUpgradableProperty.Str);
                     StrTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Str].Value.ToString();
+                    StrLevelTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Str].Level.ToString();
+                    StrExtraTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Str].Extra.ToString();
 
                     //createFormula(cid);
                     cid.UpgradeProperty(false);
@@ -2960,27 +2983,27 @@ namespace 侠之道存档修改器
                 messageLabel.Text = ex.Message;
                 LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
-                StrTextBox.Text = StrTextBox.Tag.ToString();
+                StrLevelTextBox.Text = StrLevelTextBox.Tag.ToString();
             }
         }
 
-        private void vitTextBox_GotFocus(object sender, EventArgs e)
+        private void vitLevelTextBox_GotFocus(object sender, EventArgs e)
         {
-            LogHelper.Debug("vitTextBox_GotFocus");
-            VitTextBox.Tag = VitTextBox.Text;
+            LogHelper.Debug("vitLevelTextBox_GotFocus");
+            VitLevelTextBox.Tag = VitLevelTextBox.Text;
         }
 
-        private void vitTextBox_LostFocus(object sender, EventArgs e)
+        private void vitLevelTextBox_LostFocus(object sender, EventArgs e)
         {
-            LogHelper.Debug("vitTextBox_LostFocus");
+            LogHelper.Debug("vitLevelTextBox_LostFocus");
             try
             {
-                if (string.IsNullOrEmpty(VitTextBox.Text))
+                if (string.IsNullOrEmpty(VitLevelTextBox.Text))
                 {
-                    VitTextBox.Text = "0";
+                    VitLevelTextBox.Text = "0";
                 }
 
-                int vit = Mathf.Clamp(int.Parse(VitTextBox.Text), 1, int.MaxValue);
+                int vit = Mathf.Clamp(int.Parse(VitLevelTextBox.Text), 1, int.MaxValue);
 
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
@@ -2988,7 +3011,10 @@ namespace 侠之道存档修改器
 
                     cid.UpgradeableProperty[CharacterUpgradableProperty.Vit].Level = vit;
 
+                    cid.GetUpgradeableProperty(CharacterUpgradableProperty.Vit);
                     VitTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Vit].Value.ToString();
+                    VitLevelTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Vit].Level.ToString();
+                    VitExtraTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Vit].Extra.ToString();
 
                     //createFormula(cid);
                     cid.UpgradeProperty(false);
@@ -3000,27 +3026,27 @@ namespace 侠之道存档修改器
                 messageLabel.Text = ex.Message;
                 LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
-                VitTextBox.Text = VitTextBox.Tag.ToString();
+                VitLevelTextBox.Text = VitLevelTextBox.Tag.ToString();
             }
         }
 
-        private void dexTextBox_GotFocus(object sender, EventArgs e)
+        private void dexLevelTextBox_GotFocus(object sender, EventArgs e)
         {
-            LogHelper.Debug("dexTextBox_GotFocus");
-            DexTextBox.Tag = DexTextBox.Text;
+            LogHelper.Debug("dexLevelTextBox_GotFocus");
+            DexLevelTextBox.Tag = DexLevelTextBox.Text;
         }
 
-        private void dexTextBox_LostFocus(object sender, EventArgs e)
+        private void dexLevelTextBox_LostFocus(object sender, EventArgs e)
         {
-            LogHelper.Debug("dexTextBox_LostFocus");
+            LogHelper.Debug("dexLevelTextBox_LostFocus");
             try
             {
-                if (string.IsNullOrEmpty(DexTextBox.Text))
+                if (string.IsNullOrEmpty(DexLevelTextBox.Text))
                 {
-                    DexTextBox.Text = "0";
+                    DexLevelTextBox.Text = "0";
                 }
 
-                int dex = Mathf.Clamp(int.Parse(DexTextBox.Text), 1, int.MaxValue);
+                int dex = Mathf.Clamp(int.Parse(DexLevelTextBox.Text), 1, int.MaxValue);
 
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
@@ -3028,7 +3054,10 @@ namespace 侠之道存档修改器
 
                     cid.UpgradeableProperty[CharacterUpgradableProperty.Dex].Level = dex;
 
+                    cid.GetUpgradeableProperty(CharacterUpgradableProperty.Dex);
                     DexTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Dex].Value.ToString();
+                    DexLevelTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Dex].Level.ToString();
+                    DexExtraTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Dex].Extra.ToString();
 
                     //createFormula(cid);
                     cid.UpgradeProperty(false);
@@ -3040,27 +3069,27 @@ namespace 侠之道存档修改器
                 messageLabel.Text = ex.Message;
                 LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
-                DexTextBox.Text = DexTextBox.Tag.ToString();
+                DexLevelTextBox.Text = DexLevelTextBox.Tag.ToString();
             }
         }
 
-        private void spiTextBox_GotFocus(object sender, EventArgs e)
+        private void spiLevelTextBox_GotFocus(object sender, EventArgs e)
         {
-            LogHelper.Debug("spiTextBox_GotFocus");
-            SpiTextBox.Tag = SpiTextBox.Text;
+            LogHelper.Debug("spiLevelTextBox_GotFocus");
+            SpiLevelTextBox.Tag = SpiLevelTextBox.Text;
         }
 
-        private void spiTextBox_LostFocus(object sender, EventArgs e)
+        private void spiLevelTextBox_LostFocus(object sender, EventArgs e)
         {
-            LogHelper.Debug("spiTextBox_LostFocus");
+            LogHelper.Debug("spiLevelTextBox_LostFocus");
             try
             {
-                if (string.IsNullOrEmpty(SpiTextBox.Text))
+                if (string.IsNullOrEmpty(SpiLevelTextBox.Text))
                 {
-                    SpiTextBox.Text = "0";
+                    SpiLevelTextBox.Text = "0";
                 }
 
-                int spi = Mathf.Clamp(int.Parse(SpiTextBox.Text), 1, int.MaxValue);
+                int spi = Mathf.Clamp(int.Parse(SpiLevelTextBox.Text), 1, int.MaxValue);
 
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
@@ -3068,7 +3097,10 @@ namespace 侠之道存档修改器
 
                     cid.UpgradeableProperty[CharacterUpgradableProperty.Spi].Level = spi;
 
+                    cid.GetUpgradeableProperty(CharacterUpgradableProperty.Spi);
                     SpiTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Spi].Value.ToString();
+                    SpiLevelTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Spi].Level.ToString();
+                    SpiExtraTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Spi].Extra.ToString();
 
                     //createFormula(cid);
                     cid.UpgradeProperty(false);
@@ -3080,7 +3112,7 @@ namespace 侠之道存档修改器
                 messageLabel.Text = ex.Message;
                 LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
 
-                SpiTextBox.Text = SpiTextBox.Tag.ToString();
+                SpiLevelTextBox.Text = SpiLevelTextBox.Tag.ToString();
             }
         }
 
