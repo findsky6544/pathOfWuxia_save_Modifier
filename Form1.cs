@@ -945,6 +945,14 @@ namespace 侠之道存档修改器
                 ForgeArmorListView.SelectedItems.Clear();
 
                 ShopListView.SelectedItems.Clear();
+
+                foreach(KeyValuePair<string,CharacterInfoData> kv in gameData.Character)
+                {
+                    CharacterInfoData cid = kv.Value;
+                    AttachPropsEffect(Data.Get<Props>(cid.Equip[EquipType.Weapon]), cid);
+                    AttachPropsEffect(Data.Get<Props>(cid.Equip[EquipType.Cloth]), cid);
+                    AttachPropsEffect(Data.Get<Props>(cid.Equip[EquipType.Jewelry]), cid);
+                }
             }
             catch (Exception ex)
             {
@@ -999,7 +1007,7 @@ namespace 侠之道存档修改器
                         ListViewItem lvi = new ListViewItem();
                         lvi.Text = kv.Key;
 
-                        if(Data.Get<Props>(kv.Key) != null)
+                        if (Data.Get<Props>(kv.Key) != null)
                         {
                             lvi.SubItems.Add(Data.Get<Props>(kv.Key).Name);
                             lvi.SubItems.Add(kv.Value.Count.ToString());
@@ -1829,6 +1837,15 @@ namespace 侠之道存档修改器
                     }
                     createFormula(cid);
                     readSelectCharacterData(cid);
+
+                    if (gameData.Community.ContainsKey(lvi.Text))
+                    {
+                        GrowthFactorTextBox.Enabled = false;
+                    }
+                    else
+                    {
+                        GrowthFactorTextBox.Enabled = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -1879,7 +1896,38 @@ namespace 侠之道存档修改器
                 {
                     SpecialSkillComboBox.SelectedIndex = -1;
                 }
-                GrowthFactorTextBox.Text = cid.GrowthFactor.ToString();
+
+                if(cid.Id != "Player" && gameData.Community.ContainsKey(cid.Id))
+                {
+                    int level = gameData.Community[cid.Id].Favorability.Level;
+                    if (cid.CommunityFormulaProperty == null)
+                    {
+                        cid.CommunityFormulaProperty = new Dictionary<string, int>
+                    {
+                        {
+                            "community_lv",
+                            level
+                        }
+                    };
+                    }
+                    else if (cid.CommunityFormulaProperty.ContainsKey("community_lv"))
+                    {
+                        cid.CommunityFormulaProperty["community_lv"] = level;
+                    }
+                    else
+                    {
+                        cid.CommunityFormulaProperty.Add("community_lv", level);
+                    }
+                        if (cid.status_coefficient_of_community == null)
+                        {
+                            cid.status_coefficient_of_community = Game.Data.Get<GameFormula>("status_coefficient_of_community_" + cid.Id);
+                        }
+                        GrowthFactorTextBox.Text = (cid.status_coefficient_of_community.Evaluate(cid.CommunityFormulaProperty) + 1).ToString();
+                }
+                else
+                {
+                    GrowthFactorTextBox.Text = cid.GrowthFactor.ToString();
+                }
 
                 StrTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Str].Value.ToString();
                 StrLevelTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Str].Level.ToString();
@@ -2483,7 +2531,7 @@ namespace 侠之道存档修改器
             {
                 WeaponComboBox2.SelectedIndex = WeaponComboBox.SelectedIndex;
 
-                Props oldWeapon = new Props(); 
+                Props oldWeapon = new Props();
                 Props newWeapon = new Props();
 
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
@@ -2545,18 +2593,21 @@ namespace 侠之道存档修改器
             }
         }
 
-        private void AttachPropsEffect(Props porp, CharacterInfoData user)
+        private void AttachPropsEffect(Props prop, CharacterInfoData user)
         {
             LogHelper.Debug("AttachPropsEffect");
             try
             {
-                if (porp.PropsEffect == null)
+                if(prop != null)
                 {
-                    return;
-                }
-                for (int i = 0; i < porp.PropsEffect.Count; i++)
-                {
-                    porp.PropsEffect[i].AttachPropsEffect(user);
+                    if (prop.PropsEffect == null)
+                    {
+                        return;
+                    }
+                    for (int i = 0; i < prop.PropsEffect.Count; i++)
+                    {
+                        prop.PropsEffect[i].AttachPropsEffect(user);
+                    }
                 }
             }
             catch (Exception ex)
@@ -4762,6 +4813,50 @@ namespace 侠之道存档修改器
 
                     cd.Favorability.Level = Level;
                     CommunityLevelTextBox.Text = cd.Favorability.Level.ToString();
+
+                    if (CharacterListView.SelectedItems[0].Text == lvi.Text)
+                    {
+                        CharacterInfoData cid = gameData.Character[lvi.Text];
+                        if (cid.CommunityFormulaProperty == null)
+                        {
+                            cid.CommunityFormulaProperty = new Dictionary<string, int>
+                            {
+                                {
+                                    "community_lv",
+                                    Level
+                                }
+                            };
+                        }
+                        else if (cid.CommunityFormulaProperty.ContainsKey("community_lv"))
+                        {
+                            cid.CommunityFormulaProperty["community_lv"] = Level;
+                        }
+                        else
+                        {
+                            cid.CommunityFormulaProperty.Add("community_lv", Level);
+                        }
+                        if (cid.status_coefficient_of_community == null)
+                        {
+                            cid.status_coefficient_of_community = Game.Data.Get<GameFormula>("status_coefficient_of_community_" + cid.Id);
+                        }
+                        GrowthFactorTextBox.Text = (cid.status_coefficient_of_community.Evaluate(cid.CommunityFormulaProperty) + 1).ToString();
+
+                        cid.GetUpgradeableProperty(CharacterUpgradableProperty.Str);
+                        StrTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Str].Value.ToString();
+                        StrExtraTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Str].Extra.ToString();
+
+                        cid.GetUpgradeableProperty(CharacterUpgradableProperty.Vit);
+                        VitTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Vit].Value.ToString();
+                        VitExtraTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Vit].Extra.ToString();
+
+                        cid.GetUpgradeableProperty(CharacterUpgradableProperty.Dex);
+                        DexTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Dex].Value.ToString();
+                        DexExtraTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Dex].Extra.ToString();
+
+                        cid.GetUpgradeableProperty(CharacterUpgradableProperty.Spi);
+                        SpiTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Spi].Value.ToString();
+                        SpiExtraTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Spi].Extra.ToString();
+                    }
                 }
             }
             catch (Exception ex)
