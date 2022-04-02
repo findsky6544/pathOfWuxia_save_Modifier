@@ -495,7 +495,7 @@ namespace 侠之道存档修改器
                         string weaponId = ((ComboBoxItem)WeaponComboBox.SelectedItem).key;
                         Props prop = Data.Get<Props>(weaponId);
 
-                        if (kv.Value.Type != prop.PropsCategory && kv.Value.Type != Heluo.Data.PropsCategory.Throwing && kv.Value.DamageType != DamageType.Heal)
+                        if (kv.Value.Type != prop.PropsCategory && kv.Value.Type != Heluo.Data.PropsCategory.Throwing && kv.Value.DamageType != DamageType.Heal && kv.Value.DamageType != DamageType.Summon)
                         {
                             continue;
                         }
@@ -1837,6 +1837,7 @@ namespace 侠之道存档修改器
                     }
                     createFormula(cid);
                     readSelectCharacterData(cid);
+                    readAllSkill();
 
                     if (gameData.Community.ContainsKey(lvi.Text))
                     {
