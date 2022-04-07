@@ -192,7 +192,7 @@ namespace 侠之道存档修改器
                 DirectoryInfo folder = new DirectoryInfo(SaveFilesPathTextBox.Text);
                 SaveFileListBox.Items.Clear();
                 List<FileInfo> fileList = folder.GetFiles().ToList();
-                fileList.Remove(fileList.Find(f => f.Name == "BS.save"));
+                fileList.RemoveAll(f => f.Name != Regex.Match(f.Name, "PathOfWuxia_.*save").Value);
                 fileList = fileList.OrderBy(f => int.Parse(Regex.Match(f.Name, @"\d+").Value)).ToList();
                 for (int i = 0; i < fileList.Count; i++)
                 {
@@ -4732,6 +4732,8 @@ namespace 侠之道存档修改器
                     CommunityMaxLevelTextBox.Text = cd.Favorability.MaxLevel.ToString();
                     CommunityExpTextBox.Text = cd.Favorability.Exp.ToString();
                     CommunityIsOpenCheckBox.Checked = cd.isOpen;
+                    CommunityIsLoverCheckBox.Checked = cd.Favorability.IsLover;
+
                 }
             }
             catch (Exception ex)

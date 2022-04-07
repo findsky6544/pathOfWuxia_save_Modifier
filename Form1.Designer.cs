@@ -93,6 +93,22 @@ namespace 侠之道存档修改器
             this.characterInfoTabPage = new System.Windows.Forms.TabPage();
             this.tabControl2 = new System.Windows.Forms.TabControl();
             this.characterInfoPropertyTabPage = new System.Windows.Forms.TabPage();
+            this.SpiExtraTextBox = new System.Windows.Forms.TextBox();
+            this.label78 = new System.Windows.Forms.Label();
+            this.SpiLevelTextBox = new System.Windows.Forms.TextBox();
+            this.label79 = new System.Windows.Forms.Label();
+            this.DexExtraTextBox = new System.Windows.Forms.TextBox();
+            this.label76 = new System.Windows.Forms.Label();
+            this.DexLevelTextBox = new System.Windows.Forms.TextBox();
+            this.label77 = new System.Windows.Forms.Label();
+            this.VitExtraTextBox = new System.Windows.Forms.TextBox();
+            this.label74 = new System.Windows.Forms.Label();
+            this.VitLevelTextBox = new System.Windows.Forms.TextBox();
+            this.label75 = new System.Windows.Forms.Label();
+            this.StrExtraTextBox = new System.Windows.Forms.TextBox();
+            this.label73 = new System.Windows.Forms.Label();
+            this.StrLevelTextBox = new System.Windows.Forms.TextBox();
+            this.label72 = new System.Windows.Forms.Label();
             this.AffiliationStrTextBox = new System.Windows.Forms.TextBox();
             this.elementLabel = new System.Windows.Forms.Label();
             this.ElementComboBox = new System.Windows.Forms.ComboBox();
@@ -438,22 +454,7 @@ namespace 侠之道存档修改器
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.saveButton = new System.Windows.Forms.Button();
             this.messageLabel = new System.Windows.Forms.Label();
-            this.label72 = new System.Windows.Forms.Label();
-            this.StrLevelTextBox = new System.Windows.Forms.TextBox();
-            this.label73 = new System.Windows.Forms.Label();
-            this.StrExtraTextBox = new System.Windows.Forms.TextBox();
-            this.VitExtraTextBox = new System.Windows.Forms.TextBox();
-            this.label74 = new System.Windows.Forms.Label();
-            this.VitLevelTextBox = new System.Windows.Forms.TextBox();
-            this.label75 = new System.Windows.Forms.Label();
-            this.DexExtraTextBox = new System.Windows.Forms.TextBox();
-            this.label76 = new System.Windows.Forms.Label();
-            this.DexLevelTextBox = new System.Windows.Forms.TextBox();
-            this.label77 = new System.Windows.Forms.Label();
-            this.SpiExtraTextBox = new System.Windows.Forms.TextBox();
-            this.label78 = new System.Windows.Forms.Label();
-            this.SpiLevelTextBox = new System.Windows.Forms.TextBox();
-            this.label79 = new System.Windows.Forms.Label();
+            this.CommunityIsLoverCheckBox = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.saveTabPage.SuspendLayout();
             this.inventoryTabPage.SuspendLayout();
@@ -1177,6 +1178,146 @@ namespace 侠之道存档修改器
             this.characterInfoPropertyTabPage.Text = "属性";
             this.characterInfoPropertyTabPage.UseVisualStyleBackColor = true;
             // 
+            // SpiExtraTextBox
+            // 
+            this.SpiExtraTextBox.Enabled = false;
+            this.SpiExtraTextBox.Location = new System.Drawing.Point(594, 193);
+            this.SpiExtraTextBox.Name = "SpiExtraTextBox";
+            this.SpiExtraTextBox.Size = new System.Drawing.Size(31, 21);
+            this.SpiExtraTextBox.TabIndex = 81;
+            // 
+            // label78
+            // 
+            this.label78.AutoSize = true;
+            this.label78.Location = new System.Drawing.Point(583, 198);
+            this.label78.Name = "label78";
+            this.label78.Size = new System.Drawing.Size(11, 12);
+            this.label78.TabIndex = 80;
+            this.label78.Text = "+";
+            // 
+            // SpiLevelTextBox
+            // 
+            this.SpiLevelTextBox.Location = new System.Drawing.Point(552, 193);
+            this.SpiLevelTextBox.Name = "SpiLevelTextBox";
+            this.SpiLevelTextBox.Size = new System.Drawing.Size(31, 21);
+            this.SpiLevelTextBox.TabIndex = 79;
+            this.SpiLevelTextBox.GotFocus += new System.EventHandler(this.spiLevelTextBox_GotFocus);
+            this.SpiLevelTextBox.LostFocus += new System.EventHandler(this.spiLevelTextBox_LostFocus);
+            // 
+            // label79
+            // 
+            this.label79.AutoSize = true;
+            this.label79.Location = new System.Drawing.Point(541, 198);
+            this.label79.Name = "label79";
+            this.label79.Size = new System.Drawing.Size(11, 12);
+            this.label79.TabIndex = 78;
+            this.label79.Text = "=";
+            // 
+            // DexExtraTextBox
+            // 
+            this.DexExtraTextBox.Enabled = false;
+            this.DexExtraTextBox.Location = new System.Drawing.Point(438, 193);
+            this.DexExtraTextBox.Name = "DexExtraTextBox";
+            this.DexExtraTextBox.Size = new System.Drawing.Size(31, 21);
+            this.DexExtraTextBox.TabIndex = 77;
+            // 
+            // label76
+            // 
+            this.label76.AutoSize = true;
+            this.label76.Location = new System.Drawing.Point(427, 198);
+            this.label76.Name = "label76";
+            this.label76.Size = new System.Drawing.Size(11, 12);
+            this.label76.TabIndex = 76;
+            this.label76.Text = "+";
+            // 
+            // DexLevelTextBox
+            // 
+            this.DexLevelTextBox.Location = new System.Drawing.Point(396, 193);
+            this.DexLevelTextBox.Name = "DexLevelTextBox";
+            this.DexLevelTextBox.Size = new System.Drawing.Size(31, 21);
+            this.DexLevelTextBox.TabIndex = 75;
+            this.DexLevelTextBox.GotFocus += new System.EventHandler(this.dexLevelTextBox_GotFocus);
+            this.DexLevelTextBox.LostFocus += new System.EventHandler(this.dexLevelTextBox_LostFocus);
+            // 
+            // label77
+            // 
+            this.label77.AutoSize = true;
+            this.label77.Location = new System.Drawing.Point(385, 198);
+            this.label77.Name = "label77";
+            this.label77.Size = new System.Drawing.Size(11, 12);
+            this.label77.TabIndex = 74;
+            this.label77.Text = "=";
+            // 
+            // VitExtraTextBox
+            // 
+            this.VitExtraTextBox.Enabled = false;
+            this.VitExtraTextBox.Location = new System.Drawing.Point(282, 194);
+            this.VitExtraTextBox.Name = "VitExtraTextBox";
+            this.VitExtraTextBox.Size = new System.Drawing.Size(31, 21);
+            this.VitExtraTextBox.TabIndex = 73;
+            // 
+            // label74
+            // 
+            this.label74.AutoSize = true;
+            this.label74.Location = new System.Drawing.Point(271, 199);
+            this.label74.Name = "label74";
+            this.label74.Size = new System.Drawing.Size(11, 12);
+            this.label74.TabIndex = 72;
+            this.label74.Text = "+";
+            // 
+            // VitLevelTextBox
+            // 
+            this.VitLevelTextBox.Location = new System.Drawing.Point(240, 194);
+            this.VitLevelTextBox.Name = "VitLevelTextBox";
+            this.VitLevelTextBox.Size = new System.Drawing.Size(31, 21);
+            this.VitLevelTextBox.TabIndex = 71;
+            this.VitLevelTextBox.GotFocus += new System.EventHandler(this.vitLevelTextBox_GotFocus);
+            this.VitLevelTextBox.LostFocus += new System.EventHandler(this.vitLevelTextBox_LostFocus);
+            // 
+            // label75
+            // 
+            this.label75.AutoSize = true;
+            this.label75.Location = new System.Drawing.Point(229, 199);
+            this.label75.Name = "label75";
+            this.label75.Size = new System.Drawing.Size(11, 12);
+            this.label75.TabIndex = 70;
+            this.label75.Text = "=";
+            // 
+            // StrExtraTextBox
+            // 
+            this.StrExtraTextBox.Enabled = false;
+            this.StrExtraTextBox.Location = new System.Drawing.Point(125, 194);
+            this.StrExtraTextBox.Name = "StrExtraTextBox";
+            this.StrExtraTextBox.Size = new System.Drawing.Size(31, 21);
+            this.StrExtraTextBox.TabIndex = 69;
+            // 
+            // label73
+            // 
+            this.label73.AutoSize = true;
+            this.label73.Location = new System.Drawing.Point(114, 199);
+            this.label73.Name = "label73";
+            this.label73.Size = new System.Drawing.Size(11, 12);
+            this.label73.TabIndex = 68;
+            this.label73.Text = "+";
+            // 
+            // StrLevelTextBox
+            // 
+            this.StrLevelTextBox.Location = new System.Drawing.Point(83, 194);
+            this.StrLevelTextBox.Name = "StrLevelTextBox";
+            this.StrLevelTextBox.Size = new System.Drawing.Size(31, 21);
+            this.StrLevelTextBox.TabIndex = 67;
+            this.StrLevelTextBox.GotFocus += new System.EventHandler(this.strLevelTextBox_GotFocus);
+            this.StrLevelTextBox.LostFocus += new System.EventHandler(this.strLevelTextBox_LostFocus);
+            // 
+            // label72
+            // 
+            this.label72.AutoSize = true;
+            this.label72.Location = new System.Drawing.Point(72, 199);
+            this.label72.Name = "label72";
+            this.label72.Size = new System.Drawing.Size(11, 12);
+            this.label72.TabIndex = 66;
+            this.label72.Text = "=";
+            // 
             // AffiliationStrTextBox
             // 
             this.AffiliationStrTextBox.Enabled = false;
@@ -1444,8 +1585,6 @@ namespace 侠之道存档修改器
             this.SpiTextBox.Name = "SpiTextBox";
             this.SpiTextBox.Size = new System.Drawing.Size(31, 21);
             this.SpiTextBox.TabIndex = 52;
-            this.SpiLevelTextBox.GotFocus += new System.EventHandler(this.spiLevelTextBox_GotFocus);
-            this.SpiLevelTextBox.LostFocus += new System.EventHandler(this.spiLevelTextBox_LostFocus);
             // 
             // label17
             // 
@@ -1625,8 +1764,6 @@ namespace 侠之道存档修改器
             this.DexTextBox.Name = "DexTextBox";
             this.DexTextBox.Size = new System.Drawing.Size(31, 21);
             this.DexTextBox.TabIndex = 42;
-            this.DexLevelTextBox.GotFocus += new System.EventHandler(this.dexLevelTextBox_GotFocus);
-            this.DexLevelTextBox.LostFocus += new System.EventHandler(this.dexLevelTextBox_LostFocus);
             // 
             // label20
             // 
@@ -1662,8 +1799,6 @@ namespace 侠之道存档修改器
             this.VitTextBox.Name = "VitTextBox";
             this.VitTextBox.Size = new System.Drawing.Size(31, 21);
             this.VitTextBox.TabIndex = 40;
-            this.VitLevelTextBox.GotFocus += new System.EventHandler(this.vitLevelTextBox_GotFocus);
-            this.VitLevelTextBox.LostFocus += new System.EventHandler(this.vitLevelTextBox_LostFocus);
             // 
             // label23
             // 
@@ -1699,8 +1834,6 @@ namespace 侠之道存档修改器
             this.StrTextBox.Name = "StrTextBox";
             this.StrTextBox.Size = new System.Drawing.Size(31, 21);
             this.StrTextBox.TabIndex = 38;
-            this.StrLevelTextBox.GotFocus += new System.EventHandler(this.strLevelTextBox_GotFocus);
-            this.StrLevelTextBox.LostFocus += new System.EventHandler(this.strLevelTextBox_LostFocus);
             // 
             // label24
             // 
@@ -2648,6 +2781,7 @@ namespace 侠之道存档修改器
             // 
             // groupBox10
             // 
+            this.groupBox10.Controls.Add(this.CommunityIsLoverCheckBox);
             this.groupBox10.Controls.Add(this.CommunityIsOpenCheckBox);
             this.groupBox10.Controls.Add(this.label53);
             this.groupBox10.Controls.Add(this.CommunityExpTextBox);
@@ -4217,137 +4351,15 @@ namespace 侠之道存档修改器
             this.messageLabel.TabIndex = 3;
             this.messageLabel.Text = "                       ";
             // 
-            // label72
+            // CommunityIsLoverCheckBox
             // 
-            this.label72.AutoSize = true;
-            this.label72.Location = new System.Drawing.Point(72, 199);
-            this.label72.Name = "label72";
-            this.label72.Size = new System.Drawing.Size(11, 12);
-            this.label72.TabIndex = 66;
-            this.label72.Text = "=";
-            // 
-            // StrLevelTextBox
-            // 
-            this.StrLevelTextBox.Location = new System.Drawing.Point(83, 194);
-            this.StrLevelTextBox.Name = "StrLevelTextBox";
-            this.StrLevelTextBox.Size = new System.Drawing.Size(31, 21);
-            this.StrLevelTextBox.TabIndex = 67;
-            // 
-            // label73
-            // 
-            this.label73.AutoSize = true;
-            this.label73.Location = new System.Drawing.Point(114, 199);
-            this.label73.Name = "label73";
-            this.label73.Size = new System.Drawing.Size(11, 12);
-            this.label73.TabIndex = 68;
-            this.label73.Text = "+";
-            // 
-            // StrExtraTextBox
-            // 
-            this.StrExtraTextBox.Enabled = false;
-            this.StrExtraTextBox.Location = new System.Drawing.Point(125, 194);
-            this.StrExtraTextBox.Name = "StrExtraTextBox";
-            this.StrExtraTextBox.Size = new System.Drawing.Size(31, 21);
-            this.StrExtraTextBox.TabIndex = 69;
-            // 
-            // VitExtraTextBox
-            // 
-            this.VitExtraTextBox.Enabled = false;
-            this.VitExtraTextBox.Location = new System.Drawing.Point(282, 194);
-            this.VitExtraTextBox.Name = "VitExtraTextBox";
-            this.VitExtraTextBox.Size = new System.Drawing.Size(31, 21);
-            this.VitExtraTextBox.TabIndex = 73;
-            // 
-            // label74
-            // 
-            this.label74.AutoSize = true;
-            this.label74.Location = new System.Drawing.Point(271, 199);
-            this.label74.Name = "label74";
-            this.label74.Size = new System.Drawing.Size(11, 12);
-            this.label74.TabIndex = 72;
-            this.label74.Text = "+";
-            // 
-            // VitLevelTextBox
-            // 
-            this.VitLevelTextBox.Location = new System.Drawing.Point(240, 194);
-            this.VitLevelTextBox.Name = "VitLevelTextBox";
-            this.VitLevelTextBox.Size = new System.Drawing.Size(31, 21);
-            this.VitLevelTextBox.TabIndex = 71;
-            // 
-            // label75
-            // 
-            this.label75.AutoSize = true;
-            this.label75.Location = new System.Drawing.Point(229, 199);
-            this.label75.Name = "label75";
-            this.label75.Size = new System.Drawing.Size(11, 12);
-            this.label75.TabIndex = 70;
-            this.label75.Text = "=";
-            // 
-            // DexExtraTextBox
-            // 
-            this.DexExtraTextBox.Enabled = false;
-            this.DexExtraTextBox.Location = new System.Drawing.Point(438, 193);
-            this.DexExtraTextBox.Name = "DexExtraTextBox";
-            this.DexExtraTextBox.Size = new System.Drawing.Size(31, 21);
-            this.DexExtraTextBox.TabIndex = 77;
-            // 
-            // label76
-            // 
-            this.label76.AutoSize = true;
-            this.label76.Location = new System.Drawing.Point(427, 198);
-            this.label76.Name = "label76";
-            this.label76.Size = new System.Drawing.Size(11, 12);
-            this.label76.TabIndex = 76;
-            this.label76.Text = "+";
-            // 
-            // DexLevelTextBox
-            // 
-            this.DexLevelTextBox.Location = new System.Drawing.Point(396, 193);
-            this.DexLevelTextBox.Name = "DexLevelTextBox";
-            this.DexLevelTextBox.Size = new System.Drawing.Size(31, 21);
-            this.DexLevelTextBox.TabIndex = 75;
-            // 
-            // label77
-            // 
-            this.label77.AutoSize = true;
-            this.label77.Location = new System.Drawing.Point(385, 198);
-            this.label77.Name = "label77";
-            this.label77.Size = new System.Drawing.Size(11, 12);
-            this.label77.TabIndex = 74;
-            this.label77.Text = "=";
-            // 
-            // SpiExtraTextBox
-            // 
-            this.SpiExtraTextBox.Enabled = false;
-            this.SpiExtraTextBox.Location = new System.Drawing.Point(594, 193);
-            this.SpiExtraTextBox.Name = "SpiExtraTextBox";
-            this.SpiExtraTextBox.Size = new System.Drawing.Size(31, 21);
-            this.SpiExtraTextBox.TabIndex = 81;
-            // 
-            // label78
-            // 
-            this.label78.AutoSize = true;
-            this.label78.Location = new System.Drawing.Point(583, 198);
-            this.label78.Name = "label78";
-            this.label78.Size = new System.Drawing.Size(11, 12);
-            this.label78.TabIndex = 80;
-            this.label78.Text = "+";
-            // 
-            // SpiLevelTextBox
-            // 
-            this.SpiLevelTextBox.Location = new System.Drawing.Point(552, 193);
-            this.SpiLevelTextBox.Name = "SpiLevelTextBox";
-            this.SpiLevelTextBox.Size = new System.Drawing.Size(31, 21);
-            this.SpiLevelTextBox.TabIndex = 79;
-            // 
-            // label79
-            // 
-            this.label79.AutoSize = true;
-            this.label79.Location = new System.Drawing.Point(541, 198);
-            this.label79.Name = "label79";
-            this.label79.Size = new System.Drawing.Size(11, 12);
-            this.label79.TabIndex = 78;
-            this.label79.Text = "=";
+            this.CommunityIsLoverCheckBox.AutoSize = true;
+            this.CommunityIsLoverCheckBox.Location = new System.Drawing.Point(253, 102);
+            this.CommunityIsLoverCheckBox.Name = "CommunityIsLoverCheckBox";
+            this.CommunityIsLoverCheckBox.Size = new System.Drawing.Size(48, 16);
+            this.CommunityIsLoverCheckBox.TabIndex = 8;
+            this.CommunityIsLoverCheckBox.Text = "恋人";
+            this.CommunityIsLoverCheckBox.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
@@ -4358,7 +4370,7 @@ namespace 侠之道存档修改器
             this.Controls.Add(this.saveButton);
             this.Controls.Add(this.tabControl1);
             this.Name = "Form1";
-            this.Text = "侠之道存档修改器1.6.1";
+            this.Text = "侠之道存档修改器1.6.2";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.SizeChanged += new System.EventHandler(this.Form1_SizeChanged);
             this.tabControl1.ResumeLayout(false);
@@ -4847,6 +4859,7 @@ namespace 侠之道存档修改器
         private System.Windows.Forms.Label label74;
         private System.Windows.Forms.TextBox VitLevelTextBox;
         private System.Windows.Forms.Label label75;
+        private System.Windows.Forms.CheckBox CommunityIsLoverCheckBox;
     }
 }
 
