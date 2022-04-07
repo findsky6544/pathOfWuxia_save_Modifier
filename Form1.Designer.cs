@@ -273,6 +273,7 @@ namespace 侠之道存档修改器
             this.PartyIdColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.PartyNameColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.groupBox10 = new System.Windows.Forms.GroupBox();
+            this.CommunityIsLoverCheckBox = new System.Windows.Forms.CheckBox();
             this.CommunityIsOpenCheckBox = new System.Windows.Forms.CheckBox();
             this.label53 = new System.Windows.Forms.Label();
             this.CommunityExpTextBox = new System.Windows.Forms.TextBox();
@@ -454,7 +455,6 @@ namespace 侠之道存档修改器
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.saveButton = new System.Windows.Forms.Button();
             this.messageLabel = new System.Windows.Forms.Label();
-            this.CommunityIsLoverCheckBox = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.saveTabPage.SuspendLayout();
             this.inventoryTabPage.SuspendLayout();
@@ -2797,6 +2797,17 @@ namespace 侠之道存档修改器
             this.groupBox10.TabStop = false;
             this.groupBox10.Text = "社群";
             // 
+            // CommunityIsLoverCheckBox
+            // 
+            this.CommunityIsLoverCheckBox.AutoSize = true;
+            this.CommunityIsLoverCheckBox.Location = new System.Drawing.Point(253, 102);
+            this.CommunityIsLoverCheckBox.Name = "CommunityIsLoverCheckBox";
+            this.CommunityIsLoverCheckBox.Size = new System.Drawing.Size(48, 16);
+            this.CommunityIsLoverCheckBox.TabIndex = 8;
+            this.CommunityIsLoverCheckBox.Text = "恋人";
+            this.CommunityIsLoverCheckBox.UseVisualStyleBackColor = true;
+            this.CommunityIsLoverCheckBox.CheckedChanged += new System.EventHandler(this.CommunityIsLoverCheckBox_CheckedChanged);
+            // 
             // CommunityIsOpenCheckBox
             // 
             this.CommunityIsOpenCheckBox.AutoSize = true;
@@ -4350,16 +4361,6 @@ namespace 侠之道存档修改器
             this.messageLabel.Size = new System.Drawing.Size(143, 12);
             this.messageLabel.TabIndex = 3;
             this.messageLabel.Text = "                       ";
-            // 
-            // CommunityIsLoverCheckBox
-            // 
-            this.CommunityIsLoverCheckBox.AutoSize = true;
-            this.CommunityIsLoverCheckBox.Location = new System.Drawing.Point(253, 102);
-            this.CommunityIsLoverCheckBox.Name = "CommunityIsLoverCheckBox";
-            this.CommunityIsLoverCheckBox.Size = new System.Drawing.Size(48, 16);
-            this.CommunityIsLoverCheckBox.TabIndex = 8;
-            this.CommunityIsLoverCheckBox.Text = "恋人";
-            this.CommunityIsLoverCheckBox.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 

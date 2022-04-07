@@ -4817,7 +4817,7 @@ namespace 侠之道存档修改器
                     cd.Favorability.Level = Level;
                     CommunityLevelTextBox.Text = cd.Favorability.Level.ToString();
 
-                    if (CharacterListView.SelectedItems[0].Text == lvi.Text)
+                    if (CharacterListView.SelectedItems.Count > 0 && CharacterListView.SelectedItems[0].Text == lvi.Text)
                     {
                         CharacterInfoData cid = gameData.Character[lvi.Text];
                         if (cid.CommunityFormulaProperty == null)
@@ -4925,6 +4925,25 @@ namespace 侠之道存档修改器
                     {
                         Game.GameData.NurturanceOrder.CloseCommunityOrder(lvi.Text);
                     }
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
+            }
+        }
+
+        private void CommunityIsLoverCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            LogHelper.Debug("CommunityIsLoverCheckBox_CheckedChanged");
+            try
+            {
+                foreach (ListViewItem lvi in CommunityListView.SelectedItems)
+                {
+                    CommunityData cd = gameData.Community[lvi.Text];
+
+                    cd.Favorability.IsLover = CommunityIsLoverCheckBox.Checked;
                 }
             }
             catch (Exception ex)

@@ -44,7 +44,7 @@ namespace 侠之道存档修改器
 
         private void AddControl(Control ctl)
         {
-            LogHelper.Debug("AddControl");
+            //LogHelper.Debug("AddControl");
             foreach (Control c in ctl.Controls)
             {
 
@@ -127,7 +127,7 @@ namespace 侠之道存档修改器
 
         private void insertDictionary(String name, controlRect cr)   //添加控件名和位置，如果名称重复则更新
         {
-            LogHelper.Debug("insertDictionary:"+ name);
+            //LogHelper.Debug("insertDictionary:"+ name);
             Dictionary<String, controlRect> temp = new Dictionary<String, controlRect>();
             bool flag = false;
             foreach (var pair in oldCtrl)
