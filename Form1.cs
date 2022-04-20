@@ -11,7 +11,6 @@ using System.Windows.Forms;
 using static System.Windows.Forms.ListViewItem;
 using UnityEngine;
 using MoonSharp.Interpreter;
-using System.Collections;
 using Heluo.Manager;
 using static 侠之道存档修改器.EnumData;
 using Heluo.Flow;
@@ -235,6 +234,7 @@ namespace 侠之道存档修改器
                 {
                     pathOfWuxiaSaveHeader = LZ4MessagePackSerializer.Deserialize<PathOfWuxiaSaveHeader>(sr.BaseStream, HeluoResolver.Instance, true);
                 }
+                sr.Close();
                 readstream.Close();
 
 
@@ -263,6 +263,7 @@ namespace 侠之道存档修改器
                     readDatas();
 
                 }
+                sr.Close();
                 readstream.Close();
 
                 isSaveFileSelecting = false;
@@ -908,6 +909,7 @@ namespace 侠之道存档修改器
                 CommunityLevelTextBox.Text = "";
                 CommunityExpTextBox.Text = "";
                 CommunityIsOpenCheckBox.Checked = false;
+                CommunityIsLoverCheckBox.Checked = false;
 
                 PartyListView.SelectedItems.Clear();
 
@@ -946,7 +948,7 @@ namespace 侠之道存档修改器
 
                 ShopListView.SelectedItems.Clear();
 
-                foreach(KeyValuePair<string,CharacterInfoData> kv in gameData.Character)
+                foreach (KeyValuePair<string, CharacterInfoData> kv in gameData.Character)
                 {
                     CharacterInfoData cid = kv.Value;
                     AttachPropsEffect(Data.Get<Props>(cid.Equip[EquipType.Weapon]), cid);
@@ -1335,9 +1337,16 @@ namespace 侠之道存档修改器
                     ListViewItem lvi = new ListViewItem();
 
                     lvi.Text = kv.Value.Id;
-                    lvi.SubItems.Add(kv.Value.Item.Name);
-                    lvi.SubItems.Add(kv.Value.IsReadFinish ? "是" : "否");
-                    lvi.SubItems.Add(Mathf.Max(0, kv.Value.Item.MaxReadTime - kv.Value.CurrentReadTime).ToString());
+                    if (kv.Value.Item == null)
+                    {
+                        kv.Value.Item = Data.Get<Book>(kv.Value.Id);
+                    }
+                    if(kv.Value.Item != null)
+                    {
+                        lvi.SubItems.Add(kv.Value.Item.Name);
+                        lvi.SubItems.Add(kv.Value.IsReadFinish ? "是" : "否");
+                        lvi.SubItems.Add(Mathf.Max(0, kv.Value.Item.MaxReadTime - kv.Value.CurrentReadTime).ToString());
+                    }
 
 
                     HavingBookListView.Items.Add(lvi);
@@ -1898,7 +1907,7 @@ namespace 侠之道存档修改器
                     SpecialSkillComboBox.SelectedIndex = -1;
                 }
 
-                if(cid.Id != "Player" && gameData.Community.ContainsKey(cid.Id))
+                if (cid.Id != "Player" && gameData.Community.ContainsKey(cid.Id))
                 {
                     int level = gameData.Community[cid.Id].Favorability.Level;
                     if (cid.CommunityFormulaProperty == null)
@@ -1919,11 +1928,11 @@ namespace 侠之道存档修改器
                     {
                         cid.CommunityFormulaProperty.Add("community_lv", level);
                     }
-                        if (cid.status_coefficient_of_community == null)
-                        {
-                            cid.status_coefficient_of_community = Game.Data.Get<GameFormula>("status_coefficient_of_community_" + cid.Id);
-                        }
-                        GrowthFactorTextBox.Text = (cid.status_coefficient_of_community.Evaluate(cid.CommunityFormulaProperty) + 1).ToString();
+                    if (cid.status_coefficient_of_community == null)
+                    {
+                        cid.status_coefficient_of_community = Game.Data.Get<GameFormula>("status_coefficient_of_community_" + cid.Id);
+                    }
+                    GrowthFactorTextBox.Text = (cid.status_coefficient_of_community.Evaluate(cid.CommunityFormulaProperty) + 1).ToString();
                 }
                 else
                 {
@@ -2017,17 +2026,22 @@ namespace 侠之道存档修改器
                 CriticalTextBox.Text = cid.Property[CharacterProperty.Critical].Value.ToString();
                 CounterTextBox.Text = cid.Property[CharacterProperty.Counter].Value.ToString();
                 AffiliationTextBox.Text = cid.Property[CharacterProperty.Affiliation].Value.ToString();
-                if (cid.Property[CharacterProperty.Affiliation].Value > 0)
+
+                if (cid.Property[CharacterProperty.Affiliation].Value > 30)
                 {
-                    AffiliationStrTextBox.Text = "楚天碧";
+                    AffiliationStrTextBox.Text = "楚天碧结局";
                 }
-                else if (cid.Property[CharacterProperty.Affiliation].Value < 0)
+                else if (cid.Property[CharacterProperty.Affiliation].Value >= 11)
                 {
-                    AffiliationStrTextBox.Text = "段霄烈";
+                    AffiliationStrTextBox.Text = "中立结局，无法和段去苗疆";
+                }
+                else if (cid.Property[CharacterProperty.Affiliation].Value >= -30)
+                {
+                    AffiliationStrTextBox.Text = "中立结局";
                 }
                 else
                 {
-                    AffiliationStrTextBox.Text = "无";
+                    AffiliationStrTextBox.Text = "段霄烈结局";
                 }
             }
             catch (Exception ex)
@@ -2047,7 +2061,7 @@ namespace 侠之道存档修改器
                 {
                     if (!string.IsNullOrEmpty(kv.Key))
                     {
-                        if (string.IsNullOrEmpty(cid.Equip[EquipType.Weapon]) || Data.Get<Props>(cid.Equip[EquipType.Weapon]) == null || Data.Get<Props>(cid.Equip[EquipType.Weapon]).PropsCategory == kv.Value.Item.Type || kv.Value.Item.DamageType == DamageType.Throwing || kv.Value.Item.DamageType == DamageType.Heal)
+                        if (string.IsNullOrEmpty(cid.Equip[EquipType.Weapon]) || Data.Get<Props>(cid.Equip[EquipType.Weapon]) == null || Data.Get<Props>(cid.Equip[EquipType.Weapon]).PropsCategory == kv.Value.Item.Type || kv.Value.Item.DamageType == DamageType.Throwing || kv.Value.Item.DamageType == DamageType.Heal || kv.Value.Item.DamageType == DamageType.Summon)
                         {
                             ListViewItem lvi = new ListViewItem();
 
@@ -2234,15 +2248,37 @@ namespace 侠之道存档修改器
 
             fixBug();
 
-            if (File.Exists(saveFilePath))
+            int index = 1;
+            string bakSaveFilePath = saveFilePath;
+            if (File.Exists(bakSaveFilePath))
             {
-                File.Delete(saveFilePath);
+                while (File.Exists(bakSaveFilePath = saveFilePath + ".bak"+index))
+                {
+                    index++;
+                }
+                File.Move(saveFilePath, bakSaveFilePath);
             }
 
             FileStream writestream = new FileStream(saveFilePath, FileMode.OpenOrCreate);
             StreamWriter sw = new StreamWriter(writestream);
             try
             {
+                /*PathOfWuxiaSaveHeader newPathOfWuxiaSaveHeader = new PathOfWuxiaSaveHeader
+                {
+                    Name = gameData.Exterior[GameConfig.Player].FullName(),
+                    QuestName = gameData.Quest.GetQuestName(),
+                    Year = gameData.Round.CurrentYear,
+                    Month = gameData.Round.CurrentMonth,
+                    RoundOfMonth = gameData.Round.CurrentRoundOfMonth,
+                    CurrentTime = gameData.Round.CurrentTime,
+                    CurrentLevel = gameData.GameLevel,
+                    SaveTime = pathOfWuxiaSaveHeader.SaveTime,
+                    TotalTime = gameData.TotalTime,
+                    ScreenShotSize = pathOfWuxiaSaveHeader.ScreenShotSize,
+                    ScreenShotData = pathOfWuxiaSaveHeader.ScreenShotData,
+                    HasData = true,
+                    GameVersion = gameData.GameVersion
+                };*/
 
                 if (GameConfig.GameDataHeader == "WUXIASCHOOL_B_1_0")
                 {
@@ -2250,13 +2286,17 @@ namespace 侠之道存档修改器
                     using (MemoryStream memoryStream = new MemoryStream())
                     {
                         memoryStream.Write(bytes, 0, bytes.Length);
-                        LZ4MessagePackSerializer.Serialize(memoryStream, pathOfWuxiaSaveHeader, HeluoResolver.Instance);
-                        LZ4MessagePackSerializer.Serialize(memoryStream, gameData, HeluoResolver.Instance);
+                        LZ4MessagePackSerializer.Serialize<PathOfWuxiaSaveHeader>(memoryStream, pathOfWuxiaSaveHeader, HeluoResolver.Instance);
+                        LZ4MessagePackSerializer.Serialize<GameData>(memoryStream, gameData, HeluoResolver.Instance);
 
-                        sw.BaseStream.Write(memoryStream.ToArray(), 0, memoryStream.ToArray().Length);
+                        byte[] bytes2 = memoryStream.ToArray();
+                        sw.BaseStream.Write(bytes2, 0, bytes2.Length);
+                        byte[] bytes3 = new byte[] {0x82,0xab,0x75,0x6e,0x69,0x71,0x75,0x65,0x50,0x72,0x6f,0x70,0x73,0x80,0xac,0x75,0x6e,0x69,0x71,0x75,0x65,0x52,0x65,0x77,0x61,0x72,0x64,0x80 };
+                        sw.BaseStream.Write(bytes3, 0, bytes3.Length);
+                        //SteamRemoteStorage.FileWrite(saveFilePath, memoryStream.ToArray(), memoryStream.ToArray().Length);
                     }
                 }
-                messageLabel.Text = "保存成功";
+                messageLabel.Text = "保存成功，原存档已备份。若在游戏中看到存档消失或读取黑屏请重启游戏，若还是无法读取则请换一个存档修改";
                 LogHelper.Debug("保存成功");
                 sw.Close();
                 writestream.Close();
@@ -2599,7 +2639,7 @@ namespace 侠之道存档修改器
             LogHelper.Debug("AttachPropsEffect");
             try
             {
-                if(prop != null)
+                if (prop != null)
                 {
                     if (prop.PropsEffect == null)
                     {
@@ -2904,17 +2944,21 @@ namespace 侠之道存档修改器
 
                     AffiliationTextBox.Text = affiliation.ToString();
 
-                    if (cid.Property[CharacterProperty.Affiliation].Value > 0)
+                    if (cid.Property[CharacterProperty.Affiliation].Value > 30)
                     {
-                        AffiliationStrTextBox.Text = "楚天碧";
+                        AffiliationStrTextBox.Text = "楚天碧结局";
                     }
-                    else if (cid.Property[CharacterProperty.Affiliation].Value < 0)
+                    else if (cid.Property[CharacterProperty.Affiliation].Value >= 11)
                     {
-                        AffiliationStrTextBox.Text = "段霄烈";
+                        AffiliationStrTextBox.Text = "中立结局，无法和段去苗疆";
+                    }
+                    else if (cid.Property[CharacterProperty.Affiliation].Value >= -30)
+                    {
+                        AffiliationStrTextBox.Text = "中立结局";
                     }
                     else
                     {
-                        AffiliationStrTextBox.Text = "无";
+                        AffiliationStrTextBox.Text = "段霄烈结局";
                     }
                 }
             }
@@ -3798,6 +3842,12 @@ namespace 侠之道存档修改器
                         if (!string.IsNullOrEmpty(skillLvi.Text))
                         {
                             cid.LearnSkill(skillLvi.Text);
+
+                            if (lvi.Text == "Player")
+                            {
+                                Game.GameData.NurturanceOrder.OpenSkillOrder(skillLvi.Text);
+                                readNurturanceOrder();
+                            }
                         }
                     }
                     readCharacterSkillData(cid);
@@ -3826,6 +3876,12 @@ namespace 侠之道存档修改器
                         index = skillLvi.Index;
                         cid.AbolishSkill(skillLvi.Text);
                         cid.EquipSkills.ReplaceEquipSkill(skillLvi.Text, "", cid.IsPlayer);
+
+                        if (lvi.Text == "Player")
+                        {
+                            Game.GameData.NurturanceOrder.CloseSkillOrder(skillLvi.Text);
+                            readNurturanceOrder();
+                        }
                     }
                     readCharacterSkillData(cid);
                     readCharacterEquipSkillData(cid);
@@ -3882,15 +3938,12 @@ namespace 侠之道存档修改器
                     CharacterInfoData cid = gameData.Character[lvi.Text];
 
                     Props weapon = cid.Equip.GetEquip(EquipType.Weapon);
-                    if (weapon == null)
+                    if (weapon != null || MessageBox.Show("未选择武器的情况下，将默认设定为拳法的技能", "", MessageBoxButtons.OKCancel) == DialogResult.OK)
                     {
-                        if (MessageBox.Show("未选择武器的情况下，将默认设定为拳法的技能", "", MessageBoxButtons.OKCancel) == DialogResult.OK)
+                        foreach (ListViewItem skillLvi in HavingSkillListView.SelectedItems)
                         {
-                            foreach (ListViewItem skillLvi in HavingSkillListView.SelectedItems)
-                            {
-                                cid.SetEquipSkill(SkillColumn.Skill01, skillLvi.Text);
-                                readCharacterEquipSkillData(cid);
-                            }
+                            cid.SetEquipSkill(SkillColumn.Skill01, skillLvi.Text);
+                            readCharacterEquipSkillData(cid);
                         }
                     }
 
@@ -3913,15 +3966,12 @@ namespace 侠之道存档修改器
                     CharacterInfoData cid = gameData.Character[lvi.Text];
 
                     Props weapon = cid.Equip.GetEquip(EquipType.Weapon);
-                    if (weapon == null)
+                    if (weapon != null || MessageBox.Show("未选择武器的情况下，将默认设定为拳法的技能", "", MessageBoxButtons.OKCancel) == DialogResult.OK)
                     {
-                        if (MessageBox.Show("未选择武器的情况下，将默认设定为拳法的技能", "", MessageBoxButtons.OKCancel) == DialogResult.OK)
+                        foreach (ListViewItem skillLvi in HavingSkillListView.SelectedItems)
                         {
-                            foreach (ListViewItem skillLvi in HavingSkillListView.SelectedItems)
-                            {
-                                cid.SetEquipSkill(SkillColumn.Skill02, skillLvi.Text);
-                                readCharacterEquipSkillData(cid);
-                            }
+                            cid.SetEquipSkill(SkillColumn.Skill02, skillLvi.Text);
+                            readCharacterEquipSkillData(cid);
                         }
                     }
                 }
@@ -3943,15 +3993,12 @@ namespace 侠之道存档修改器
                     CharacterInfoData cid = gameData.Character[lvi.Text];
 
                     Props weapon = cid.Equip.GetEquip(EquipType.Weapon);
-                    if (weapon == null)
+                    if (weapon != null || MessageBox.Show("未选择武器的情况下，将默认设定为拳法的技能", "", MessageBoxButtons.OKCancel) == DialogResult.OK)
                     {
-                        if (MessageBox.Show("未选择武器的情况下，将默认设定为拳法的技能", "", MessageBoxButtons.OKCancel) == DialogResult.OK)
+                        foreach (ListViewItem skillLvi in HavingSkillListView.SelectedItems)
                         {
-                            foreach (ListViewItem skillLvi in HavingSkillListView.SelectedItems)
-                            {
-                                cid.SetEquipSkill(SkillColumn.Skill03, skillLvi.Text);
-                                readCharacterEquipSkillData(cid);
-                            }
+                            cid.SetEquipSkill(SkillColumn.Skill03, skillLvi.Text);
+                            readCharacterEquipSkillData(cid);
                         }
                     }
                 }
@@ -3973,15 +4020,12 @@ namespace 侠之道存档修改器
                     CharacterInfoData cid = gameData.Character[lvi.Text];
 
                     Props weapon = cid.Equip.GetEquip(EquipType.Weapon);
-                    if (weapon == null)
+                    if (weapon != null || MessageBox.Show("未选择武器的情况下，将默认设定为拳法的技能", "", MessageBoxButtons.OKCancel) == DialogResult.OK)
                     {
-                        if (MessageBox.Show("未选择武器的情况下，将默认设定为拳法的技能", "", MessageBoxButtons.OKCancel) == DialogResult.OK)
+                        foreach (ListViewItem skillLvi in HavingSkillListView.SelectedItems)
                         {
-                            foreach (ListViewItem skillLvi in HavingSkillListView.SelectedItems)
-                            {
-                                cid.SetEquipSkill(SkillColumn.Skill04, skillLvi.Text);
-                                readCharacterEquipSkillData(cid);
-                            }
+                            cid.SetEquipSkill(SkillColumn.Skill04, skillLvi.Text);
+                            readCharacterEquipSkillData(cid);
                         }
                     }
                 }
@@ -4139,7 +4183,10 @@ namespace 侠之道存档修改器
 
                         lvi.Text = kv.Key;
 
-                        lvi.SubItems.Add(kv.Value.Item.Name);
+                        if (kv.Value.Item != null)
+                        {
+                            lvi.SubItems.Add(kv.Value.Item.Name);
+                        }
 
                         HavingTraitListView.Items.Add(lvi);
                     }
@@ -4236,6 +4283,12 @@ namespace 侠之道存档修改器
                     foreach (ListViewItem mantraLvi in MantraListView.SelectedItems)
                     {
                         cid.LearnMantra(mantraLvi.Text);
+
+                        if (lvi.Text == "Player")
+                        {
+                            Game.GameData.NurturanceOrder.OpenMantraOrder(mantraLvi.Text);
+                            readNurturanceOrder();
+                        }
                     }
                     readCharacterMantraData(cid);
                 }
@@ -4264,6 +4317,12 @@ namespace 侠之道存档修改器
                         if (cid.WorkMantra == mantraLvi.Text)
                         {
                             cid.WorkMantra = null;
+
+                            if (lvi.Text == "Player")
+                            {
+                                Game.GameData.NurturanceOrder.CloseMantraOrder(mantraLvi.Text);
+                                readNurturanceOrder();
+                            }
                         }
                     }
                     readCharacterMantraData(cid);
@@ -4587,7 +4646,8 @@ namespace 侠之道存档修改器
                 {
                     CharacterExteriorData ced = gameData.Exterior[lvi.Text];
 
-                    bool hasProtrait = false;
+                    ced.Protrait = ProtraitTextBox.Text;
+                    /*bool hasProtrait = false;
                     foreach (KeyValuePair<string, CharacterExterior> kv in Data.Get<CharacterExterior>())
                     {
                         if (kv.Value.Protrait == ProtraitTextBox.Text)
@@ -4605,7 +4665,7 @@ namespace 侠之道存档修改器
                         LogHelper.Debug("未找到该头像编号");
 
                         ModelTextBox.Text = ModelTextBox.Tag.ToString();
-                    }
+                    }*/
                 }
             }
             catch (Exception ex)
@@ -6340,8 +6400,9 @@ namespace 侠之道存档修改器
             }
             else
             {
-                gameData.Flag[flag] = 0;
+                gameData.Flag[flag] = 1;
                 readFlag();
+                FlagListView.EnsureVisible(FlagListView.Items.Count-1);
             }
         }
     }

@@ -789,7 +789,6 @@ namespace 侠之道存档修改器
             // 
             // GameVersionTextBox
             // 
-            this.GameVersionTextBox.Enabled = false;
             this.GameVersionTextBox.Location = new System.Drawing.Point(253, 34);
             this.GameVersionTextBox.Name = "GameVersionTextBox";
             this.GameVersionTextBox.Size = new System.Drawing.Size(100, 21);
@@ -2800,7 +2799,7 @@ namespace 侠之道存档修改器
             // CommunityIsLoverCheckBox
             // 
             this.CommunityIsLoverCheckBox.AutoSize = true;
-            this.CommunityIsLoverCheckBox.Location = new System.Drawing.Point(253, 102);
+            this.CommunityIsLoverCheckBox.Location = new System.Drawing.Point(305, 102);
             this.CommunityIsLoverCheckBox.Name = "CommunityIsLoverCheckBox";
             this.CommunityIsLoverCheckBox.Size = new System.Drawing.Size(48, 16);
             this.CommunityIsLoverCheckBox.TabIndex = 8;
@@ -2813,9 +2812,9 @@ namespace 侠之道存档修改器
             this.CommunityIsOpenCheckBox.AutoSize = true;
             this.CommunityIsOpenCheckBox.Location = new System.Drawing.Point(199, 102);
             this.CommunityIsOpenCheckBox.Name = "CommunityIsOpenCheckBox";
-            this.CommunityIsOpenCheckBox.Size = new System.Drawing.Size(48, 16);
+            this.CommunityIsOpenCheckBox.Size = new System.Drawing.Size(96, 16);
             this.CommunityIsOpenCheckBox.TabIndex = 7;
-            this.CommunityIsOpenCheckBox.Text = "开启";
+            this.CommunityIsOpenCheckBox.Text = "开启养成指令";
             this.CommunityIsOpenCheckBox.UseVisualStyleBackColor = true;
             this.CommunityIsOpenCheckBox.CheckedChanged += new System.EventHandler(this.CommunityIsOpenCheckBox_CheckedChanged);
             // 
@@ -2999,7 +2998,6 @@ namespace 侠之道存档修改器
             this.FlagRemarkColumnHeader});
             this.FlagListView.FullRowSelect = true;
             this.FlagListView.HideSelection = false;
-            this.FlagListView.LabelEdit = true;
             this.FlagListView.Location = new System.Drawing.Point(4, 30);
             this.FlagListView.MultiSelect = false;
             this.FlagListView.Name = "FlagListView";
@@ -4334,7 +4332,7 @@ namespace 侠之道存档修改器
             this.pictureBox2.TabStop = false;
             // 
             // pictureBox1
-            // 
+            // 1.6.
             this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
             this.pictureBox1.Location = new System.Drawing.Point(46, 54);
             this.pictureBox1.Name = "pictureBox1";
@@ -4371,7 +4369,7 @@ namespace 侠之道存档修改器
             this.Controls.Add(this.saveButton);
             this.Controls.Add(this.tabControl1);
             this.Name = "Form1";
-            this.Text = "侠之道存档修改器1.6.2";
+            this.Text = "侠之道存档修改器1.6.9";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.SizeChanged += new System.EventHandler(this.Form1_SizeChanged);
             this.tabControl1.ResumeLayout(false);
