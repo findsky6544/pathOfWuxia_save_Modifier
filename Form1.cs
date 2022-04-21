@@ -32,6 +32,12 @@ namespace 侠之道存档修改器
         private DataManager Data;
         private bool saveFileIsSelected = false;
         private bool isSaveFileSelecting = false;
+        private string saveFilePath = string.Empty;
+        private bool isEdit = false;
+        private int currentSaveFilePathIndex = -1;
+        private int currentSaveFileTabIndex = 0;
+        private int currentSaveFileIndex = -1;
+
 
         private Dictionary<string, ComboBoxItem> dcbi = new Dictionary<string, ComboBoxItem>();
 
@@ -108,11 +114,15 @@ namespace 侠之道存档修改器
                     // 从文件读取并显示行，直到文件的末尾 
                     while ((line = sr.ReadLine()) != null)
                     {
-                        SaveFilesPathTextBox.Text = line;
+                        SaveFilePathListBox.Items.Add(line);
                     }
 
-                    getSaveFiles();
                     sr.Close();
+
+                    if (SaveFilePathListBox.Items.Count != 0)
+                    {
+                        SaveFilePathListBox.SelectedIndex = 0;
+                    }
                 }
             }
             catch (Exception ex)
@@ -167,12 +177,19 @@ namespace 侠之道存档修改器
                 dialog.Description = "请选择存档文件夹，路径为Steam\\userdata\\xxxxxxxx\\1189630\\remote";
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
-                    SaveFilesPathTextBox.Text = dialog.SelectedPath;
+                    if (!SaveFilePathListBox.Items.Contains(dialog.SelectedPath))
+                    {
+                        SaveFilePathListBox.Items.Add(dialog.SelectedPath);
+                    }
                     StreamWriter sw = new StreamWriter(saveFilesPath);
-                    sw.WriteLine(dialog.SelectedPath);
+                    for (int i = 0; i < SaveFilePathListBox.Items.Count; i++)
+                    {
+                        sw.WriteLine(SaveFilePathListBox.Items[i].ToString());
+                    }
                     sw.Close();
 
-                    getSaveFiles();
+                    SaveFilePathListBox.SelectedIndex = SaveFilePathListBox.Items.Count-1;
+                    //getSaveFiles(dialog.SelectedPath);
                 }
             }
             catch (Exception ex)
@@ -182,14 +199,54 @@ namespace 侠之道存档修改器
             }
         }
 
-        private void getSaveFiles()
+        private void SaveFilePathListBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (SaveFilePathListBox.SelectedIndex != currentSaveFilePathIndex)
+            {
+                if (!isEdit)
+                {
+                    saveFilePath = SaveFilePathListBox.SelectedItem.ToString();
+                    currentSaveFilePathIndex = SaveFilePathListBox.SelectedIndex;
+
+                    LocalSaveFileListBox.Items.Clear();
+                    CloudSaveFileListBox.Items.Clear();
+                    AutoSaveFileListBox.Items.Clear();
+                    BattleSaveFileListBox.Items.Clear();
+
+                    initDatas();
+                    getSaveFiles(saveFilePath);
+                    currentSaveFileIndex = -1;
+                }
+                else if (MessageBox.Show("切换后将不会保存当前修改，确认切换吗？", "", MessageBoxButtons.OKCancel) == DialogResult.OK)
+                {
+                    saveFilePath = SaveFilePathListBox.SelectedItem.ToString();
+                    currentSaveFilePathIndex = SaveFilePathListBox.SelectedIndex;
+
+                    LocalSaveFileListBox.Items.Clear();
+                    CloudSaveFileListBox.Items.Clear();
+                    AutoSaveFileListBox.Items.Clear();
+                    BattleSaveFileListBox.Items.Clear();
+
+                    initDatas();
+                    getSaveFiles(saveFilePath);
+                    isEdit = false;
+                    currentSaveFileIndex = -1;
+                }
+                else
+                {
+                    SaveFilePathListBox.SelectedIndex = currentSaveFilePathIndex;
+                }
+            }
+        }
+
+        private void getSaveFiles(string saveFilePath)
         {
             LogHelper.Debug("getSaveFiles");
             try
             {
                 messageLabel.Text = "";
-                DirectoryInfo folder = new DirectoryInfo(SaveFilesPathTextBox.Text);
-                SaveFileListBox.Items.Clear();
+                DirectoryInfo folder = new DirectoryInfo(saveFilePath);
+                LocalSaveFileListBox.Items.Clear();
                 List<FileInfo> fileList = folder.GetFiles().ToList();
                 fileList.RemoveAll(f => f.Name != Regex.Match(f.Name, "PathOfWuxia_.*save").Value);
                 fileList = fileList.OrderBy(f => int.Parse(Regex.Match(f.Name, @"\d+").Value)).ToList();
@@ -198,9 +255,53 @@ namespace 侠之道存档修改器
                     FileInfo file = fileList[i];
                     if (file.Name.Contains("PathOfWuxia") && file.Name.Contains("save"))
                     {
-                        SaveFileListBox.Items.Add(file.Name);
+                        if (file.Name.Contains("Local"))
+                        {
+                            LocalSaveFileListBox.Items.Add(file.Name);
+                        }
+                        else if (file.Name.Contains("Battle"))
+                        {
+                            BattleSaveFileListBox.Items.Add(file.Name);
+                        }
+                        else if (file.Name.Contains("autosave"))
+                        {
+                            AutoSaveFileListBox.Items.Add(file.Name);
+                        }
+                        else
+                        {
+                            CloudSaveFileListBox.Items.Add(file.Name);
+                        }
                     }
                 }
+                if(LocalSaveFileListBox.Items.Count == 0)
+                {
+                    saveFileTabControl.SelectedIndex = 1;
+                    currentSaveFileTabIndex = 1;
+
+                    if (CloudSaveFileListBox.Items.Count == 0)
+                    {
+                        saveFileTabControl.SelectedIndex = 2;
+                        currentSaveFileTabIndex = 2;
+
+                        if (AutoSaveFileListBox.Items.Count == 0)
+                        {
+                            saveFileTabControl.SelectedIndex = 3;
+                            currentSaveFileTabIndex = 3;
+
+                            if (BattleSaveFileListBox.Items.Count == 0)
+                            {
+                                saveFileTabControl.SelectedIndex = 0;
+                                currentSaveFileTabIndex = 0;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    saveFileTabControl.SelectedIndex = 0;
+                    currentSaveFileTabIndex = 0;
+                }
+                messageLabel.Text = "读取存档列表完成";
             }
             catch (Exception ex)
             {
@@ -210,65 +311,148 @@ namespace 侠之道存档修改器
 
         }
 
+        private void refreshSaveListButton_Click(object sender, EventArgs e)
+        {
+            LogHelper.Debug("refreshSaveListButton_Click");
+            try
+            {
+                messageLabel.Text = "";
+
+                /*StreamWriter sw = new StreamWriter(saveFilesPath);
+                sw.WriteLine(SaveFilesPathTextBox.Text);
+                sw.Close();*/
+
+                if (!string.IsNullOrEmpty(saveFilePath))
+                {
+                    getSaveFiles(saveFilePath);
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
+            }
+        }
+
+        private void SaveFileTabControl_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (saveFileTabControl.SelectedIndex != currentSaveFileTabIndex)
+            {
+                if (!isEdit)
+                {
+                    currentSaveFileTabIndex = saveFileTabControl.SelectedIndex;
+                    currentSaveFileIndex = -1;
+                }
+                else if (MessageBox.Show("切换后将不会保存当前修改，确认切换吗？", "", MessageBoxButtons.OKCancel) == DialogResult.OK)
+                {
+                    initDatas();
+                    currentSaveFileTabIndex = saveFileTabControl.SelectedIndex;
+                    currentSaveFileIndex = -1;
+                    isEdit = false;
+                }
+                else
+                {
+                    saveFileTabControl.SelectedIndex = currentSaveFileTabIndex;
+                }
+            }
+        }
+
         private void saveFileListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             LogHelper.Debug("saveFileListBox_SelectedIndexChanged");
             try
             {
+                if (((ListBox)sender).SelectedIndex != currentSaveFileIndex)
+                {
+                    messageLabel.Text = "正在读取存档";
+                    if (!isEdit)
+                    {
+                        initDatas();
+                        readSaveFile((ListBox)sender);
+                        currentSaveFileIndex = ((ListBox)sender).SelectedIndex;
+                    }
+                    else if (MessageBox.Show("切换后将不会保存当前修改，确认切换吗？", "", MessageBoxButtons.OKCancel) == DialogResult.OK)
+                    {
+                        initDatas();
+                        readSaveFile((ListBox)sender);
+                        currentSaveFileIndex = ((ListBox)sender).SelectedIndex;
+                        isEdit = false;
+                    }
+                    else
+                    {
+                        ((ListBox)sender).SelectedIndex = currentSaveFileIndex;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                messageLabel.Text = ex.Message;
+                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
+            }
+        }
+
+        private void readSaveFile(ListBox saveFileListBox)
+        {
+            try
+            {
+                initDatas();
                 isSaveFileSelecting = true;
-                string saveFilePath = SaveFilesPathTextBox.Text + "\\" + SaveFileListBox.SelectedItem.ToString();
-
-                FileStream readstream = File.OpenRead(saveFilePath);
-                StreamReader sr = new StreamReader(readstream);
-
-                byte[] array = new byte[17];
-                sr.BaseStream.Read(array, 0, array.Length);
-                if (array[0] == 239 && array[1] == 187 && array[2] == 191)
+                if (!string.IsNullOrEmpty(saveFilePath))
                 {
-                    sr.BaseStream.Position = 3L;
+                    string saveFilePathTmp = saveFilePath + "\\" + saveFileListBox.SelectedItem.ToString();
+
+                    FileStream readstream = File.OpenRead(saveFilePathTmp);
+                    StreamReader sr = new StreamReader(readstream);
+
+                    byte[] array = new byte[17];
                     sr.BaseStream.Read(array, 0, array.Length);
-                }
+                    if (array[0] == 239 && array[1] == 187 && array[2] == 191)
+                    {
+                        sr.BaseStream.Position = 3L;
+                        sr.BaseStream.Read(array, 0, array.Length);
+                    }
 
-                string @string = Encoding.ASCII.GetString(array);
-                if (@string == "WUXIASCHOOL_B_1_0")
-                {
-                    pathOfWuxiaSaveHeader = LZ4MessagePackSerializer.Deserialize<PathOfWuxiaSaveHeader>(sr.BaseStream, HeluoResolver.Instance, true);
-                }
-                sr.Close();
-                readstream.Close();
+                    string @string = Encoding.ASCII.GetString(array);
+                    if (@string == "WUXIASCHOOL_B_1_0")
+                    {
+                        pathOfWuxiaSaveHeader = LZ4MessagePackSerializer.Deserialize<PathOfWuxiaSaveHeader>(sr.BaseStream, HeluoResolver.Instance, true);
+                    }
+                    sr.Close();
+                    readstream.Close();
 
 
-                readstream = File.OpenRead(saveFilePath);
-                sr = new StreamReader(readstream);
+                    readstream = File.OpenRead(saveFilePathTmp);
+                    sr = new StreamReader(readstream);
 
-                array = new byte[17];
-                sr.BaseStream.Read(array, 0, array.Length);
-                if (array[0] == 239 && array[1] == 187 && array[2] == 191)
-                {
-                    sr.BaseStream.Position = 3L;
+                    array = new byte[17];
                     sr.BaseStream.Read(array, 0, array.Length);
+                    if (array[0] == 239 && array[1] == 187 && array[2] == 191)
+                    {
+                        sr.BaseStream.Position = 3L;
+                        sr.BaseStream.Read(array, 0, array.Length);
+                    }
+
+                    @string = Encoding.ASCII.GetString(array);
+                    if (@string == "WUXIASCHOOL_B_1_0")
+                    {
+
+                        LZ4MessagePackSerializer.Deserialize<PathOfWuxiaSaveHeader>(sr.BaseStream, HeluoResolver.Instance, true);
+                        Game.GameData = LZ4MessagePackSerializer.Deserialize<GameData>(sr.BaseStream, HeluoResolver.Instance, true);
+
+
+                        readDatas();
+                        saveFileIsSelected = true;
+
+                    }
+                    sr.Close();
+                    readstream.Close();
+
+                    isSaveFileSelecting = false;
+
+                    CharacterListView.Enabled = true;
+
+                    messageLabel.Text = "读取存档完成";
                 }
-
-                @string = Encoding.ASCII.GetString(array);
-                if (@string == "WUXIASCHOOL_B_1_0")
-                {
-
-                    LZ4MessagePackSerializer.Deserialize<PathOfWuxiaSaveHeader>(sr.BaseStream, HeluoResolver.Instance, true);
-                    gameData = LZ4MessagePackSerializer.Deserialize<GameData>(sr.BaseStream, HeluoResolver.Instance, true);
-
-                    Game.GameData = gameData;
-
-
-                    saveFileIsSelected = true;
-                    readDatas();
-
-                }
-                sr.Close();
-                readstream.Close();
-
-                isSaveFileSelecting = false;
-
-                CharacterListView.Enabled = true;
             }
             catch (Exception ex)
             {
@@ -807,7 +991,14 @@ namespace 侠之道存档修改器
             LogHelper.Debug("readDatas");
             try
             {
-                initDatas();
+
+                foreach (KeyValuePair<string, CharacterInfoData> kv in Game.GameData.Character)
+                {
+                    CharacterInfoData cid = kv.Value;
+                    AttachPropsEffect(Data.Get<Props>(cid.Equip[EquipType.Weapon]), cid);
+                    AttachPropsEffect(Data.Get<Props>(cid.Equip[EquipType.Cloth]), cid);
+                    AttachPropsEffect(Data.Get<Props>(cid.Equip[EquipType.Jewelry]), cid);
+                }
 
                 readCommonData();
                 readInventory();
@@ -837,6 +1028,38 @@ namespace 侠之道存档修改器
             LogHelper.Debug("initDatas");
             try
             {
+                Game.GameData = null;
+
+                if (currentSaveFileTabIndex != 0)
+                {
+                    LocalSaveFileListBox.SelectedIndex = -1;
+                }
+                if (currentSaveFileTabIndex != 1)
+                {
+                    CloudSaveFileListBox.SelectedIndex = -1;
+                }
+                if (currentSaveFileTabIndex != 2)
+                {
+                    AutoSaveFileListBox.SelectedIndex = -1;
+                }
+                if (currentSaveFileTabIndex != 3)
+                {
+                    BattleSaveFileListBox.SelectedIndex = -1;
+                }
+
+                GameVersionTextBox.Text = "";
+                CurrentMapComboBox.SelectedIndex = -1;
+                PlayerPostioionTextBox.Text = "";
+                PlayerForwardTextBox.Text = "";
+                CurrentYearComboBox.SelectedIndex = -1;
+                CurrentMonthComboBox.SelectedIndex = -1;
+                CurrentRoundOfMonthComboBox.SelectedIndex = -1;
+                CurrentTimeComboBox.SelectedIndex = -1;
+                CurrentRoundTextBox.Text = "";
+                EmotionTextBox.Text = "";
+                MoneyTextBox.Text = "";
+                GameLevelComboBox.SelectedIndex = -1;
+
                 InventoryListView.SelectedItems.Clear();
                 CharacterListView.SelectedItems.Clear();
                 ElementComboBox.SelectedIndex = -1;
@@ -947,14 +1170,6 @@ namespace 侠之道存档修改器
                 ForgeArmorListView.SelectedItems.Clear();
 
                 ShopListView.SelectedItems.Clear();
-
-                foreach (KeyValuePair<string, CharacterInfoData> kv in gameData.Character)
-                {
-                    CharacterInfoData cid = kv.Value;
-                    AttachPropsEffect(Data.Get<Props>(cid.Equip[EquipType.Weapon]), cid);
-                    AttachPropsEffect(Data.Get<Props>(cid.Equip[EquipType.Cloth]), cid);
-                    AttachPropsEffect(Data.Get<Props>(cid.Equip[EquipType.Jewelry]), cid);
-                }
             }
             catch (Exception ex)
             {
@@ -969,21 +1184,21 @@ namespace 侠之道存档修改器
             LogHelper.Debug("readCommonData");
             try
             {
-                GameVersionTextBox.Text = gameData.GameVersion;
+                GameVersionTextBox.Text = Game.GameData.GameVersion;
                 string text = pathOfWuxiaSaveHeader.SaveTime.ToString();
                 text = text.Replace("/星期一", "").Replace("/星期二", "").Replace("/星期三", "").Replace("/星期四", "").Replace("/星期五", "").Replace("/星期六", "").Replace("/星期日", "").Replace("/周一", "").Replace("/周二", "").Replace("/周三", "").Replace("/周四", "").Replace("/周五", "").Replace("/周六", "").Replace("/周日", "");
                 SaveTimeDateTimePicker.Text = text;
-                CurrentMapComboBox.SelectedIndex = CurrentMapComboBox.Items.IndexOf(dcbi[gameData.MapId]);
-                PlayerPostioionTextBox.Text = gameData.PlayerPostioion.ToString();
-                PlayerForwardTextBox.Text = gameData.PlayerForward.ToString();
-                CurrentYearComboBox.SelectedIndex = gameData.Round.CurrentYear - 1;
-                CurrentMonthComboBox.SelectedIndex = gameData.Round.CurrentMonth - 1;
-                CurrentRoundOfMonthComboBox.SelectedIndex = gameData.Round.CurrentRoundOfMonth - 1;
-                CurrentTimeComboBox.SelectedIndex = gameData.Round.CurrentTime - 1;
-                CurrentRoundTextBox.Text = gameData.Round.CurrentRound.ToString();
-                EmotionTextBox.Text = gameData.emotion.ToString();
-                MoneyTextBox.Text = gameData.Money.ToString();
-                GameLevelComboBox.SelectedIndex = (int)gameData.GameLevel - 1;
+                CurrentMapComboBox.SelectedIndex = CurrentMapComboBox.Items.IndexOf(dcbi[Game.GameData.MapId]);
+                PlayerPostioionTextBox.Text = Game.GameData.PlayerPostioion.ToString();
+                PlayerForwardTextBox.Text = Game.GameData.PlayerForward.ToString();
+                CurrentYearComboBox.SelectedIndex = Game.GameData.Round.CurrentYear - 1;
+                CurrentMonthComboBox.SelectedIndex = Game.GameData.Round.CurrentMonth - 1;
+                CurrentRoundOfMonthComboBox.SelectedIndex = Game.GameData.Round.CurrentRoundOfMonth - 1;
+                CurrentTimeComboBox.SelectedIndex = Game.GameData.Round.CurrentTime - 1;
+                CurrentRoundTextBox.Text = Game.GameData.Round.CurrentRound.ToString();
+                EmotionTextBox.Text = Game.GameData.emotion.ToString();
+                MoneyTextBox.Text = Game.GameData.Money.ToString();
+                GameLevelComboBox.SelectedIndex = (int)Game.GameData.GameLevel - 1;
             }
             catch (Exception ex)
             {
@@ -1000,7 +1215,7 @@ namespace 侠之道存档修改器
                 InventoryListView.Items.Clear();
                 InventoryListView.BeginUpdate();
 
-                foreach (KeyValuePair<string, InventoryData> kv in gameData.Inventory)
+                foreach (KeyValuePair<string, InventoryData> kv in Game.GameData.Inventory)
                 {
 
 
@@ -1034,7 +1249,7 @@ namespace 侠之道存档修改器
             {
                 CommunityListView.Items.Clear();
 
-                foreach (KeyValuePair<string, CommunityData> kv in gameData.Community)
+                foreach (KeyValuePair<string, CommunityData> kv in Game.GameData.Community)
                 {
                     if (kv.Key == "Player")
                     {
@@ -1045,7 +1260,7 @@ namespace 侠之道存档修改器
 
                     lvi.Text = kv.Key;
 
-                    lvi.SubItems.Add(gameData.Exterior[kv.Key].FullName());
+                    lvi.SubItems.Add(Game.GameData.Exterior[kv.Key].FullName());
 
                     CommunityListView.Items.Add(lvi);
                 }
@@ -1066,14 +1281,14 @@ namespace 侠之道存档修改器
             {
                 PartyListView.Items.Clear();
 
-                foreach (string id in gameData.Party)
+                foreach (string id in Game.GameData.Party)
                 {
 
                     ListViewItem lvi = new ListViewItem();
 
                     lvi.Text = id;
 
-                    lvi.SubItems.Add(gameData.Exterior[id].FullName());
+                    lvi.SubItems.Add(Game.GameData.Exterior[id].FullName());
 
                     PartyListView.Items.Add(lvi);
                 }
@@ -1094,7 +1309,7 @@ namespace 侠之道存档修改器
             {
                 FlagListView.Items.Clear();
 
-                foreach (KeyValuePair<string, int> kv in gameData.Flag)
+                foreach (KeyValuePair<string, int> kv in Game.GameData.Flag)
                 {
                     ListViewItem lvi = new ListViewItem();
 
@@ -1341,7 +1556,7 @@ namespace 侠之道存档修改器
                     {
                         kv.Value.Item = Data.Get<Book>(kv.Value.Id);
                     }
-                    if(kv.Value.Item != null)
+                    if (kv.Value.Item != null)
                     {
                         lvi.SubItems.Add(kv.Value.Item.Name);
                         lvi.SubItems.Add(kv.Value.IsReadFinish ? "是" : "否");
@@ -1589,10 +1804,12 @@ namespace 侠之道存档修改器
                         si.Text = num.ToString();
                     }
 
-                    gameData.Inventory.Add(lvi.Text);
+                    Game.GameData.Inventory.Add(lvi.Text);
                     InventoryListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。 
                     InventoryListView.Items[havinglvi.Index].Selected = true;
                     InventoryListView.EnsureVisible(havinglvi.Index);
+
+                    isEdit = true;
                 }
             }
             catch (Exception ex)
@@ -1641,10 +1858,12 @@ namespace 侠之道存档修改器
                         si.Text = num.ToString();
                     }
 
-                    gameData.Inventory.Add(lvi.Text, 10);
+                    Game.GameData.Inventory.Add(lvi.Text, 10);
                     InventoryListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。 
                     InventoryListView.Items[havinglvi.Index].Selected = true;
                     InventoryListView.EnsureVisible(havinglvi.Index);
+
+                    isEdit = true;
                 }
             }
             catch (Exception ex)
@@ -1677,8 +1896,10 @@ namespace 侠之道存档修改器
                     }
 
                     si.Text = num.ToString();
-                    gameData.Inventory.Remove(lvi.Text);
+                    Game.GameData.Inventory.Remove(lvi.Text);
                     InventoryListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。
+
+                    isEdit = true;
                 }
             }
             catch (Exception ex)
@@ -1711,8 +1932,10 @@ namespace 侠之道存档修改器
                     }
 
                     si.Text = num.ToString();
-                    gameData.Inventory.Remove(lvi.Text, 10);
+                    Game.GameData.Inventory.Remove(lvi.Text, 10);
                     InventoryListView.EndUpdate();  //结束数据处理，UI界面一次性绘制。 
+
+                    isEdit = true;
                 }
             }
             catch (Exception ex)
@@ -1728,7 +1951,7 @@ namespace 侠之道存档修改器
             try
             {
                 cid.CreateFormula();
-                if (gameData.Community != null && gameData.Community.ContainsKey(cid.Id))
+                if (Game.GameData.Community != null && Game.GameData.Community.ContainsKey(cid.Id))
                 {
                     if (cid.status_coefficient_of_community == null)
                     {
@@ -1827,7 +2050,7 @@ namespace 侠之道存档修改器
                         id = "Player";
                     }
                     CharacterInfoData cid = new CharacterInfoData();
-                    if (!gameData.Character.ContainsKey(id))
+                    if (!Game.GameData.Character.ContainsKey(id))
                     {
                         CharacterInfo characterInfo = Data.Get<CharacterInfo>(id);
                         if (characterInfo != null)
@@ -1836,19 +2059,19 @@ namespace 侠之道存档修改器
 
                             createFormula(cid);
 
-                            cid.OnRoundChange(gameData.Round.CurrentRound, false);
-                            gameData.Character.Add(id, cid);
+                            cid.OnRoundChange(Game.GameData.Round.CurrentRound, false);
+                            Game.GameData.Character.Add(id, cid);
                         }
                     }
                     else
                     {
-                        cid = gameData.Character[id];
+                        cid = Game.GameData.Character[id];
                     }
                     createFormula(cid);
                     readSelectCharacterData(cid);
                     readAllSkill();
 
-                    if (gameData.Community.ContainsKey(lvi.Text))
+                    if (Game.GameData.Community.ContainsKey(lvi.Text))
                     {
                         GrowthFactorTextBox.Enabled = false;
                     }
@@ -1907,9 +2130,9 @@ namespace 侠之道存档修改器
                     SpecialSkillComboBox.SelectedIndex = -1;
                 }
 
-                if (cid.Id != "Player" && gameData.Community.ContainsKey(cid.Id))
+                if (cid.Id != "Player" && Game.GameData.Community.ContainsKey(cid.Id))
                 {
-                    int level = gameData.Community[cid.Id].Favorability.Level;
+                    int level = Game.GameData.Community[cid.Id].Favorability.Level;
                     if (cid.CommunityFormulaProperty == null)
                     {
                         cid.CommunityFormulaProperty = new Dictionary<string, int>
@@ -2033,11 +2256,11 @@ namespace 侠之道存档修改器
                 }
                 else if (cid.Property[CharacterProperty.Affiliation].Value >= 11)
                 {
-                    AffiliationStrTextBox.Text = "中立结局，无法和段去苗疆";
+                    AffiliationStrTextBox.Text = "可选中立结局，无法和段去苗疆";
                 }
                 else if (cid.Property[CharacterProperty.Affiliation].Value >= -30)
                 {
-                    AffiliationStrTextBox.Text = "中立结局";
+                    AffiliationStrTextBox.Text = "可选中立结局";
                 }
                 else
                 {
@@ -2244,72 +2467,90 @@ namespace 侠之道存档修改器
                 LogHelper.Debug("请先选择一个存档");
                 return;
             }
-            string saveFilePath = SaveFilesPathTextBox.Text + "\\" + SaveFileListBox.SelectedItem.ToString();
 
-            fixBug();
-
-            int index = 1;
-            string bakSaveFilePath = saveFilePath;
-            if (File.Exists(bakSaveFilePath))
+            if (!string.IsNullOrEmpty(saveFilePath))
             {
-                while (File.Exists(bakSaveFilePath = saveFilePath + ".bak"+index))
+                ListBox currentListBox = LocalSaveFileListBox;
+                switch (currentSaveFileTabIndex)
                 {
-                    index++;
+                    case 0:
+                        currentListBox = LocalSaveFileListBox; break;
+                    case 1:
+                        currentListBox = CloudSaveFileListBox; break;
+                    case 2:
+                        currentListBox = AutoSaveFileListBox; break;
+                    case 3:
+                        currentListBox = BattleSaveFileListBox; break;
                 }
-                File.Move(saveFilePath, bakSaveFilePath);
-            }
+                string saveFilePathTmp = saveFilePath + "\\" + currentListBox.SelectedItem.ToString();
 
-            FileStream writestream = new FileStream(saveFilePath, FileMode.OpenOrCreate);
-            StreamWriter sw = new StreamWriter(writestream);
-            try
-            {
-                /*PathOfWuxiaSaveHeader newPathOfWuxiaSaveHeader = new PathOfWuxiaSaveHeader
-                {
-                    Name = gameData.Exterior[GameConfig.Player].FullName(),
-                    QuestName = gameData.Quest.GetQuestName(),
-                    Year = gameData.Round.CurrentYear,
-                    Month = gameData.Round.CurrentMonth,
-                    RoundOfMonth = gameData.Round.CurrentRoundOfMonth,
-                    CurrentTime = gameData.Round.CurrentTime,
-                    CurrentLevel = gameData.GameLevel,
-                    SaveTime = pathOfWuxiaSaveHeader.SaveTime,
-                    TotalTime = gameData.TotalTime,
-                    ScreenShotSize = pathOfWuxiaSaveHeader.ScreenShotSize,
-                    ScreenShotData = pathOfWuxiaSaveHeader.ScreenShotData,
-                    HasData = true,
-                    GameVersion = gameData.GameVersion
-                };*/
+                //fixBug();
 
-                if (GameConfig.GameDataHeader == "WUXIASCHOOL_B_1_0")
+                int index = 1;
+                string bakSaveFilePath = saveFilePathTmp;
+                if (File.Exists(bakSaveFilePath))
                 {
-                    byte[] bytes = Encoding.ASCII.GetBytes("WUXIASCHOOL_B_1_0");
-                    using (MemoryStream memoryStream = new MemoryStream())
+                    while (File.Exists(bakSaveFilePath = saveFilePathTmp + ".bak" + index))
                     {
-                        memoryStream.Write(bytes, 0, bytes.Length);
-                        LZ4MessagePackSerializer.Serialize<PathOfWuxiaSaveHeader>(memoryStream, pathOfWuxiaSaveHeader, HeluoResolver.Instance);
-                        LZ4MessagePackSerializer.Serialize<GameData>(memoryStream, gameData, HeluoResolver.Instance);
-
-                        byte[] bytes2 = memoryStream.ToArray();
-                        sw.BaseStream.Write(bytes2, 0, bytes2.Length);
-                        byte[] bytes3 = new byte[] {0x82,0xab,0x75,0x6e,0x69,0x71,0x75,0x65,0x50,0x72,0x6f,0x70,0x73,0x80,0xac,0x75,0x6e,0x69,0x71,0x75,0x65,0x52,0x65,0x77,0x61,0x72,0x64,0x80 };
-                        sw.BaseStream.Write(bytes3, 0, bytes3.Length);
-                        //SteamRemoteStorage.FileWrite(saveFilePath, memoryStream.ToArray(), memoryStream.ToArray().Length);
+                        index++;
                     }
+                    File.Move(saveFilePathTmp, bakSaveFilePath);
                 }
-                messageLabel.Text = "保存成功，原存档已备份。若在游戏中看到存档消失或读取黑屏请重启游戏，若还是无法读取则请换一个存档修改";
-                LogHelper.Debug("保存成功");
-                sw.Close();
-                writestream.Close();
-            }
-            catch (Exception ex)
-            {
-                messageLabel.Text = "保存失败。" + ex.Message;
-                LogHelper.Debug("保存失败。" + ex.Message);
-            }
-            finally
-            {
-                sw.Close();
-                writestream.Close();
+
+                FileStream writestream = new FileStream(saveFilePathTmp, FileMode.OpenOrCreate);
+                StreamWriter sw = new StreamWriter(writestream);
+                try
+                {
+                    /*PathOfWuxiaSaveHeader newPathOfWuxiaSaveHeader = new PathOfWuxiaSaveHeader
+                    {
+                        Name = Game.GameData.Exterior[GameConfig.Player].FullName(),
+                        QuestName = Game.GameData.Quest.GetQuestName(),
+                        Year = Game.GameData.Round.CurrentYear,
+                        Month = Game.GameData.Round.CurrentMonth,
+                        RoundOfMonth = Game.GameData.Round.CurrentRoundOfMonth,
+                        CurrentTime = Game.GameData.Round.CurrentTime,
+                        CurrentLevel = Game.GameData.GameLevel,
+                        SaveTime = pathOfWuxiaSaveHeader.SaveTime,
+                        TotalTime = Game.GameData.TotalTime,
+                        ScreenShotSize = pathOfWuxiaSaveHeader.ScreenShotSize,
+                        ScreenShotData = pathOfWuxiaSaveHeader.ScreenShotData,
+                        HasData = true,
+                        GameVersion = Game.GameData.GameVersion
+                    };*/
+
+                    if (GameConfig.GameDataHeader == "WUXIASCHOOL_B_1_0")
+                    {
+                        byte[] bytes = Encoding.ASCII.GetBytes("WUXIASCHOOL_B_1_0");
+                        using (MemoryStream memoryStream = new MemoryStream())
+                        {
+                            memoryStream.Write(bytes, 0, bytes.Length);
+                            LZ4MessagePackSerializer.Serialize<PathOfWuxiaSaveHeader>(memoryStream, pathOfWuxiaSaveHeader, HeluoResolver.Instance);
+                            LZ4MessagePackSerializer.Serialize<GameData>(memoryStream, Game.GameData, HeluoResolver.Instance);
+
+                            byte[] bytes2 = memoryStream.ToArray();
+                            sw.BaseStream.Write(bytes2, 0, bytes2.Length);
+                            byte[] bytes3 = new byte[] { 0x82, 0xab, 0x75, 0x6e, 0x69, 0x71, 0x75, 0x65, 0x50, 0x72, 0x6f, 0x70, 0x73, 0x80, 0xac, 0x75, 0x6e, 0x69, 0x71, 0x75, 0x65, 0x52, 0x65, 0x77, 0x61, 0x72, 0x64, 0x80 };
+                            sw.BaseStream.Write(bytes3, 0, bytes3.Length);
+                            //SteamRemoteStorage.FileWrite(saveFilePath, memoryStream.ToArray(), memoryStream.ToArray().Length);
+                        }
+                    }
+                    messageLabel.Text = "保存成功，原存档已备份。若在游戏中看到存档消失或读取黑屏请重启游戏，若还是无法读取则请换一个存档修改";
+                    LogHelper.Debug("保存成功");
+                    sw.Close();
+                    writestream.Close();
+
+                    isEdit = false;
+                }
+                catch (Exception ex)
+                {
+                    messageLabel.Text = "保存失败。" + ex.Message;
+                    LogHelper.Debug("保存失败。" + ex.Message);
+                }
+                finally
+                {
+                    sw.Close();
+                    writestream.Close();
+                }
             }
 
         }
@@ -2321,6 +2562,11 @@ namespace 侠之道存档修改器
             {
                 messageLabel.Text = "";
                 pathOfWuxiaSaveHeader.SaveTime = DateTime.Parse(SaveTimeDateTimePicker.Text);
+
+                if (!isSaveFileSelecting)
+                {
+                    isEdit = true;
+                }
             }
             catch (Exception ex)
             {
@@ -2335,13 +2581,18 @@ namespace 侠之道存档修改器
             try
             {
                 messageLabel.Text = "";
-                if (!isSaveFileSelecting)
+                if (!isSaveFileSelecting && CurrentMapComboBox.SelectedIndex != -1)
                 {
                     Map map = Data.Get<Map>(((ComboBoxItem)CurrentMapComboBox.SelectedItem).key);
 
-                    gameData.SetMap(map.Id);
-                    gameData.PlayerPostioion = map.DefaultPosition;
+                    Game.GameData.SetMap(map.Id);
+                    Game.GameData.PlayerPostioion = map.DefaultPosition;
                     PlayerPostioionTextBox.Text = map.DefaultPosition.ToString();
+
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -2372,8 +2623,16 @@ namespace 侠之道存档修改器
             messageLabel.Text = "";
             try
             {
-                gameData.PlayerPostioion = stringToVector3(PlayerPostioionTextBox.Text);
-                PlayerPostioionTextBox.Text = gameData.PlayerPostioion.ToString();
+                Game.GameData.PlayerPostioion = stringToVector3(PlayerPostioionTextBox.Text);
+                PlayerPostioionTextBox.Text = Game.GameData.PlayerPostioion.ToString();
+
+                if (PlayerPostioionTextBox.Text != PlayerPostioionTextBox.Tag.ToString())
+                {
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -2403,8 +2662,16 @@ namespace 侠之道存档修改器
             try
             {
                 messageLabel.Text = "";
-                gameData.PlayerForward = stringToVector3(PlayerForwardTextBox.Text);
-                PlayerForwardTextBox.Text = gameData.PlayerForward.ToString();
+                Game.GameData.PlayerForward = stringToVector3(PlayerForwardTextBox.Text);
+                PlayerForwardTextBox.Text = Game.GameData.PlayerForward.ToString();
+
+                if (PlayerForwardTextBox.Text != PlayerForwardTextBox.Tag.ToString())
+                {
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -2444,8 +2711,16 @@ namespace 侠之道存档修改器
             try
             {
                 int emotion = Mathf.Clamp(int.Parse(EmotionTextBox.Text), 0, 100);
-                gameData.Emotion = emotion;
-                EmotionTextBox.Text = gameData.Emotion.ToString();
+                Game.GameData.Emotion = emotion;
+                EmotionTextBox.Text = Game.GameData.Emotion.ToString();
+
+                if (EmotionTextBox.Text != EmotionTextBox.Tag.ToString())
+                {
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -2477,8 +2752,16 @@ namespace 侠之道存档修改器
             try
             {
                 int money = Mathf.Clamp(int.Parse(MoneyTextBox.Text), 0, int.MaxValue);
-                gameData.Money = money;
-                MoneyTextBox.Text = gameData.Money.ToString();
+                Game.GameData.Money = money;
+                MoneyTextBox.Text = Game.GameData.Money.ToString();
+
+                if (MoneyTextBox.Text != MoneyTextBox.Tag.ToString())
+                {
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -2495,27 +2778,15 @@ namespace 侠之道存档修改器
             messageLabel.Text = "";
             try
             {
-                gameData.GameLevel = (Heluo.Data.GameLevel)GameLevelComboBox.SelectedIndex + 1;
-            }
-            catch (Exception ex)
-            {
-                messageLabel.Text = ex.Message;
-                LogHelper.Debug(ex.Message + "\n" + ex.InnerException);
-            }
-        }
+                if(Game.GameData != null)
+                {
+                    Game.GameData.GameLevel = (Heluo.Data.GameLevel)GameLevelComboBox.SelectedIndex + 1;
 
-        private void refreshSaveListButton_Click(object sender, EventArgs e)
-        {
-            LogHelper.Debug("refreshSaveListButton_Click");
-            try
-            {
-                messageLabel.Text = "";
-
-                StreamWriter sw = new StreamWriter(saveFilesPath);
-                sw.WriteLine(SaveFilesPathTextBox.Text);
-                sw.Close();
-
-                getSaveFiles();
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -2531,8 +2802,13 @@ namespace 侠之道存档修改器
             {
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
                     cid.Element = (Element)ElementComboBox.SelectedIndex;
+
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -2551,9 +2827,14 @@ namespace 侠之道存档修改器
                 {
                     foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                     {
-                        CharacterInfoData cid = gameData.Character[lvi.Text];
+                        CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                         cid.SpecialSkill = ((ComboBoxItem)SpecialSkillComboBox.SelectedItem).key;
+
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
                     }
                 }
             }
@@ -2577,7 +2858,7 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     string oldWeaponComboBoxKey = cid.Equip[EquipType.Weapon];
 
@@ -2612,6 +2893,11 @@ namespace 侠之道存档修改器
                         readCharacterSkillData(cid);
                     }
                     readCharacterEquipSkillData(cid);
+
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -2687,7 +2973,7 @@ namespace 侠之道存档修改器
             {
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     string oldClothComboBoxKey = cid.Equip[EquipType.Cloth];
                     if (!string.IsNullOrEmpty(oldClothComboBoxKey))
@@ -2711,6 +2997,11 @@ namespace 侠之道存档修改器
                     //createFormula(cid);
                     cid.UpgradeProperty(false);
                     readCharacterProperty(cid);
+
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -2728,7 +3019,7 @@ namespace 侠之道存档修改器
             {
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     string oldJewelryComboBoxKey = cid.Equip[EquipType.Jewelry];
                     if (!string.IsNullOrEmpty(oldJewelryComboBoxKey))
@@ -2751,6 +3042,11 @@ namespace 侠之道存档修改器
                     //createFormula(cid);
                     cid.UpgradeProperty(false);
                     readCharacterProperty(cid);
+
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -2786,7 +3082,7 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     cid.GrowthFactor = float.Parse(GrowthFactorTextBox.Text);
 
@@ -2805,6 +3101,14 @@ namespace 侠之道存档修改器
                     DexExtraTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Dex].Extra.ToString();
                     SpiTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Spi].Value.ToString();
                     SpiExtraTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Spi].Extra.ToString();
+
+                    if (GrowthFactorTextBox.Text != GrowthFactorTextBox.Tag.ToString())
+                    {
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
+                    }
                 }
 
             }
@@ -2845,11 +3149,20 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     cid.HP = hp;
+
+                    HpTextBox.Text = hp.ToString();
+
+                    if (HpTextBox.Text != HpTextBox.Tag.ToString())
+                    {
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
+                    }
                 }
-                HpTextBox.Text = hp.ToString();
             }
             catch (Exception ex)
             {
@@ -2890,7 +3203,7 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     cid.Property[CharacterProperty.Max_HP].Base = maxHp - cid.Property[CharacterProperty.Max_HP].Equip_Attach - cid.Property[CharacterProperty.Max_HP].Four_Attribute_Attach;
 
@@ -2899,6 +3212,15 @@ namespace 侠之道存档修改器
 
                     MaxHpTextBox.Text = maxHp.ToString();
                     HpTextBox.Text = hp.ToString();
+
+
+                    if (MaxHpTextBox.Text != MaxHpTextBox.Tag.ToString())
+                    {
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -2936,7 +3258,7 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     int affiliation = int.Parse(AffiliationTextBox.Text);
 
@@ -2950,15 +3272,23 @@ namespace 侠之道存档修改器
                     }
                     else if (cid.Property[CharacterProperty.Affiliation].Value >= 11)
                     {
-                        AffiliationStrTextBox.Text = "中立结局，无法和段去苗疆";
+                        AffiliationStrTextBox.Text = "可选中立结局，无法和段去苗疆";
                     }
                     else if (cid.Property[CharacterProperty.Affiliation].Value >= -30)
                     {
-                        AffiliationStrTextBox.Text = "中立结局";
+                        AffiliationStrTextBox.Text = "可选中立结局";
                     }
                     else
                     {
                         AffiliationStrTextBox.Text = "段霄烈结局";
+                    }
+
+                    if (AffiliationTextBox.Text != AffiliationTextBox.Tag.ToString())
+                    {
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
                     }
                 }
             }
@@ -2999,11 +3329,20 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     cid.MP = mp;
+
+                    MpTextBox.Text = mp.ToString();
+
+                    if (MpTextBox.Text != MpTextBox.Tag.ToString())
+                    {
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
+                    }
                 }
-                MpTextBox.Text = mp.ToString();
             }
             catch (Exception ex)
             {
@@ -3034,7 +3373,7 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     cid.Property[CharacterProperty.Max_MP].Base = maxMp - cid.Property[CharacterProperty.Max_MP].Equip_Attach - cid.Property[CharacterProperty.Max_MP].Four_Attribute_Attach;
 
@@ -3043,6 +3382,14 @@ namespace 侠之道存档修改器
 
                     MaxMpTextBox.Text = maxMp.ToString();
                     MpTextBox.Text = mp.ToString();
+
+                    if (MaxMpTextBox.Text != MaxMpTextBox.Tag.ToString())
+                    {
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -3074,7 +3421,7 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     cid.UpgradeableProperty[CharacterUpgradableProperty.Str].Level = str;
 
@@ -3086,6 +3433,14 @@ namespace 侠之道存档修改器
                     //createFormula(cid);
                     cid.UpgradeProperty(false);
                     readCharacterProperty(cid);
+
+                    if (StrLevelTextBox.Text != StrLevelTextBox.Tag.ToString())
+                    {
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -3117,7 +3472,7 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     cid.UpgradeableProperty[CharacterUpgradableProperty.Vit].Level = vit;
 
@@ -3129,6 +3484,14 @@ namespace 侠之道存档修改器
                     //createFormula(cid);
                     cid.UpgradeProperty(false);
                     readCharacterProperty(cid);
+
+                    if (VitLevelTextBox.Text != VitLevelTextBox.Tag.ToString())
+                    {
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -3160,7 +3523,7 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     cid.UpgradeableProperty[CharacterUpgradableProperty.Dex].Level = dex;
 
@@ -3172,6 +3535,14 @@ namespace 侠之道存档修改器
                     //createFormula(cid);
                     cid.UpgradeProperty(false);
                     readCharacterProperty(cid);
+
+                    if (DexLevelTextBox.Text != DexLevelTextBox.Tag.ToString())
+                    {
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -3203,7 +3574,7 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     cid.UpgradeableProperty[CharacterUpgradableProperty.Spi].Level = spi;
 
@@ -3215,6 +3586,14 @@ namespace 侠之道存档修改器
                     //createFormula(cid);
                     cid.UpgradeProperty(false);
                     readCharacterProperty(cid);
+
+                    if (SpiLevelTextBox.Text != SpiLevelTextBox.Tag.ToString())
+                    {
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -3246,11 +3625,19 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     cid.Property[CharacterProperty.Attack].Base = attack - cid.Property[CharacterProperty.Attack].Equip_Attach - cid.Property[CharacterProperty.Attack].Four_Attribute_Attach;
 
                     AttackTextBox.Text = attack.ToString();
+
+                    if (AttackTextBox.Text != AttackTextBox.Tag.ToString())
+                    {
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -3282,11 +3669,19 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     cid.Property[CharacterProperty.Defense].Base = defense - cid.Property[CharacterProperty.Defense].Equip_Attach - cid.Property[CharacterProperty.Defense].Four_Attribute_Attach;
 
                     DefenseTextBox.Text = defense.ToString();
+
+                    if (DefenseTextBox.Text != DefenseTextBox.Tag.ToString())
+                    {
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -3318,11 +3713,19 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     cid.Property[CharacterProperty.Hit].Base = hit - cid.Property[CharacterProperty.Hit].Equip_Attach - cid.Property[CharacterProperty.Hit].Four_Attribute_Attach;
 
                     HitTextBox.Text = hit.ToString();
+
+                    if (HitTextBox.Text != HitTextBox.Tag.ToString())
+                    {
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -3354,11 +3757,19 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     cid.Property[CharacterProperty.Move].Base = move - cid.Property[CharacterProperty.Move].Equip_Attach - cid.Property[CharacterProperty.Move].Four_Attribute_Attach;
 
                     MoveTextBox.Text = move.ToString();
+
+                    if (MoveTextBox.Text != MoveTextBox.Tag.ToString())
+                    {
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -3390,11 +3801,19 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     cid.Property[CharacterProperty.Dodge].Base = dodge - cid.Property[CharacterProperty.Dodge].Equip_Attach - cid.Property[CharacterProperty.Dodge].Four_Attribute_Attach;
 
                     DodgeTextBox.Text = dodge.ToString();
+
+                    if (DodgeTextBox.Text != DodgeTextBox.Tag.ToString())
+                    {
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -3426,11 +3845,19 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     cid.Property[CharacterProperty.Parry].Base = parry - cid.Property[CharacterProperty.Parry].Equip_Attach - cid.Property[CharacterProperty.Parry].Four_Attribute_Attach;
 
                     ParryTextBox.Text = parry.ToString();
+
+                    if (ParryTextBox.Text != ParryTextBox.Tag.ToString())
+                    {
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -3462,11 +3889,19 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     cid.Property[CharacterProperty.Critical].Base = critical - cid.Property[CharacterProperty.Critical].Equip_Attach - cid.Property[CharacterProperty.Critical].Four_Attribute_Attach;
 
                     CriticalTextBox.Text = critical.ToString();
+
+                    if (CriticalTextBox.Text != CriticalTextBox.Tag.ToString())
+                    {
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -3498,11 +3933,19 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     cid.Property[CharacterProperty.Counter].Base = counter - cid.Property[CharacterProperty.Counter].Equip_Attach - cid.Property[CharacterProperty.Counter].Four_Attribute_Attach;
 
                     CounterTextBox.Text = counter.ToString();
+
+                    if (CounterTextBox.Text != CounterTextBox.Tag.ToString())
+                    {
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -3534,11 +3977,19 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     cid.UpgradeableProperty[CharacterUpgradableProperty.Vibrant].Level = vibrant;
 
                     VibrantTextBox.Text = vibrant.ToString();
+
+                    if (VibrantTextBox.Text != VibrantTextBox.Tag.ToString())
+                    {
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -3570,11 +4021,19 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     cid.UpgradeableProperty[CharacterUpgradableProperty.Cultivated].Level = Cultivated;
 
                     CultivatedTextBox.Text = Cultivated.ToString();
+
+                    if (CultivatedTextBox.Text != CultivatedTextBox.Tag.ToString())
+                    {
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -3606,11 +4065,19 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     cid.UpgradeableProperty[CharacterUpgradableProperty.Resolute].Level = Resolute;
 
                     ResoluteTextBox.Text = Resolute.ToString();
+
+                    if (ResoluteTextBox.Text != ResoluteTextBox.Tag.ToString())
+                    {
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -3642,11 +4109,19 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     cid.UpgradeableProperty[CharacterUpgradableProperty.Brave].Level = Brave;
 
                     BraveTextBox.Text = Brave.ToString();
+
+                    if (BraveTextBox.Text != BraveTextBox.Tag.ToString())
+                    {
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -3678,11 +4153,20 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     cid.UpgradeableProperty[CharacterUpgradableProperty.Zither].Level = Zither;
 
                     ZitherTextBox.Text = Zither.ToString();
+
+
+                    if (ZitherTextBox.Text != ZitherTextBox.Tag.ToString())
+                    {
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -3714,11 +4198,19 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     cid.UpgradeableProperty[CharacterUpgradableProperty.Chess].Level = Chess;
 
                     ChessTextBox.Text = Chess.ToString();
+
+                    if (ChessTextBox.Text != ChessTextBox.Tag.ToString())
+                    {
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -3750,11 +4242,19 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     cid.UpgradeableProperty[CharacterUpgradableProperty.Calligraphy].Level = Calligraphy;
 
                     CalligraphyTextBox.Text = Calligraphy.ToString();
+
+                    if (CalligraphyTextBox.Text != CalligraphyTextBox.Tag.ToString())
+                    {
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -3786,11 +4286,19 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     cid.UpgradeableProperty[CharacterUpgradableProperty.Painting].Level = Painting;
 
                     PaintingTextBox.Text = Painting.ToString();
+
+                    if (PaintingTextBox.Text != PaintingTextBox.Tag.ToString())
+                    {
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -3835,7 +4343,7 @@ namespace 侠之道存档修改器
             {
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     foreach (ListViewItem skillLvi in SkillListView.SelectedItems)
                     {
@@ -3848,6 +4356,11 @@ namespace 侠之道存档修改器
                                 Game.GameData.NurturanceOrder.OpenSkillOrder(skillLvi.Text);
                                 readNurturanceOrder();
                             }
+                        }
+
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
                         }
                     }
                     readCharacterSkillData(cid);
@@ -3869,7 +4382,7 @@ namespace 侠之道存档修改器
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
                     int index = -1;
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     foreach (ListViewItem skillLvi in HavingSkillListView.SelectedItems)
                     {
@@ -3881,6 +4394,11 @@ namespace 侠之道存档修改器
                         {
                             Game.GameData.NurturanceOrder.CloseSkillOrder(skillLvi.Text);
                             readNurturanceOrder();
+                        }
+
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
                         }
                     }
                     readCharacterSkillData(cid);
@@ -3910,7 +4428,7 @@ namespace 侠之道存档修改器
             {
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     foreach (ListViewItem skillLvi in HavingSkillListView.SelectedItems)
                     {
@@ -3918,6 +4436,11 @@ namespace 侠之道存档修改器
 
                         SkillCurrentLevelTextBox.Text = sd.Level.ToString();
                         SkillMaxLevelTextBox.Text = sd.MaxLevel.ToString();
+
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
                     }
                 }
             }
@@ -3935,7 +4458,7 @@ namespace 侠之道存档修改器
             {
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     Props weapon = cid.Equip.GetEquip(EquipType.Weapon);
                     if (weapon != null || MessageBox.Show("未选择武器的情况下，将默认设定为拳法的技能", "", MessageBoxButtons.OKCancel) == DialogResult.OK)
@@ -3944,6 +4467,11 @@ namespace 侠之道存档修改器
                         {
                             cid.SetEquipSkill(SkillColumn.Skill01, skillLvi.Text);
                             readCharacterEquipSkillData(cid);
+
+                            if (!isSaveFileSelecting)
+                            {
+                                isEdit = true;
+                            }
                         }
                     }
 
@@ -3963,7 +4491,7 @@ namespace 侠之道存档修改器
             {
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     Props weapon = cid.Equip.GetEquip(EquipType.Weapon);
                     if (weapon != null || MessageBox.Show("未选择武器的情况下，将默认设定为拳法的技能", "", MessageBoxButtons.OKCancel) == DialogResult.OK)
@@ -3972,6 +4500,11 @@ namespace 侠之道存档修改器
                         {
                             cid.SetEquipSkill(SkillColumn.Skill02, skillLvi.Text);
                             readCharacterEquipSkillData(cid);
+
+                            if (!isSaveFileSelecting)
+                            {
+                                isEdit = true;
+                            }
                         }
                     }
                 }
@@ -3990,7 +4523,7 @@ namespace 侠之道存档修改器
             {
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     Props weapon = cid.Equip.GetEquip(EquipType.Weapon);
                     if (weapon != null || MessageBox.Show("未选择武器的情况下，将默认设定为拳法的技能", "", MessageBoxButtons.OKCancel) == DialogResult.OK)
@@ -3999,6 +4532,11 @@ namespace 侠之道存档修改器
                         {
                             cid.SetEquipSkill(SkillColumn.Skill03, skillLvi.Text);
                             readCharacterEquipSkillData(cid);
+
+                            if (!isSaveFileSelecting)
+                            {
+                                isEdit = true;
+                            }
                         }
                     }
                 }
@@ -4017,7 +4555,7 @@ namespace 侠之道存档修改器
             {
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     Props weapon = cid.Equip.GetEquip(EquipType.Weapon);
                     if (weapon != null || MessageBox.Show("未选择武器的情况下，将默认设定为拳法的技能", "", MessageBoxButtons.OKCancel) == DialogResult.OK)
@@ -4026,6 +4564,11 @@ namespace 侠之道存档修改器
                         {
                             cid.SetEquipSkill(SkillColumn.Skill04, skillLvi.Text);
                             readCharacterEquipSkillData(cid);
+
+                            if (!isSaveFileSelecting)
+                            {
+                                isEdit = true;
+                            }
                         }
                     }
                 }
@@ -4053,7 +4596,7 @@ namespace 侠之道存档修改器
                 }
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     foreach (ListViewItem skillLvi in HavingSkillListView.SelectedItems)
                     {
@@ -4062,6 +4605,14 @@ namespace 侠之道存档修改器
                         cid.GetSkill(skillLvi.Text).Level = level;
 
                         SkillCurrentLevelTextBox.Text = cid.GetSkill(skillLvi.Text).Level.ToString();
+
+                        if (SkillCurrentLevelTextBox.Text != SkillCurrentLevelTextBox.Tag.ToString())
+                        {
+                            if (!isSaveFileSelecting)
+                            {
+                                isEdit = true;
+                            }
+                        }
                     }
                 }
             }
@@ -4091,7 +4642,7 @@ namespace 侠之道存档修改器
                 }
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     foreach (ListViewItem skillLvi in HavingSkillListView.SelectedItems)
                     {
@@ -4100,6 +4651,14 @@ namespace 侠之道存档修改器
                         cid.GetSkill(skillLvi.Text).MaxLevel = MaxLevel;
 
                         SkillMaxLevelTextBox.Text = cid.GetSkill(skillLvi.Text).MaxLevel.ToString();
+
+                        if (SkillMaxLevelTextBox.Text != SkillMaxLevelTextBox.Tag.ToString())
+                        {
+                            if (!isSaveFileSelecting)
+                            {
+                                isEdit = true;
+                            }
+                        }
                     }
                 }
             }
@@ -4119,11 +4678,16 @@ namespace 侠之道存档修改器
             {
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     foreach (ListViewItem traitLvi in TraitListView.SelectedItems)
                     {
                         cid.LearnTrait(traitLvi.Text);
+
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
                     }
                     readCharacterTraitData(cid);
                 }
@@ -4143,12 +4707,17 @@ namespace 侠之道存档修改器
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
                     int index = -1;
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     foreach (ListViewItem traitLvi in HavingTraitListView.SelectedItems)
                     {
                         index = traitLvi.Index;
                         cid.AbolishTrait(traitLvi.Text);
+
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
                     }
                     readCharacterTraitData(cid);
 
@@ -4278,7 +4847,7 @@ namespace 侠之道存档修改器
             {
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     foreach (ListViewItem mantraLvi in MantraListView.SelectedItems)
                     {
@@ -4288,6 +4857,11 @@ namespace 侠之道存档修改器
                         {
                             Game.GameData.NurturanceOrder.OpenMantraOrder(mantraLvi.Text);
                             readNurturanceOrder();
+                        }
+
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
                         }
                     }
                     readCharacterMantraData(cid);
@@ -4308,7 +4882,7 @@ namespace 侠之道存档修改器
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
                     int index = -1;
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     foreach (ListViewItem mantraLvi in HavingMantraListView.SelectedItems)
                     {
@@ -4323,6 +4897,11 @@ namespace 侠之道存档修改器
                                 Game.GameData.NurturanceOrder.CloseMantraOrder(mantraLvi.Text);
                                 readNurturanceOrder();
                             }
+                        }
+
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
                         }
                     }
                     readCharacterMantraData(cid);
@@ -4352,12 +4931,17 @@ namespace 侠之道存档修改器
             {
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     foreach (ListViewItem mantraLvi in HavingMantraListView.SelectedItems)
                     {
                         cid.WorkMantra = mantraLvi.Text;
                         readCharacterWorkMantraData(cid);
+
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
                     }
 
                 }
@@ -4376,7 +4960,7 @@ namespace 侠之道存档修改器
             {
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     foreach (ListViewItem mantraLvi in HavingMantraListView.SelectedItems)
                     {
@@ -4411,7 +4995,7 @@ namespace 侠之道存档修改器
                 }
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     foreach (ListViewItem mantraLvi in HavingMantraListView.SelectedItems)
                     {
@@ -4419,6 +5003,14 @@ namespace 侠之道存档修改器
                         cid.GetMantra(mantraLvi.Text).Level = level;
 
                         MantraCurrentLevelTextBox.Text = cid.GetMantra(mantraLvi.Text).Level.ToString();
+
+                        if (MantraCurrentLevelTextBox.Text != MantraCurrentLevelTextBox.Tag.ToString())
+                        {
+                            if (!isSaveFileSelecting)
+                            {
+                                isEdit = true;
+                            }
+                        }
                     }
                 }
             }
@@ -4448,7 +5040,7 @@ namespace 侠之道存档修改器
                 }
                 foreach (ListViewItem lvi in CharacterListView.SelectedItems)
                 {
-                    CharacterInfoData cid = gameData.Character[lvi.Text];
+                    CharacterInfoData cid = Game.GameData.Character[lvi.Text];
 
                     foreach (ListViewItem mantraLvi in HavingMantraListView.SelectedItems)
                     {
@@ -4456,6 +5048,14 @@ namespace 侠之道存档修改器
                         cid.GetMantra(mantraLvi.Text).MaxLevel = MaxLevel;
 
                         MantraMaxLevelTextBox.Text = cid.GetMantra(mantraLvi.Text).MaxLevel.ToString();
+
+                        if (MantraMaxLevelTextBox.Text != MantraMaxLevelTextBox.Tag.ToString())
+                        {
+                            if (!isSaveFileSelecting)
+                            {
+                                isEdit = true;
+                            }
+                        }
                     }
                 }
             }
@@ -4489,18 +5089,18 @@ namespace 侠之道存档修改器
                         id = "Player";
                     }
                     CharacterExteriorData ced = new CharacterExteriorData();
-                    if (!gameData.Exterior.ContainsKey(id))
+                    if (!Game.GameData.Exterior.ContainsKey(id))
                     {
                         CharacterExterior characterExterior = Data.Get<CharacterExterior>(id);
                         if (characterExterior != null)
                         {
                             ced = new CharacterExteriorData(characterExterior);
-                            gameData.Exterior.Add(id, ced);
+                            Game.GameData.Exterior.Add(id, ced);
                         }
                     }
                     else
                     {
-                        ced = gameData.Exterior[id];
+                        ced = Game.GameData.Exterior[id];
                     }
                     readSelectCharacterExteriorData(ced);
                 }
@@ -4547,10 +5147,18 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CharacterExteriorListView.SelectedItems)
                 {
-                    CharacterExteriorData ced = gameData.Exterior[lvi.Text];
+                    CharacterExteriorData ced = Game.GameData.Exterior[lvi.Text];
 
                     ced.SurName = SurNameTextBox.Text;
                     SurNameTextBox.Text = ced.SurName;
+
+                    if (SurNameTextBox.Text != SurNameTextBox.Tag.ToString())
+                    {
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
+                    }
                 }
 
                 readCommunity();
@@ -4581,10 +5189,18 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CharacterExteriorListView.SelectedItems)
                 {
-                    CharacterExteriorData ced = gameData.Exterior[lvi.Text];
+                    CharacterExteriorData ced = Game.GameData.Exterior[lvi.Text];
 
                     ced.Name = NameTextBox.Text;
                     NameTextBox.Text = ced.Name;
+
+                    if (NameTextBox.Text != NameTextBox.Tag.ToString())
+                    {
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
+                    }
                 }
                 readCommunity();
                 readExteriorName();
@@ -4614,10 +5230,18 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CharacterExteriorListView.SelectedItems)
                 {
-                    CharacterExteriorData ced = gameData.Exterior[lvi.Text];
+                    CharacterExteriorData ced = Game.GameData.Exterior[lvi.Text];
 
                     ced.Nickname = NicknameTextBox.Text;
                     NicknameTextBox.Text = ced.Nickname;
+
+                    if (NicknameTextBox.Text != NicknameTextBox.Tag.ToString())
+                    {
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -4644,9 +5268,19 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CharacterExteriorListView.SelectedItems)
                 {
-                    CharacterExteriorData ced = gameData.Exterior[lvi.Text];
+                    CharacterExteriorData ced = Game.GameData.Exterior[lvi.Text];
 
                     ced.Protrait = ProtraitTextBox.Text;
+
+                    ProtraitTextBox.Text = ced.Protrait;
+
+                    if (ProtraitTextBox.Text != ProtraitTextBox.Tag.ToString())
+                    {
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
+                    }
                     /*bool hasProtrait = false;
                     foreach (KeyValuePair<string, CharacterExterior> kv in Data.Get<CharacterExterior>())
                     {
@@ -4664,7 +5298,6 @@ namespace 侠之道存档修改器
                         messageLabel.Text = "未找到该头像编号";
                         LogHelper.Debug("未找到该头像编号");
 
-                        ModelTextBox.Text = ModelTextBox.Tag.ToString();
                     }*/
                 }
             }
@@ -4700,7 +5333,7 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CharacterExteriorListView.SelectedItems)
                 {
-                    CharacterExteriorData ced = gameData.Exterior[lvi.Text];
+                    CharacterExteriorData ced = Game.GameData.Exterior[lvi.Text];
 
                     bool hasModel = false;
                     foreach (KeyValuePair<string, CharacterExterior> kv in Data.Get<CharacterExterior>())
@@ -4722,10 +5355,18 @@ namespace 侠之道存档修改器
                                 string[] playerCharacters = new string[] { "in0196", "in0197", "in0101", "in0115" };
                                 for (int i = 0; i < playerCharacters.Length; i++)
                                 {
-                                    CharacterExteriorData cedtemp = gameData.Exterior[playerCharacters[i]];
+                                    CharacterExteriorData cedtemp = Game.GameData.Exterior[playerCharacters[i]];
                                     cedtemp.Model = kv.Value.Model;
                                     cedtemp.Gender = kv.Value.Gender;
                                     cedtemp.Size = kv.Value.Size;
+                                }
+                            }
+
+                            if (ModelTextBox.Text != ModelTextBox.Tag.ToString())
+                            {
+                                if (!isSaveFileSelecting)
+                                {
+                                    isEdit = true;
                                 }
                             }
                             break;
@@ -4764,10 +5405,19 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CharacterExteriorListView.SelectedItems)
                 {
-                    CharacterExteriorData ced = gameData.Exterior[lvi.Text];
+                    CharacterExteriorData ced = Game.GameData.Exterior[lvi.Text];
 
                     ced.Description = DescriptionTextBox.Text;
                     DescriptionTextBox.Text = ced.Description;
+
+
+                    if (DescriptionTextBox.Text != DescriptionTextBox.Tag.ToString())
+                    {
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -4786,7 +5436,7 @@ namespace 侠之道存档修改器
             {
                 foreach (ListViewItem lvi in CommunityListView.SelectedItems)
                 {
-                    CommunityData cd = gameData.Community[lvi.Text];
+                    CommunityData cd = Game.GameData.Community[lvi.Text];
 
                     CommunityLevelTextBox.Text = cd.Favorability.Level.ToString();
                     CommunityMaxLevelTextBox.Text = cd.Favorability.MaxLevel.ToString();
@@ -4837,10 +5487,18 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CommunityListView.SelectedItems)
                 {
-                    CommunityData cd = gameData.Community[lvi.Text];
+                    CommunityData cd = Game.GameData.Community[lvi.Text];
 
                     cd.Favorability.MaxLevel = maxLevel;
                     CommunityMaxLevelTextBox.Text = cd.Favorability.MaxLevel.ToString();
+
+                    if (CommunityMaxLevelTextBox.Text != CommunityMaxLevelTextBox.Tag.ToString())
+                    {
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -4872,14 +5530,14 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CommunityListView.SelectedItems)
                 {
-                    CommunityData cd = gameData.Community[lvi.Text];
+                    CommunityData cd = Game.GameData.Community[lvi.Text];
 
                     cd.Favorability.Level = Level;
                     CommunityLevelTextBox.Text = cd.Favorability.Level.ToString();
 
                     if (CharacterListView.SelectedItems.Count > 0 && CharacterListView.SelectedItems[0].Text == lvi.Text)
                     {
-                        CharacterInfoData cid = gameData.Character[lvi.Text];
+                        CharacterInfoData cid = Game.GameData.Character[lvi.Text];
                         if (cid.CommunityFormulaProperty == null)
                         {
                             cid.CommunityFormulaProperty = new Dictionary<string, int>
@@ -4920,6 +5578,14 @@ namespace 侠之道存档修改器
                         SpiTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Spi].Value.ToString();
                         SpiExtraTextBox.Text = cid.UpgradeableProperty[CharacterUpgradableProperty.Spi].Extra.ToString();
                     }
+
+                    if (CommunityLevelTextBox.Text != CommunityLevelTextBox.Tag.ToString())
+                    {
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -4951,10 +5617,18 @@ namespace 侠之道存档修改器
 
                 foreach (ListViewItem lvi in CommunityListView.SelectedItems)
                 {
-                    CommunityData cd = gameData.Community[lvi.Text];
+                    CommunityData cd = Game.GameData.Community[lvi.Text];
 
                     cd.Favorability.Exp = Exp;
                     CommunityExpTextBox.Text = cd.Favorability.Exp.ToString();
+
+                    if (CommunityExpTextBox.Text != CommunityExpTextBox.Tag.ToString())
+                    {
+                        if (!isSaveFileSelecting)
+                        {
+                            isEdit = true;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -4973,7 +5647,7 @@ namespace 侠之道存档修改器
             {
                 foreach (ListViewItem lvi in CommunityListView.SelectedItems)
                 {
-                    CommunityData cd = gameData.Community[lvi.Text];
+                    CommunityData cd = Game.GameData.Community[lvi.Text];
 
                     cd.isOpen = CommunityIsOpenCheckBox.Checked;
 
@@ -4984,6 +5658,11 @@ namespace 侠之道存档修改器
                     else
                     {
                         Game.GameData.NurturanceOrder.CloseCommunityOrder(lvi.Text);
+                    }
+
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
                     }
                 }
             }
@@ -5001,9 +5680,14 @@ namespace 侠之道存档修改器
             {
                 foreach (ListViewItem lvi in CommunityListView.SelectedItems)
                 {
-                    CommunityData cd = gameData.Community[lvi.Text];
+                    CommunityData cd = Game.GameData.Community[lvi.Text];
 
                     cd.Favorability.IsLover = CommunityIsLoverCheckBox.Checked;
+
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -5021,6 +5705,11 @@ namespace 侠之道存档修改器
                 foreach (ListViewItem lvi in CommunityListView.SelectedItems)
                 {
                     Game.GameData.Party.AddParty(lvi.Text, false);
+
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
                 }
                 readParty();
             }
@@ -5041,6 +5730,11 @@ namespace 侠之道存档修改器
                 {
                     index = lvi.Index;
                     Game.GameData.Party.RemoveParty(lvi.Text);
+
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
                 }
                 readParty();
 
@@ -5100,6 +5794,11 @@ namespace 侠之道存档修改器
                 {
                     Game.GameData.Flag[lvi.Text] += 1;
                     lvi.SubItems[1].Text = Game.GameData.Flag[lvi.Text].ToString();
+
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
                 }
                 FlagListView.EndUpdate();
                 readFlagLove();
@@ -5127,6 +5826,11 @@ namespace 侠之道存档修改器
                 {
                     Game.GameData.Flag[lvi.Text] += 10;
                     lvi.SubItems[1].Text = Game.GameData.Flag[lvi.Text].ToString();
+
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
                 }
                 FlagListView.EndUpdate();
                 readFlagLove();
@@ -5154,6 +5858,11 @@ namespace 侠之道存档修改器
                 {
                     Game.GameData.Flag[lvi.Text] -= 1;
                     lvi.SubItems[1].Text = Game.GameData.Flag[lvi.Text].ToString();
+
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
                 }
                 FlagListView.EndUpdate();
                 readFlagLove();
@@ -5181,6 +5890,11 @@ namespace 侠之道存档修改器
                 {
                     Game.GameData.Flag[lvi.Text] -= 10;
                     lvi.SubItems[1].Text = Game.GameData.Flag[lvi.Text].ToString();
+
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
                 }
                 FlagListView.EndUpdate();
                 readFlagLove();
@@ -5219,6 +5933,14 @@ namespace 侠之道存档修改器
                 Game.GameData.Flag["fg0201_MasterLove"] = love;
 
                 ctb_MasterLoveTextBox.Text = Game.GameData.Flag["fg0201_MasterLove"].ToString();
+
+                if (ctb_MasterLoveTextBox.Text != ctb_MasterLoveTextBox.Tag.ToString())
+                {
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
+                }
 
                 readFlag();
             }
@@ -5259,6 +5981,14 @@ namespace 侠之道存档修改器
                 Game.GameData.Flag["fg0202_MasterLove"] = love;
 
                 dxl_MasterLoveTextBox.Text = Game.GameData.Flag["fg0202_MasterLove"].ToString();
+
+                if (dxl_MasterLoveTextBox.Text != dxl_MasterLoveTextBox.Tag.ToString())
+                {
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
+                }
 
                 readFlag();
             }
@@ -5301,6 +6031,14 @@ namespace 侠之道存档修改器
 
                 dh_MasterLoveTextBox.Text = Game.GameData.Flag["fg0203_MasterLove"].ToString();
 
+                if (dh_MasterLoveTextBox.Text != dh_MasterLoveTextBox.Tag.ToString())
+                {
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
+                }
+
                 readFlag();
             }
             catch (Exception ex)
@@ -5341,6 +6079,14 @@ namespace 侠之道存档修改器
                 Game.GameData.Flag["fg0204_MasterLove"] = love;
 
                 lxp_MasterLoveTextBox.Text = Game.GameData.Flag["fg0204_MasterLove"].ToString();
+
+                if (lxp_MasterLoveTextBox.Text != lxp_MasterLoveTextBox.Tag.ToString())
+                {
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
+                }
 
                 readFlag();
             }
@@ -5383,6 +6129,14 @@ namespace 侠之道存档修改器
 
                 ht_MasterLoveTextBox.Text = Game.GameData.Flag["fg0205_MasterLove"].ToString();
 
+                if (ht_MasterLoveTextBox.Text != ht_MasterLoveTextBox.Tag.ToString())
+                {
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
+                }
+
                 readFlag();
             }
             catch (Exception ex)
@@ -5423,6 +6177,14 @@ namespace 侠之道存档修改器
                 Game.GameData.Flag["fg0206_MasterLove"] = love;
 
                 tsz_MasterLoveTextBox.Text = Game.GameData.Flag["fg0206_MasterLove"].ToString();
+
+                if (tsz_MasterLoveTextBox.Text != tsz_MasterLoveTextBox.Tag.ToString())
+                {
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
+                }
 
                 readFlag();
             }
@@ -5465,6 +6227,14 @@ namespace 侠之道存档修改器
 
                 fxlh_MasterLoveTextBox.Text = Game.GameData.Flag["fg0207_MasterLove"].ToString();
 
+                if (fxlh_MasterLoveTextBox.Text != fxlh_MasterLoveTextBox.Tag.ToString())
+                {
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
+                }
+
                 readFlag();
             }
             catch (Exception ex)
@@ -5506,6 +6276,14 @@ namespace 侠之道存档修改器
 
                 ncc_MasterLoveTextBox.Text = Game.GameData.Flag["fg0208_MasterLove"].ToString();
 
+                if (ncc_MasterLoveTextBox.Text != ncc_MasterLoveTextBox.Tag.ToString())
+                {
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
+                }
+
                 readFlag();
             }
             catch (Exception ex)
@@ -5546,6 +6324,14 @@ namespace 侠之道存档修改器
                 Game.GameData.Flag["fg0209_MasterLove"] = love;
 
                 mrx_MasterLoveTextBox.Text = Game.GameData.Flag["fg0209_MasterLove"].ToString();
+
+                if (mrx_MasterLoveTextBox.Text != mrx_MasterLoveTextBox.Tag.ToString())
+                {
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
+                }
 
                 readFlag();
             }
@@ -5589,6 +6375,14 @@ namespace 侠之道存档修改器
 
                 j_MasterLoveTextBox.Text = Game.GameData.Flag["fg0210_MasterLove"].ToString();
 
+                if (j_MasterLoveTextBox.Text != j_MasterLoveTextBox.Tag.ToString())
+                {
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
+                }
+
                 readFlag();
             }
             catch (Exception ex)
@@ -5628,6 +6422,14 @@ namespace 侠之道存档修改器
                 Game.GameData.Flag["fg0301_NpcLove"] = love;
 
                 xx_NpcLoveTextBox.Text = Game.GameData.Flag["fg0301_NpcLove"].ToString();
+
+                if (xx_NpcLoveTextBox.Text != xx_NpcLoveTextBox.Tag.ToString())
+                {
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
+                }
 
                 readFlag();
             }
@@ -5706,6 +6508,11 @@ namespace 侠之道存档修改器
                     }
                     Game.GameData.Quest.Passed.Remove(lvi.Text);
                     QuestStateComboBox.SelectedIndex = 0;
+
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -5728,6 +6535,11 @@ namespace 侠之道存档修改器
                     }
                     Game.GameData.Quest.Passed.Remove(lvi.Text);
                     QuestStateComboBox.SelectedIndex = 1;
+
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -5753,6 +6565,11 @@ namespace 侠之道存档修改器
                         Game.GameData.Quest.Passed.Add(lvi.Text);
                     }
                     QuestStateComboBox.SelectedIndex = 2;
+
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -5780,6 +6597,11 @@ namespace 侠之道存档修改器
                     }
                     readElective();
                     ElectiveListView.Items[index].Selected = true;
+
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -5818,6 +6640,11 @@ namespace 侠之道存档修改器
                     NurturanceOrderStateTextBox.Text = getNurturanceOrderContain(Game.GameData.NurturanceOrder.Root, lvi.Text) ? "开启" : "关闭";
 
                     lvi.SubItems[2].Text = getNurturanceOrderContain(Game.GameData.NurturanceOrder.Root, lvi.Text) ? "开启" : "关闭";
+
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -5837,6 +6664,11 @@ namespace 侠之道存档修改器
                     Game.GameData.NurturanceOrder.CloseOrder(lvi.Text);
                     NurturanceOrderStateTextBox.Text = getNurturanceOrderContain(Game.GameData.NurturanceOrder.Root, lvi.Text) ? "开启" : "关闭";
                     lvi.SubItems[2].Text = getNurturanceOrderContain(Game.GameData.NurturanceOrder.Root, lvi.Text) ? "开启" : "关闭";
+
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -5909,6 +6741,11 @@ namespace 侠之道存档修改器
                     int index = HavingBookListView.FindItemWithText(lvi.Text).Index;
                     HavingBookListView.EnsureVisible(index);
                     HavingBookListView.Items[index].Selected = true;
+
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -5936,6 +6773,11 @@ namespace 侠之道存档修改器
                     {
                         HavingBookListView.Items[index].Selected = true;
                     }
+
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -5954,6 +6796,11 @@ namespace 侠之道存档修改器
                 {
                     Game.GameData.Alchemy.Learn(lvi.Text);
                     lvi.SubItems[3].Text = Game.GameData.Alchemy.Learned.Contains(lvi.Text) ? "是" : "否";
+
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -5972,6 +6819,11 @@ namespace 侠之道存档修改器
                 {
                     Game.GameData.Alchemy.Learned.Remove(lvi.Text);
                     lvi.SubItems[3].Text = Game.GameData.Alchemy.Learned.Contains(lvi.Text) ? "是" : "否";
+
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -5990,6 +6842,11 @@ namespace 侠之道存档修改器
                 {
                     Game.GameData.Forge.Open(lvi.Text);
                     lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
+
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -6008,6 +6865,11 @@ namespace 侠之道存档修改器
                 {
                     Game.GameData.Forge.Opened.Remove(lvi.Text);
                     lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
+
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -6026,6 +6888,11 @@ namespace 侠之道存档修改器
                 {
                     Game.GameData.Forge.Open(lvi.Text);
                     lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
+
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -6044,6 +6911,11 @@ namespace 侠之道存档修改器
                 {
                     Game.GameData.Forge.Opened.Remove(lvi.Text);
                     lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
+
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -6062,6 +6934,11 @@ namespace 侠之道存档修改器
                 {
                     Game.GameData.Forge.Open(lvi.Text);
                     lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
+
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -6080,6 +6957,11 @@ namespace 侠之道存档修改器
                 {
                     Game.GameData.Forge.Opened.Remove(lvi.Text);
                     lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
+
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
                 }
 
             }
@@ -6099,6 +6981,11 @@ namespace 侠之道存档修改器
                 {
                     Game.GameData.Forge.Open(lvi.Text);
                     lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
+
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -6117,6 +7004,11 @@ namespace 侠之道存档修改器
                 {
                     Game.GameData.Forge.Opened.Remove(lvi.Text);
                     lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
+
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -6135,6 +7027,11 @@ namespace 侠之道存档修改器
                 {
                     Game.GameData.Forge.Open(lvi.Text);
                     lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
+
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -6153,6 +7050,11 @@ namespace 侠之道存档修改器
                 {
                     Game.GameData.Forge.Opened.Remove(lvi.Text);
                     lvi.SubItems[4].Text = Game.GameData.Forge.Opened.Contains(lvi.Text) ? "是" : "否";
+
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -6174,6 +7076,11 @@ namespace 侠之道存档修改器
 
                     Shop shop = Data.Get<Shop>(lvi.Text);
                     lvi.SubItems[6].Text = shopIsSoldOut(shop);
+
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -6199,6 +7106,11 @@ namespace 侠之道存档修改器
 
                     Shop shop = Data.Get<Shop>(lvi.Text);
                     lvi.SubItems[6].Text = shopIsSoldOut(shop);
+
+                    if (!isSaveFileSelecting)
+                    {
+                        isEdit = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -6270,7 +7182,7 @@ namespace 侠之道存档修改器
             {
                 Game.GameData.Character["Player"].Skill.Remove("");
 
-                gameData.Inventory.Remove("");
+                Game.GameData.Inventory.Remove("");
             }
             catch (Exception ex)
             {
@@ -6389,20 +7301,20 @@ namespace 侠之道存档修改器
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void addFlagButton_Click(object sender, EventArgs e)
         {
             LogHelper.Debug("button1_Click");
             string flag = SearchFlagTextBox.Text;
-            if (gameData.Flag.ContainsKey(flag))
+            if (Game.GameData.Flag.ContainsKey(flag))
             {
                 messageLabel.Text = "该旗标已存在";
                 LogHelper.Debug("该旗标已存在");
             }
             else
             {
-                gameData.Flag[flag] = 1;
+                Game.GameData.Flag[flag] = 1;
                 readFlag();
-                FlagListView.EnsureVisible(FlagListView.Items.Count-1);
+                FlagListView.EnsureVisible(FlagListView.Items.Count - 1);
             }
         }
     }
